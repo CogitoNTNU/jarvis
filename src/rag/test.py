@@ -2,13 +2,17 @@ import os
 
 import bs4
 from dotenv import load_dotenv
-from langchain import hub
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+from langchain import hub
+from langchain.chains import create_history_aware_retriever, create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
 
 load_dotenv()
 
@@ -34,18 +38,53 @@ vectorstore = Chroma.from_documents(chunks, OpenAIEmbeddings())
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 6})
 
 # Define RAG chain
-rag_chain = (
-    {
-        "context": retriever
-        | (lambda docs: "\n\n".join(doc.page_content for doc in docs)),
-        "question": RunnablePassthrough(),
-    }
-    | hub.pull("rlm/rag-prompt")
-    | llm
-    | StrOutputParser()
+rag_chain = create_retrieval_chain(
+    retriever,
+    create_stuff_documents_chain(
+        llm,
+        ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    (
+                        "You are an assistant for question-answering tasks. "
+                        "Use the following pieces of retrieved context to answer "
+                        "the question. If you don't know the answer, say that you "
+                        "don't know. Use three sentences maximum and keep the "
+                        "answer concise."
+                        "\n\n"
+                        "{context}"
+                    ),
+                ),
+                ("human", "{input}"),
+            ]
+        ),
+    ),
 )
 
+# Define history aware retriever
+history_aware_retriever = create_history_aware_retriever(
+    llm,
+    retriever,
+    ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                (
+                    "Given a chat history and the latest user question "
+                    "which might reference context in the chat history, "
+                    "formulate a standalone question which can be understood "
+                    "without the chat history. Do NOT answer the question, "
+                    "just reformulate it if needed and otherwise return it as is."
+                ),
+            ),
+            MessagesPlaceholder("chat_history"),
+            ("human"),
+            "{input}",
+        ]
+    ),
+)
 
 while (prompt := input("\n\n> ")) != "q":
-    for chunk in rag_chain.stream(prompt):
-        print(chunk, end="", flush=True)
+    for chunk in rag_chain.stream({"input": prompt}):
+        print(({"answer": ""} | chunk)["answer"], end="", flush=True)
