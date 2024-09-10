@@ -4,11 +4,11 @@ from langchain_core.messages import AIMessage, HumanMessage
 
 import json
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
 
 class JarvisAgent:
     def __init__(self):
@@ -23,7 +23,7 @@ class JarvisAgent:
             # organization="...",
             # other params...
         )
-        self.chat_history_path: str = "src/langchain/chat_history.json"
+        self.chat_history_path: str = "./chat_history.json"
         self.base_prompt = [("system", "You are a helpful personal assistant that helps the user with all their tasks and requests.")]
 
     def run(self, prompt: str):
@@ -47,9 +47,6 @@ class JarvisAgent:
                 history.append(HumanMessage(entry["Human"]))
                 history.append(AIMessage(entry["AI"]))
             return history
-
-
-        
 
     def save_chat_history(self, Humanmessage, AImessage) -> None:
         with open(self.chat_history_path, "r") as f:
