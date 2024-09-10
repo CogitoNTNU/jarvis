@@ -1,8 +1,8 @@
 from langchain_core.tools import tool
-from src.langchain.tools.add_tool import *
+from tools.add_tool import *
 
-def get_tools() -> List[(...) -> Any]:  # type: ignore
+def get_tools() -> list[StructuredTool]:
     tools = []
-    tools.append(get_tool)
+    tools.append(get_tool())
 
     return tools

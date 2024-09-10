@@ -1,4 +1,5 @@
 from langchain_core.tools import tool
+from langchain_core.tools.structured import StructuredTool
 
 @tool
 def add(a: int, b: int) -> int:
@@ -11,5 +12,5 @@ def add(a: int, b: int) -> int:
     """
     return a + b
 
-def get_tool() -> list[(...) -> Any]: # type: ignore
-    return [add]
+def get_tool() -> StructuredTool:
+    return add
