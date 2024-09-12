@@ -1,6 +1,9 @@
 # J.A.R.V.I.S
 
-<img src="docs/images/jarvis.webp" width="50%" alt="Cogito Image" style="display: block; margin-left: auto; margin-right: auto;">
+<div align="center">
+  <img src="docs/images/jarvis.webp" width="50%" alt="Cogito Image" style="display: block; margin-left: auto; margin-right: auto;">
+</div>
+
 <div align="center">
   <a href="https://github.com/CogitoNTNU/README-template/blob/main/LICENSE" alt="LICENSE">
           <img src="https://img.shields.io/badge/license-MIT-green"></a>
@@ -19,7 +22,7 @@
   - [Testing](#testing)
   - [Documentation](#documentation)
   - [Team](#team)
-    - [License](#license)
+  - [License](#license)
 
 </details>
 
@@ -46,7 +49,7 @@ Before you start, make sure the following tools are installed on your system to 
 ## Usage
 To run the project, run the following command from the root directory of the project:
 ```bash
-
+docker compose up --build
 ```
 
 ## Testing
@@ -111,5 +114,5 @@ This project would not have been possible without the hard work and dedication o
 
 <!-- ![Group picture](docs/img/team.png) -->
 
-### License
+## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
