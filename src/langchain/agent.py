@@ -9,7 +9,6 @@ from langchain_core.messages import BaseMessage
 from IPython.display import Image, display
 
 import json
-import sys
 import os
 import langchain
 langchain.verbose = False
@@ -101,10 +100,12 @@ class JarvisAgent:
 if __name__ == "__main__":
     agent = JarvisAgent()
     user_input = input("User: ")
-    for event in agent.__getGraph__.stream({"messages": [("user", user_input)]}):
+    for event in agent.__getGraph__().stream({"messages": [("user", user_input)]}):
         for value in event.values():
             if isinstance(value["messages"][-1], BaseMessage):
-                print("Assistant:", value["messages"][-1].content)     
+                print("Assistant:", value["messages"][-1].content) 
+
+
 
     
         
