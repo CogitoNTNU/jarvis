@@ -15,7 +15,6 @@ langchain.verbose = False
 #sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from dotenv import load_dotenv
-
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 

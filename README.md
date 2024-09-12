@@ -37,9 +37,16 @@
 
 ### About 
 -----
-This is a template README for projects by Cogito NTNU.   
+#### J.A.R.V.I.S
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+- Main functionality will be:
+- Natural conversation (TTS, Speech, Norsk?)
+- Simple function execution
+- Long term memory using RAG & Vector DBs
+- Reliability (Validate input & output)
+- Sub-processes (Do stuff while talking to the user, like browsing the web)
+
+
 ### Getting started
 ------
 
