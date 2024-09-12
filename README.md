@@ -1,45 +1,38 @@
-<div id="top"></div>
+# J.A.R.V.I.S
 
-
-<!--INSERT PICTURE REPRESENTATIVE OF PROJECT-->
 <div align="center">
-<img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.Khns8mi5ov-qN64yFABHmAHaE7%26pid%3DApi&f=1"></img>
-</div>
-<p align="center">
-<a href="https://github.com/CogitoNTNU/README-template/blob/main/LICENSE" alt="LICENSE">
-        <img src="https://img.shields.io/badge/license-MIT-green"></img></a>
+  <img src="docs/images/jarvis.webp" width="50%" alt="Cogito Image" style="display: block; margin-left: auto; margin-right: auto;">
 
-<a href="" alt="platform">
-        <img src="https://img.shields.io/badge/platform-linux%7Cwindows%7CmacOS-lightgrey"></img></a>
-<a href="" alt="version">
-        <img src="https://img.shields.io/badge/version-0.0.1-blue"></img></a>
-</p>
-<h3 align="center">README-template</h3>
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about">About</a>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-   <li><a href="#team">Team</a></li>
-    <li><a href="#license">License</a></li>
-  </ol>
+
+  <a href="https://github.com/CogitoNTNU/README-template/blob/main/LICENSE" alt="LICENSE">
+          <img src="https://img.shields.io/badge/license-MIT-green"></a>
+  <a href="" alt="platform">
+          <img src="https://img.shields.io/badge/platform-linux%7Cwindows%7CmacOS-lightgrey"></a>
+  <a href="" alt="version">
+          <img src="https://img.shields.io/badge/version-0.0.1-blue"></a>
+
+</div>
+<details> 
+<summary><b>📋 Table of contents </b></summary>
+
+- [J.A.R.V.I.S](#jarvis)
+  - [About](#about)
+  - [Prerequisites](#prerequisites)
+  - [Usage](#usage)
+  - [Testing](#testing)
+  - [Documentation](#documentation)
+  - [Team](#team)
+    - [License](#license)
+
 </details>
 
-### About 
------
-#### J.A.R.V.I.S
 
-- Main functionality will be:
+## About 
+Just A Rather Very Intelligent System (J.A.R.V.I.S). We’re building an AI assistant inspired by Iron Man's Jarvis, capable of managing and solving complex tasks autonomously. Users should be able to converse with Jarvis naturally. Similar to Jarvis in the movies, or the ChatGPT4o demo. 
+
+J.A.R.V.I.S is a voice-controlled AI assistant that can help you with various tasks. It is designed to be a personal assistant that can help you with everyday tasks, such as setting reminders, answering questions, and providing information. The goal of J.A.R.V.I.S is to make your life easier by providing you with the information you need when you need it.
+
+**Main functionality will be:**
 - Natural conversation (TTS, Speech, Norsk?)
 - Simple function execution
 - Long term memory using RAG & Vector DBs
@@ -47,47 +40,79 @@
 - Sub-processes (Do stuff while talking to the user, like browsing the web)
 
 
-### Getting started
-------
 
-#### Prerequisites
-In this section you put what is needed for the program to run.
-For example: OS version, programs, libraries, etc.  
+## Prerequisites
+Before you start, make sure the following tools are installed on your system to run the project:
+- **Git:** Version control system to clone the project repository [Download Git](https://git-scm.com/downloads)
+- **Docker:** To containerize the application and ensure it runs consistently across different environments [Download Docker](https://www.docker.com/products/docker-desktop)
 
-Eleifend quam adipiscing vitae proin sagittis nisl rhoncus. Tortor posuere ac ut consequat semper viverra nam libero. Malesuada fames ac turpis egestas integer eget aliquet nibh praesent. Orci dapibus ultrices in iaculis nunc. Morbi leo urna molestie at elementum eu facilisis. Elit sed vulputate mi sit amet mauris commodo quis imperdiet. Ullamcorper morbi tincidunt ornare massa eget. Condimentum lacinia quis vel eros donec ac odio tempor. Nisl vel pretium lectus quam id leo in vitae turpis. Augue mauris augue neque gravida in fermentum.
+## Usage
+To run the project, run the following command from the root directory of the project:
+```bash
 
-#### Installation
-In this Section you describe how to install this project in its intended environment.(i.e. how to get it to run)  
+```
 
-In ornare quam viverra orci. Orci eu lobortis elementum nibh tellus molestie nunc. Quisque sagittis purus sit amet volutpat consequat. Etiam dignissim diam quis enim lobortis scelerisque fermentum. Ut pharetra sit amet aliquam id diam maecenas. Integer feugiat scelerisque varius morbi enim nunc faucibus a pellentesque. Malesuada nunc vel risus commodo. Sit amet aliquam id diam maecenas ultricies mi eget. Faucibus vitae aliquet nec ullamcorper.
-#### Usage
-------
-In this section you describe how to use the program to obtain the desired result.  
+## Testing
+To run the test suite, run the following command from the root directory of the project:
+```bash
 
-At elementum eu facilisis sed. Viverra nam libero justo laoreet sit amet cursus sit amet. At consectetur lorem donec massa sapien. Quis auctor elit sed vulputate mi. Netus et malesuada fames ac turpis. Nibh cras pulvinar mattis nunc sed blandit libero. Enim blandit volutpat maecenas volutpat blandit. Ut faucibus pulvinar elementum integer. Turpis egestas integer eget aliquet nibh praesent. Lacus laoreet non curabitur gravida arcu ac tortor. Consectetur adipiscing elit duis tristique. Id aliquet lectus proin nibh nisl condimentum id. Urna id volutpat lacus laoreet non curabitur gravida. Mauris pharetra et ultrices neque. Laoreet id donec ultrices tincidunt arcu non sodales neque.
-### Team
-------
-<!--INSERT PICTURE OF TEAM-->
-<div align="center">
-<img src="https://cogito-ntnu.no/static/img/projects/erpokerpfpwekwpkerwer.png"></img>
-</div>
+```
 
-Right to left: [@example](https://github.com/Jonrodtang)    [@example](https://github.com/Jonrodtang)    [@example](https://github.com/Jonrodtang)    [@example](https://github.com/Jonrodtang)  
-#### Leader(s):
-- [Jon Rødtang](https://github.com/Jonrodtang)
-- [Example exampleson](https://github.com/Jonrodtang)
+## Documentation
+- [Developer Setup](docs/manuals/developer_setup.md)
 
-#### Team members:
-- [Example exampleson](https://github.com/Jonrodtang)
--  [Examplette examplesen](https://github.com/Jonrodtang)
-- [Examplar examples](https://github.com/Jonrodtang)
+## Team
+This project would not have been possible without the hard work and dedication of all of the contributors. Thank you for the time and effort you have put into making this project a reality.
+
+<table align="center">
+    <tr>
+        <td align="center">
+            <a href="https://github.com/EldarAlvik">
+              <img src="https://github.com/EldarAlvik.png?size=100" width="100px;" alt="EldarAlvik"/><br />
+              <sub><b>EldarAlvik</b></sub>
+            </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/igiwa001">
+              <img src="https://github.com/igiwa001.png?size=100" width="100px;" alt="igiwa001"/><br />
+              <sub><b>igiwa001</b></sub>
+            </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/JonBergland">
+              <img src="https://github.com/JonBergland.png?size=100" width="100px;" alt="Jon Bergland"/><br />
+              <sub><b>Jon Bergland</b></sub>
+            </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/klungg">
+              <img src="https://github.com/klungg.png?size=100" width="100px;" alt="klungg"/><br />
+              <sub><b>klungg</b></sub>
+            </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/martin0x48">
+              <img src="https://github.com/martin0x48.png?size=100" width="100px;" alt="martin0x48"/><br />
+              <sub><b>martin0x48</b></sub>
+            </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/TheStrgamer">
+              <img src="https://github.com/TheStrgamer.png?size=100" width="100px;" alt="Konrad Seime"/><br />
+              <sub><b>Konrad Seime</b></sub>
+            </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/WilliamMRS">
+              <img src="https://github.com/WilliamMRS.png?size=100" width="100px;" alt="William M Schmidt"/><br />
+              <sub><b>William M Schmidt</b></sub>
+            </a>
+        </td>
+    </tr>
+</table>
+
+
+<!-- ![Group picture](docs/img/team.png) -->
 
 ### License
-------
-Distributed under the MIT License. See `LICENSE` for more information.
-
-
-
-### Credits
-------
-Template by [@JonRodtang](https://github.com/Jonrodtang) for  [@CogitoNTNU](https://github.com/CogitoNTNU)  <p align="right">(<a href="#top">back to top</a>)</p>
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
