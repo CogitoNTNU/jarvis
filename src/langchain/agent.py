@@ -1,30 +1,64 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import MessagesPlaceholder
 from langchain_core.messages import AIMessage, HumanMessage
+from tools.tools import get_tools
+from graphstate import GraphState
+from langgraph.graph import StateGraph, START, END
+from langgraph.prebuilt import ToolNode, tools_condition
+from langchain_core.messages import BaseMessage
+from IPython.display import Image, display
 
 import json
 import os
-from dotenv import load_dotenv
+import langchain
+langchain.verbose = False
+#sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
+from dotenv import load_dotenv
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
 
 class JarvisAgent:
     def __init__(self):
         self.llm = ChatOpenAI(
             model="gpt-4o-mini",
-            temperature=0,
-            max_tokens=None,
-            timeout=None,
-            max_retries=2,
-            api_key=OPENAI_API_KEY,  # if you prefer to pass api key in directly instaed of using env vars
-            # base_url="...",
-            # organization="...",
-            # other params...
         )
-        self.chat_history_path: str = "src/langchain/chat_history.json"
+        self.chat_history_path: str = "./chat_history.json"
         self.base_prompt = [("system", "You are a helpful personal assistant that helps the user with all their tasks and requests.")]
+
+        self.llm_with_tools = self.llm.bind_tools(get_tools())
+        
+        self.workflow = StateGraph(GraphState)
+
+        # Adding nodes to the workflow
+        self.workflow.add_node("chatbot", self.chatbot)
+        self.workflow.add_node("tools", ToolNode(get_tools()))
+
+        # Defining edges between nodes
+        self.workflow.add_edge(START, "chatbot")
+        self.workflow.add_edge("tools", "chatbot")
+
+        # Defining conditional edges
+        self.workflow.add_conditional_edges(
+            "chatbot",
+            tools_condition
+        )
+
+        self.graph = self.workflow.compile()
+
+        display(Image(self.graph.get_graph().draw_mermaid_png()))
+
+
+    def chatbot(self, state: GraphState):
+        """
+        Simple bot that invokes the list of previous messages
+        and returns the result which will be added to the list of messages.
+        """
+        return {"messages": [self.llm.invoke(state["messages"])]}
+    
+
+    def __getGraph__(self):
+        return self.graph
 
     def run(self, prompt: str):
         """
@@ -48,9 +82,6 @@ class JarvisAgent:
                 history.append(AIMessage(entry["AI"]))
             return history
 
-
-        
-
     def save_chat_history(self, Humanmessage, AImessage) -> None:
         with open(self.chat_history_path, "r") as f:
             content = json.load(f)
@@ -60,23 +91,30 @@ class JarvisAgent:
         with open(self.chat_history_path, "w") as f:
             json.dump(content, f)
 
-agent = JarvisAgent()
-agent.run("Can you help me with my homework?")
+#agent.run("Can you help me with my homework?")
 # agent.read_chat_history()
 # agent.save_chat_history("Can you help me with my homework?", "Sure, what do you need help with?")
 # agent.read_chat_history()
-        
-        
+
+if __name__ == "__main__":
+    agent = JarvisAgent()
+    user_input = input("User: ")
+    for event in agent.__getGraph__().stream({"messages": [("user", user_input)]}):
+        for value in event.values():
+            if isinstance(value["messages"][-1], BaseMessage):
+                print("Assistant:", value["messages"][-1].content) 
+
+
 
     
         
     
 
 
-agent = JarvisAgent()
+#agent = JarvisAgent()
 # agent.run("Can you help me with my homework?")
 # agent.run("What did I say in the previous prompt?")
-agent.read_chat_history()
+# agent.read_chat_history()
 
 
 # messages = [

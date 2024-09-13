@@ -4,6 +4,7 @@ import bs4
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import WebBaseLoader
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnablePassthrough
@@ -85,6 +86,37 @@ history_aware_retriever = create_history_aware_retriever(
     ),
 )
 
+# Define question answer chain
+question_answer_chain = create_stuff_documents_chain(
+    llm,
+    ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                (
+                    "You are an assistant for question-answering tasks. "
+                    "Use the following pieces of retrieved context to answer "
+                    "the question. If you don't know the answer, say that you "
+                    "don't know. Use three sentences maximum and keep the "
+                    "answer concise."
+                    "\n\n"
+                    "{context}"
+                ),
+            ),
+            MessagesPlaceholder("chat_history"),
+            ("human", "{input}"),
+        ]
+    ),
+)
+
+# Define RAG chain
+rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
+
+chat_history = []
 while (prompt := input("\n\n> ")) != "q":
-    for chunk in rag_chain.stream({"input": prompt}):
+    answer = ""
+    for chunk in rag_chain.stream({"input": prompt, "chat_history": chat_history}):
         print(({"answer": ""} | chunk)["answer"], end="", flush=True)
+        answer += ({"answer": ""} | chunk)["answer"]
+
+    chat_history.extend([HumanMessage(content=prompt), AIMessage(content=answer)])
