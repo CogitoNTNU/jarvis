@@ -1,4 +1,3 @@
-
 import pyaudio
 import time
 import numpy as np
@@ -36,14 +35,13 @@ class AudioRecorder:
         # sys.stdout.flush()
         return rms < self.silence_threshold
     
-    def record(self):
+    def record(self, MERGE_SIZE=60, min_frames_with_sound=10):
         self.start_recording()
 
         self.audio_chunks = []
         silence_start = None
-
-        MERGE_SIZE = 20
-
+        frames_with_sound = 0
+        
         try:
             while True:
                 data = self.stream.read(self.chunk_size)
@@ -54,8 +52,10 @@ class AudioRecorder:
                     if silence_start is None:
                         silence_start = time.time()
                     
-                    if len(self.audio_chunks) >= MERGE_SIZE and time.time() - silence_start > 0.5:
-                        yield b''.join(self.audio_chunks)  
+                    if len(self.audio_chunks) >= MERGE_SIZE and time.time() - silence_start > 0.2:
+                        if frames_with_sound > min_frames_with_sound:
+                            yield b''.join(self.audio_chunks)  
+                            frames_with_sound = 0
                         self.audio_chunks = []
                         
 
@@ -64,6 +64,7 @@ class AudioRecorder:
                         break
                 else:
                     silence_start = None
+                    frames_with_sound += 1
 
         except KeyboardInterrupt:
             print("Recording stopped by user.")
