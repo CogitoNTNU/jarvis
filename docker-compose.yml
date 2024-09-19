@@ -20,7 +20,7 @@ services:
     environment:
       - FLASK_ENV=development # Autorestarts flask when code changes are detected
     volumes:
-    - ./langchain:/app  # Mount the application code
+      - ./langchain:/app  # Mount the application code
     networks:
       - backend
     stop_signal: SIGINT
@@ -31,8 +31,14 @@ services:
     build: ./speech
     env_file: .env
     restart: unless-stopped
-#    environment: 
-
+#    environment:
+    volumes:
+      - ./speech:/app
+    networks:
+      - backend
+    stop_signal: SIGINT
+    ports:
+      - "3069:3069" #nice
 
 networks:
   backend:
