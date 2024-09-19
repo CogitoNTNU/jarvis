@@ -65,10 +65,14 @@ app.post('/send_message', async (req, res) => {
     })
 })
 
-// TODO Setup a websocket connection for streaming results live.
+// TODO : Setup websockets to stream LLM output live to UI
 
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000')
 })
 
+console.log("testing123")
+
 messageLog = [] // History of the conversation
+
+//Hmm

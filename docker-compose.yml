@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./ui:/app  # Mount the application code
+      - /app/node_modules
     networks:
       - backend
     stop_signal: SIGINT
