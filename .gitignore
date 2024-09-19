@@ -131,3 +131,6 @@ dmypy.json
 # VSCode
 
 .vscode/
+
+#unnecessary to commit each time
+/src/langchain/graph_node_network.png
