@@ -1,6 +1,6 @@
 from langchain_openai import ChatOpenAI
-from src.langchain.graphstate import GraphState
-from src.langchain.tools.tools import get_tools
+from graphstate import GraphState
+from tools.tools import get_tools
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.messages import BaseMessage

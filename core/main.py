@@ -1,6 +1,6 @@
 from flask import Flask, request, url_for
-from src.langchain.agent import Agent
-from src.langchain.models import Model
+from agent import Agent
+from models import Model
 
 jarvis = Agent(Model.gpt_35)
 
