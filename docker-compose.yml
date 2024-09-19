@@ -1,13 +1,45 @@
+version: '3.8'
+
 services:
-  jupyter:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: jarvis-jupyter
-    ports:
-      - "8888:8888"
+  ui-service:
+    build: ./ui
+    env_file: .env
+    restart: unless-stopped
     volumes:
-      - .:/workspace
-    command: jupyter lab --ip=0.0.0.0 --no-browser --allow-root
+      - ./ui:/app  # Mount the application code
+    networks:
+      - backend
+    stop_signal: SIGINT
+    ports:
+      - "3000:3000"
+
+  llm-service:
+    build: ./langchain
+    env_file: .env
+    restart: unless-stopped
     environment:
-      - JUPYTER_ENABLE_LAB=yes
+      - FLASK_ENV=development # Autorestarts flask when code changes are detected
+    volumes:
+      - ./langchain:/app  # Mount the application code
+    networks:
+      - backend
+    stop_signal: SIGINT
+    ports:
+      - "3001:3001"
+
+  speech-service:
+    build: ./speech
+    env_file: .env
+    restart: unless-stopped
+#    environment:
+    volumes:
+      - ./speech:/app
+    networks:
+      - backend
+    stop_signal: SIGINT
+    ports:
+      - "3069:3069" #nice
+
+networks:
+  backend:
+    driver: bridge
