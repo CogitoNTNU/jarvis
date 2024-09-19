@@ -46,7 +46,9 @@ class JarvisAgent:
 
         self.graph = self.workflow.compile()
 
-        display(Image(self.graph.get_graph().draw_mermaid_png()))
+        #Saving image of graph node
+        with open("src/langchain/graph_node_network.png", 'wb') as f:
+            f.write(self.graph.get_graph().draw_mermaid_png())
 
 
     def chatbot(self, state: GraphState):
