@@ -3,6 +3,7 @@ from src.langchain.graphstate import GraphState
 from src.langchain.tools.tools import get_tools
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
+from langchain_core.messages import BaseMessage
 
 class Agent:
     def __init__(self, model_type) -> None:
@@ -38,5 +39,11 @@ class Agent:
         #print("Tools called: " + state_of_chatbot["name"][-1].content)
         
         return {"messages": [self.llm_with_tools.invoke(state["messages"])]}
+    
+    def run(self, user_prompt: str):
+        for event in self.graph.stream({"messages": [("user", user_prompt)]}):
+            for value in event.values():
+                if isinstance(value["messages"][-1], BaseMessage):
+                    return f"Assistant:", value["messages"][-1].content
 
     
