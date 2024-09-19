@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script  src="./index.js" defer></script>
+    <link rel="stylesheet" href="./index.css">
+    <title>Trainer AI</title>
+</head>
+    <body>
+        <h2 class="heading">Your personal trainer</h2>
+        <div id="chat_history_container">
+            <div name="history" id="chat_history">
+            </div>
+        </div>
+
+        <div class="chat_input_container">
+            <div id="chat_input">
+                <textarea type="text" id="chat_input_text" placeholder="Type a message..." value=""></textarea>
+            </div>
+        </div>
+        <button id="send_button">Send</button> 
+        <p style="display:inline;margin-left: 12px;">Parse AI output</p><input id="checkbox" style="margin-left: 12px;" type="checkbox" checked="true"></input>
+        <button id="clear_log">Clear chat log</button>
+    </body>
+</html>
