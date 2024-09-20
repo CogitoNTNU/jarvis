@@ -78,7 +78,7 @@ if __name__ == "__main__":
         
         text = []
         index = 0
-        for chunk in recorder.record(240):
+        for chunk in recorder.record(30):
             t = Thread(target=handle_chunk, args=(chunk,index))
             index += 1
             t.start()
