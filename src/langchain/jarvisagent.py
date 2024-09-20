@@ -2,23 +2,20 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import MessagesPlaceholder
 from langchain_core.messages import AIMessage, HumanMessage
 from tools.tools import get_tools
-from graphstate import GraphState
+from core.graphstate import GraphState
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.messages import BaseMessage
 from IPython.display import Image, display
 
-import json
-import sys
 import os
+import json
 import langchain
 langchain.verbose = False
 #sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from dotenv import load_dotenv
-
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise EnvironmentError("Missing OPENAI_API_KEY. Please add it to your .env file.")
 
 class JarvisAgent:
     def __init__(self):
@@ -48,7 +45,9 @@ class JarvisAgent:
 
         self.graph = self.workflow.compile()
 
-        display(Image(self.graph.get_graph().draw_mermaid_png()))
+        #Saving image of graph node
+        with open("src/langchain/graph_node_network.png", 'wb') as f:
+            f.write(self.graph.get_graph().draw_mermaid_png())
 
 
     def chatbot(self, state: GraphState):
@@ -56,7 +55,10 @@ class JarvisAgent:
         Simple bot that invokes the list of previous messages
         and returns the result which will be added to the list of messages.
         """
-        return {"messages": [self.llm.invoke(state["messages"])]}
+        #state_of_chatbot = self.llm_with_tools.invoke(state["messages"]).tool_calls
+        #print("Tools called: " + state_of_chatbot["name"][-1].content)
+        
+        return {"messages": [self.llm_with_tools.invoke(state["messages"])]}
     
 
     def __getGraph__(self):
@@ -69,7 +71,7 @@ class JarvisAgent:
         # messages = [("system", self.base_prompt + " This is their requst: " + prompt),
                     # ]
         # ai_msg = self.llm.invoke(messages)
-        ai_msg = self.llm.invoke({"input": "{prompt}", "chat_history": self.read_chat_history()})
+        ai_msg = self.llm.invoke({"input": prompt, "chat_history": self.read_chat_history()})
 
         self.save_chat_history(prompt, ai_msg.content)
         print(ai_msg.content)
@@ -101,10 +103,12 @@ class JarvisAgent:
 if __name__ == "__main__":
     agent = JarvisAgent()
     user_input = input("User: ")
-    for event in agent.__getGraph__.stream({"messages": [("user", user_input)]}):
+    for event in agent.__getGraph__().stream({"messages": [("user", user_input)]}):
         for value in event.values():
             if isinstance(value["messages"][-1], BaseMessage):
-                print("Assistant:", value["messages"][-1].content)     
+                print("Assistant:", value["messages"][-1].content) 
+
+
 
     
         

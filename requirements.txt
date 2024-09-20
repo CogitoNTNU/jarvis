@@ -1,8 +1,0 @@
-langchain
-langchain_openai
-python-dotenv
-bs4
-langchain_chroma
-langchain_community
-langchain_core
-langchain_text_splitters
