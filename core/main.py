@@ -1,6 +1,8 @@
 from flask import Flask, request, url_for
 from agent import Agent
 from models import Model
+from summarize_chat import summarize_chat
+from rag import embed_and_store
 
 jarvis = Agent(Model.gpt_4o) # API key is configured in agent.py
 
@@ -25,6 +27,20 @@ def llm_request():
         print(data['message'])
         ai_message = prompt_jarvis(data['message'])
         return {"message": ai_message}
+
+@app.route('/vectorize_chat', methods=['POST'])
+def summarize_store():
+    data = request.json
+    chat_history = data.get('chat_history')
+    user_id = data.get('user_id')
+
+    if not chat_history or not user_id:
+        return {"error": "chat_history and user_id are required"}, 400
+
+    summary = summarize_chat(chat_history)
+    embed_and_store(summary, user_id)
+
+    return {"status": "success", "summary": summary}
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port='3001')
