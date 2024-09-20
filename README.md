@@ -51,6 +51,15 @@ To run the project, run the following command from the root directory of the pro
 ```bash
 docker compose up --build
 ```
+if (on windows) it has issues with port permissions do
+
+```bash
+net stop winnat
+docker compose up --build
+net start winnat
+```
+
+The "--build" flag on the docker command is to rebuild the images with any code changes. It's strictly not necessary if you're not modifying code.
 
 ## Testing
 To run the test suite, run the following command from the root directory of the project:
