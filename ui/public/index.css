@@ -45,6 +45,17 @@ body {
     overflow-y: scroll;
 }
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+#chat_history::-webkit-scrollbar {
+    display: none;
+}
+  
+/* Hide scrollbar for IE, Edge and Firefox */
+#chat_history {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
 #chat_input {
     border-radius: 12px;
     height: 10vh;
@@ -53,6 +64,16 @@ body {
     border: 1px solid #000;
     background-color: #434343;
     overflow-y: scroll;
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+#chat_input::-webkit-scrollbar {
+    display: none;
+}
+  
+/* Hide scrollbar for IE, Edge and Firefox */
+#chat_input {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
 
 #chat_input_text {
