@@ -1,10 +1,13 @@
-from flask import Flask, request
-from src.langchain.agent import Agent
-from src.langchain.models import Model
+from flask import Flask, request, url_for
+from agent import Agent
+from models import Model
 
 jarvis = Agent(Model.gpt_35)
 
 def prompt_jarvis(prompt) -> str:
+    """
+    A function that prompts the llm agent with the argument given and returns the response
+    """
     return jarvis.run(prompt)
 
 
@@ -24,5 +27,5 @@ def llm_request():
         return {"message": ai_message}
 
 if __name__ == '__main__':
-    app.run(debug=True, port='placeholder', host='placeholder')
-
+    app.run(debug=True, host='0.0.0.0')
+    #app.run(debug=True, port='placeholder', host='placeholder')
