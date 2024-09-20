@@ -28,7 +28,6 @@ requestResponseLLM = async (message, conversation_id) => {
       });
       
       const jsonData = await res.json();
-      console.log(jsonData)
       return jsonData
     } catch (err) {
       console.log(err); //can be console.error
@@ -53,11 +52,15 @@ app.get('/clear_chat_history', async (req, res) => {
 })
 
 app.post('/send_message', async (req, res) => {
+    // Variables from the UI
     const message = req.body.message
     const conversation_id = req.body.conversation_id
     
     let aiResponse = await requestResponseLLM(message, conversation_id)
+
+
     messageLog.push(message)
+    messageLog.push(aiResponse["message"][1])
 
     res.json({
       "aiResponse": aiResponse,
@@ -71,4 +74,4 @@ app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000')
 })
 
-messageLog = [] // History of the conversation
+messageLog = [] // History of the conversation - saved only on ui server
