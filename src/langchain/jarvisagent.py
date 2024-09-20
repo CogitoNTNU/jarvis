@@ -8,15 +8,14 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.messages import BaseMessage
 from IPython.display import Image, display
 
-import json
 import os
+import json
 import langchain
 langchain.verbose = False
 #sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from dotenv import load_dotenv
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise EnvironmentError("Missing OPENAI_API_KEY. Please add it to your .env file.")
 
 class JarvisAgent:
     def __init__(self):
@@ -72,7 +71,7 @@ class JarvisAgent:
         # messages = [("system", self.base_prompt + " This is their requst: " + prompt),
                     # ]
         # ai_msg = self.llm.invoke(messages)
-        ai_msg = self.llm.invoke({"input": "{prompt}", "chat_history": self.read_chat_history()})
+        ai_msg = self.llm.invoke({"input": prompt, "chat_history": self.read_chat_history()})
 
         self.save_chat_history(prompt, ai_msg.content)
         print(ai_msg.content)

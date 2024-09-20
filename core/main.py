@@ -2,7 +2,7 @@ from flask import Flask, request, url_for
 from agent import Agent
 from models import Model
 
-jarvis = Agent(Model.gpt_35)
+jarvis = Agent(Model.gpt_4o) # API key is configured in agent.py
 
 def prompt_jarvis(prompt) -> str:
     """
@@ -27,5 +27,5 @@ def llm_request():
         return {"message": ai_message}
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port='3001')
     #app.run(debug=True, port='placeholder', host='placeholder')

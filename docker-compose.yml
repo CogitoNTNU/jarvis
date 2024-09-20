@@ -14,19 +14,19 @@ services:
     ports:
       - "3000:3000"
 
-#  llm-service:
-#    build: ./core
-#    env_file: .env
-#    restart: unless-stopped
-#    environment:
-#      - FLASK_ENV=development # Autorestarts flask when code changes are detected
-#    volumes:
-#      - ./core:/app  # Mount the application code to detect live changes
-#    networks:
-#      - backend
-#    stop_signal: SIGINT
-#    ports:
-#      - "3001:3001"
+  llm-service:
+    build: ./core
+    env_file: .env
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=development # Autorestarts flask when code changes are detected
+    volumes:
+      - ./core:/app  # Mount the application code to detect live changes
+    networks:
+      - backend
+    stop_signal: SIGINT
+    ports:
+      - "3001:3001"
 
 #  speech-service:
 #    build: ./speech
