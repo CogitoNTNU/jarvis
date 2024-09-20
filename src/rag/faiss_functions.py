@@ -1,80 +1,121 @@
 import os, json, tiktoken, faiss
+from datetime import datetime
 import numpy as np
 from openai import OpenAI
-from typing import List, Tuple
+
+from typing import List, Tuple, Dict
 
 # Set up OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Constants
 EMBEDDING_DIMENSION = 3072
-INDEX_FILE_TEMPLATE = "faiss_index_{user_id}.bin"
-MAPPING_FILE_TEMPLATE = "id_to_text_{user_id}.json"
+INDEX_FILE = "faiss_index.bin"
+MAPPING_FILE = "id_to_metadata.json"
+USER_VECTOR_MAP_FILE = "user_to_vector_ids.json"
 EMBEDDING_MODEL = "text-embedding-3-large"
 
-def get_index_file_path(user_id: str) -> str:
-    return INDEX_FILE_TEMPLATE.format(user_id=user_id)
+def create_or_load_index() -> faiss.IndexIDMap2:
+    if os.path.exists(INDEX_FILE):
+        index = faiss.read_index(INDEX_FILE)
+        if not isinstance(index, faiss.IndexIDMap2):
+            index = faiss.IndexIDMap2(index)
+        return index
+    base_index = faiss.IndexFlatL2(EMBEDDING_DIMENSION)
+    return faiss.IndexIDMap2(base_index)
 
-def get_mapping_file_path(user_id: str) -> str:
-    return MAPPING_FILE_TEMPLATE.format(user_id=user_id)
-
-def create_or_load_index(user_id: str):
-    index_path = get_index_file_path(user_id)
-    if os.path.exists(index_path):
-        return faiss.read_index(index_path)
-    return faiss.IndexFlatL2(EMBEDDING_DIMENSION)
-
-def load_id_to_text_mapping(user_id: str):
-    mapping_path = get_mapping_file_path(user_id)
-    if os.path.exists(mapping_path):
-        with open(mapping_path, 'r') as f:
+def load_id_to_metadata() -> Dict[str, Dict]:
+    if os.path.exists(MAPPING_FILE):
+        with open(MAPPING_FILE, 'r') as f:
             return json.load(f)
     return {}
 
-def save_index(index, user_id: str):
-    faiss.write_index(index, get_index_file_path(user_id))
+def load_user_to_vector_ids() -> Dict[str, List[int]]:
+    if os.path.exists(USER_VECTOR_MAP_FILE):
+        with open(USER_VECTOR_MAP_FILE, 'r') as f:
+            return json.load(f)
+    return {}
 
-def save_id_to_text_mapping(mapping, user_id: str):
-    with open(get_mapping_file_path(user_id), 'w') as f:
+def save_index(index):
+    faiss.write_index(index, INDEX_FILE)
+
+def save_id_to_metadata(mapping: Dict[str, Dict]):
+    with open(MAPPING_FILE, 'w') as f:
         json.dump(mapping, f)
 
+def save_user_to_vector_ids(user_vector_map: Dict[str, List[int]]):
+    with open(USER_VECTOR_MAP_FILE, 'w') as f:
+        json.dump(user_vector_map, f)
+
 def embed_and_store(text: str, user_id: str):
-    index = create_or_load_index(user_id)
-    id_to_text = load_id_to_text_mapping(user_id)
+    index = create_or_load_index()
+    id_to_metadata = load_id_to_metadata()
+    user_to_vector_ids = load_user_to_vector_ids()
     
     embedding = get_embedding(text)
-    vector_id = len(id_to_text)
+    vector_id = len(id_to_metadata)
     
-    index.add(np.array([embedding], dtype=np.float32))
-    id_to_text[str(vector_id)] = text
+    # Encode user_id into vector_id (e.g., high bits for user, low bits for vector)
+    encoded_id = encode_user_vector_id(user_id, vector_id)
     
-    save_index(index, user_id)
-    save_id_to_text_mapping(id_to_text, user_id)
+    index.add_with_ids(np.array([embedding], dtype=np.float32), np.array([encoded_id]))
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    id_to_metadata[str(encoded_id)] = {"user_id": user_id, "text": f"Samtale fra {current_date}:\n{text}"}
+    
+    user_to_vector_ids.setdefault(user_id, []).append(encoded_id)
+    
+    save_index(index)
+    save_id_to_metadata(id_to_metadata)
+    save_user_to_vector_ids(user_to_vector_ids)
+
+def encode_user_vector_id(user_id: str, vector_id: int) -> int:
+    # Simple encoding: hash user_id and shift to make space for vector_id
+    user_hash = int.from_bytes(user_id.encode('utf-8'), 'little') & 0xFFFFFFFF
+    return (user_hash << 32) | vector_id
 
 def get_embedding(text: str) -> List[float]:
     response = client.embeddings.create(
-        input=text,
+        input=f"{text}",
+
         model=EMBEDDING_MODEL
     )
     return response.data[0].embedding
 
 def similarity_search(query: str, user_id: str, k: int = 2) -> List[Tuple[str, float]]:
-    index = create_or_load_index(user_id)
-    id_to_text = load_id_to_text_mapping(user_id)
+    index = create_or_load_index()
+    id_to_metadata = load_id_to_metadata()
+    user_to_vector_ids = load_user_to_vector_ids()
+    
+    if user_id not in user_to_vector_ids or not user_to_vector_ids[user_id]:
+        return []
+    
+    user_ids = np.array(user_to_vector_ids[user_id], dtype=np.int64)
     
     if index.ntotal == 0:
         return []
     
     query_embedding = get_embedding(query)
     
-    distances, indices = index.search(np.array([query_embedding], dtype=np.float32), k)
+    # Create a temporary index for the user's vectors
+    temp_index = faiss.IndexFlatL2(EMBEDDING_DIMENSION)
+    user_embeddings = []
+    for vid in user_to_vector_ids[user_id]:
+        vec = index.reconstruct(vid)
+        user_embeddings.append(vec)
+    user_embeddings = np.array(user_embeddings).astype('float32')
+    temp_index.add(user_embeddings)
+    
+    distances, indices = temp_index.search(np.array([query_embedding], dtype=np.float32), k)
     
     results = []
-    for i, idx in enumerate(indices[0]):
-        if idx != -1:
-            text = id_to_text.get(str(idx), "")
-            similarity = 1 / (1 + distances[0][i])
-            results.append((text, similarity))
+    for dist, idx in zip(distances[0], indices[0]):
+        if idx == -1:
+            continue
+        encoded_id = user_to_vector_ids[user_id][idx]
+        metadata = id_to_metadata.get(str(encoded_id))
+        if metadata:
+            similarity = 1 / (1 + dist)
+            results.append((metadata["text"], similarity))
     
     return results
 
@@ -108,15 +149,16 @@ def split_text_into_chunks(text: str, min_tokens: int = 200, model: str = EMBEDD
 
 # Example usage
 if __name__ == "__main__":
-    user_id = "user_123"  # Example user ID
+    user_id = "10011"  # Example user ID
     
     # Embed and store some texts
-    #embed_and_store("The quick brown fox jumps over the lazy dog.", user_id)
-    #embed_and_store("Python is a versatile programming language.", user_id)
-    #embed_and_store("Machine learning is a subset of artificial intelligence.", user_id)
+    embed_and_store("The stars twinkle brightly in the night sky.", user_id)
+    embed_and_store("Cooking is an art that brings people together.", user_id)
+    embed_and_store("Traveling opens your mind to new cultures and experiences.", user_id)
+
 
     # Perform similarity search
-    query = "Hva er ki-strategi?"
+    query = "What is cooking?"
     results = similarity_search(query, user_id)
     
     print(f"Query: {query}")
