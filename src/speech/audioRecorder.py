@@ -28,7 +28,7 @@ class AudioRecorder:
 
     def silent(self, data):
         audio_data = np.frombuffer(data, dtype=np.int16)
-        if np.isnan(audio_data).any():
+        if np.isnan(audio_data).any() or np.mean(audio_data**2) <= 0:
             return True
         rms = np.sqrt(np.mean(audio_data ** 2))
         # sys.stdout.write(f"\rRMS: {rms}")
@@ -41,7 +41,8 @@ class AudioRecorder:
         self.audio_chunks = []
         silence_start = None
         frames_with_sound = 0
-        
+        MERGE_SIZE_UPPER = MERGE_SIZE * 3
+
         try:
             while True:
                 data = self.stream.read(self.chunk_size)
@@ -52,7 +53,7 @@ class AudioRecorder:
                     if silence_start is None:
                         silence_start = time.time()
                     
-                    if len(self.audio_chunks) >= MERGE_SIZE and time.time() - silence_start > 0.2:
+                    if len(self.audio_chunks) >= MERGE_SIZE and time.time() - silence_start > 0.2 or len(self.audio_chunks) >= MERGE_SIZE_UPPER:
                         if frames_with_sound > min_frames_with_sound:
                             yield b''.join(self.audio_chunks)  
                             frames_with_sound = 0
