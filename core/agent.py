@@ -22,6 +22,7 @@ class Agent:
         # Adding nodes to the workflow
         self.workflow.add_node("chatbot", self.chatbot)
         self.workflow.add_node("tools", ToolNode(get_tools()))
+        # TODO: Visualize these tools
 
         # Defining edges between nodes
         self.workflow.add_edge(START, "chatbot")
@@ -48,6 +49,7 @@ class Agent:
     def run(self, user_prompt: str):
         for event in self.graph.stream({"messages": [("user", user_prompt)]}):
             for value in event.values():
+                print(value)
                 if isinstance(value["messages"][-1], BaseMessage):
                     return f"Assistant:", value["messages"][-1].content
 

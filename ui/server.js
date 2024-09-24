@@ -12,27 +12,6 @@ app.get('/', (req, res) => {
 // Links, constants
 llm_url = 'http://llm-service:3001/send_message' // Can use "llm-service" and not internal ip thanks to docker
 
-requestResponseLLM = async (message, conversation_id) => {
-    try {
-      const res = await fetch(llm_url, {
-        method: "post",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-
-        body: JSON.stringify({
-          message: message,
-          conversation_id: conversation_id
-        })
-      });
-      
-      const jsonData = await res.json();
-      return jsonData
-    } catch (err) {
-      console.log(err); //can be console.error
-    }
-}
 
 app.get('/clear_chat_history', async (req, res) => {
   try {
@@ -51,14 +30,35 @@ app.get('/clear_chat_history', async (req, res) => {
   }
 })
 
+// Called by UI when the user types a message and sends it
 app.post('/send_message', async (req, res) => {
     // Variables from the UI
     const message = req.body.message
     const conversation_id = req.body.conversation_id
+
+    console.log("HELLO THERE")
     
-    let aiResponse = await requestResponseLLM(message, conversation_id)
+    let aiResponse
+    try {
+      aiResponse = await fetch(llm_url, {
+        method: "post",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
 
-
+        body: JSON.stringify({
+          message: message,
+          conversation_id: conversation_id
+        })
+      });
+      
+      const jsonData = await res.json();
+      return jsonData
+    } catch (err) {
+      console.error(err); //can be console.error
+    }
+    
     messageLog.push(message)
     messageLog.push(aiResponse["message"][1])
 
