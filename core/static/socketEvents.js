@@ -34,6 +34,7 @@ socket.on("chunk", (token)=>{
 let closeStreamedAIMessage = () => {
     console.log("Message end")
 }
+
 let openStreamedAIMessage = () => {
     console.log("Message start")
     // create an AI message in html, with its own ID (ai_message_0, ai_message_1 etc.)
