@@ -3,7 +3,7 @@ from graphstate import GraphState
 from tools.tools import get_tools
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_core.messages import BaseMessage
+from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage
 from models import Model
 
 import os
@@ -20,6 +20,7 @@ class Agent:
         self.llm = ChatOpenAI(
             model=model_type,
             temperature=0,
+            max_tokens=512,
         )
 
         self.llm_with_tools = self.llm.bind_tools(get_tools())
@@ -74,10 +75,28 @@ class Agent:
         """
         Run the agent with a user prompt and return the output.
         """
+        first = True
         for event in self.graph.stream({"messages": [("user", user_prompt)]}):
+            print(event)
             for value in event.values():
-                if isinstance(value["messages"][-1], BaseMessage):
-                    return f"Assistant:", value["messages"][-1].content
+                messages = value["messages"][-1]
+                gathered = ""
+                # if messages.content and not isinstance(messages, HumanMessage):
+                #     print(messages.content, end="|", flush=True)
+
+                if isinstance(messages, AIMessageChunk):
+                    if first:
+                        gathered = messages
+                        first = False
+                    else:
+                        gathered += messages
+
+                if isinstance(messages, BaseMessage):
+                    total_tokens = messages.usage_metadata.get('total_tokens', 0)
+                    #messages = messages.content
+                    print(gathered)
+
+                    return f"Assistant:", messages.content, gathered, total_tokens, f"Total tokens used {total_tokens}"
                 
     #for testing in terminal
     """ def run(self, user_prompt: str):
