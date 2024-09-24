@@ -1,6 +1,6 @@
 from langchain_core.tools import tool, StructuredTool
-import tools.add_tool
-import tools.weather_tool
+import tools.add_tool as add_tool
+import tools.weather_tool as weather_tool
 
 def get_tools() -> list[StructuredTool]:
     tools = []
