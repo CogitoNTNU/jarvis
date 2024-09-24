@@ -1,7 +1,7 @@
 // socket library is loaded beforehand
 
 // TODO: add this port to .env later
-var socket = io("ws://localhost:3001"); // websocket querying port 3001, where Flask is running.
+var socket = io("ws://localhost:3000"); // websocket querying port 3001, where Flask is running.
 
 socket.on('connect', () => {
     socket.emit('message', {data: 'I\'m connected!'});
