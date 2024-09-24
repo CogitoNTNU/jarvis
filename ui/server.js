@@ -32,9 +32,8 @@ app.get('/clear_chat_history', async (req, res) => {
 
 // Called by UI when the user types a message and sends it
 app.post('/send_message', async (req, res) => {
-    // Variables from the UI
-    const message = req.body.message
-    const conversation_id = req.body.conversation_id
+    const message = req.body.message 
+    const conversation_id = req.body.conversation_id // active_conversation_id
 
     console.log("HELLO THERE")
     
