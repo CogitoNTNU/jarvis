@@ -39,7 +39,9 @@ J.A.R.V.I.S is a voice-controlled AI assistant that can help you with various ta
 - Reliability (Validate input & output)
 - Sub-processes (Do stuff while talking to the user, like browsing the web)
 
-
+## Reminder - Not suited for production
+Traffic on this application is NOT encrypted.
+Only host it yourself and do NOT deploy to a public server where others can access the site.
 
 ## Prerequisites
 Before you start, make sure the following tools are installed on your system to run the project:

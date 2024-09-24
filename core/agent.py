@@ -7,6 +7,7 @@ from langchain_core.messages import BaseMessage
 from models import Model
 
 import os
+import json
 from dotenv import load_dotenv
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -18,7 +19,9 @@ class Agent:
 
         self.llm = ChatOpenAI(
             model=model_type,
+            temperature=0,
         )
+
         self.llm_with_tools = self.llm.bind_tools(get_tools())
         
         self.workflow = StateGraph(GraphState)
@@ -26,6 +29,7 @@ class Agent:
         # Adding nodes to the workflow
         self.workflow.add_node("chatbot", self.chatbot)
         self.workflow.add_node("tools", ToolNode(get_tools()))
+        # TODO: Visualize these tools
 
         # Defining edges between nodes
         self.workflow.add_edge(START, "chatbot")
@@ -37,7 +41,7 @@ class Agent:
             tools_condition
         )
 
-        self.graph = self.workflow.compile()
+        self.graph = self.workflow.compile() # Compiles the workflow in a graph.
 
         #Saving image of graph node comment in and out as needed
         #with open("core/graph_node_network.png", 'wb') as f:
@@ -52,9 +56,25 @@ class Agent:
         #print("Tools called: " + state_of_chatbot["name"][-1].content)
         
         return {"messages": [self.llm_with_tools.invoke(state["messages"])]}
+
+
+# UNFINISHED
+    def run_stream(self, user_prompt: str):
+        """
+        Run the agent, returning a token stream.
+        """
+        print('Running stream...')
+        print(user_prompt)
+        print(type(user_prompt))
+        for chunk in self.llm.stream(user_prompt):
+            yield chunk.content
+
     
     #for running the agent comment out for testing in terminal
     def run(self, user_prompt: str):
+        """
+        Run the agent with a user prompt and return the output.
+        """
         for event in self.graph.stream({"messages": [("user", user_prompt)]}):
             for value in event.values():
                 if isinstance(value["messages"][-1], BaseMessage):
@@ -72,3 +92,5 @@ if __name__ == "__main__":
     while True:
         user_prompt = input("User: ")
         agent.run(user_prompt) """
+    
+# Counting tokens: https://python.langchain.com/docs/how_to/llm_token_usage_tracking/
