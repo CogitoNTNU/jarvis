@@ -67,12 +67,12 @@ class Agent:
             yield chunk.content
 
     #for running the agent comment out for testing in terminal
-    def run(self, user_prompt: str):
+    async def run(self, user_prompt: str):
         """
         Run the agent with a user prompt and return the output.
         """
         first = True
-        for event in self.graph.stream({"messages": [("user", user_prompt)]}):
+        async for event in self.graph.stream({"messages": [("user", user_prompt)]}):
             print(event)
             for value in event.values():
                 messages = value["messages"][-1]
