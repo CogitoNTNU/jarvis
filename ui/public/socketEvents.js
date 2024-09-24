@@ -7,16 +7,41 @@ socket.on('connect', () => {
     socket.emit('message', {data: 'I\'m connected!'});
 });
 
+let tokenCounter = 0
+let msgCounter = 0
+let totalTokens = 0
+
 // prints tokens that are streamed to the console
 socket.on("chunk", (token)=>{
-    console.log(token)
-    console.log('GOT A CHUNK')
+    if (tokenCounter == 0 && token.length == 0){
+        openStreamedAIMessage()
+    }else if(token.length == 0){
+        // Ending token received, close the message
+        closeStreamedAIMessage()
+        console.log("Tokens:", tokenCounter)
+
+        totalTokens += tokenCounter
+        console.log("Total tokens so far:", totalTokens)
+
+        tokenCounter = 0
+        msgCounter ++
+    }else{
+        console.log(token)
+    }
+    tokenCounter ++
 })
 
-let emitEvent = async () => {
-    let res = await socket.emit('message', {data: 'Hello from the site!'})
-    console.log(res)
+let closeStreamedAIMessage = () => {
+    console.log("Message end")
 }
+let openStreamedAIMessage = () => {
+    console.log("Message start")
+    // create an AI message in html, with its own ID (ai_message_0, ai_message_1 etc.)
+    id = "ai_message_" + msgCounter
+    // append to its innerText as the streams come through.
+}
+
+// Remember to parse the streamed response
 
 /*
         let shouldParse = document.getElementById("checkbox").checked
@@ -28,7 +53,5 @@ let emitEvent = async () => {
         let chat_history = document.getElementById("chat_history")
         chat_history.scrollTop = chat_history.scrollHeight;
 */
-
-
 
 console.log('socketEvents.js loaded...')
