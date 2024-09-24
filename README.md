@@ -32,7 +32,7 @@ Just A Rather Very Intelligent System (J.A.R.V.I.S). We’re building an AI assi
 
 J.A.R.V.I.S is a voice-controlled AI assistant that can help you with various tasks. It is designed to be a personal assistant that can help you with everyday tasks, such as setting reminders, answering questions, and providing information. The goal of J.A.R.V.I.S is to make your life easier by providing you with the information you need when you need it.
 
-![plot](./IMG_9530.jpg)
+<img src="IMG_9530.jpg" alt="jarvis_meme" width="200"/>
 
 **Main functionality will be:**
 - Natural conversation (TTS, Speech, Norsk?)
