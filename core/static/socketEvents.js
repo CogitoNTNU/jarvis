@@ -14,8 +14,7 @@ let msgCounter = 0
 socket.on("chunk", (token)=>{
     if (tokenCounter == 0 && token.length == 0){
         openStreamedAIMessage()
-    }else if(token.length == 0){
-        // Ending token received, close the message
+    }else if(token.length == 0){ // Ending token received, close the message
         closeStreamedAIMessage()
         console.log("Tokens:", tokenCounter)
 

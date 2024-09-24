@@ -12,7 +12,6 @@ state = {
     totalTokensUsed: 0
 }
 
-
 clear_log = async () => {
     try{
         res = await fetch('/clear_chat_history')

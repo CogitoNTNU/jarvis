@@ -67,11 +67,14 @@ def disconnect():
 # Custom event. Fired when the user sends a prompt.
 @socketio.on('user_prompt')
 def handle_prompt(data):
-    conversation_id = data['conversation_id'] # grabs the conversation ID
-    stream = jarvis.run_stream_only(data['prompt']) # prompts Jarvis
-    for chunk in stream: # Uses a generator (see python docs) to emit each token by itself over websocket
-        emit("chunk", chunk)
-
+    print("huh")
+    try:
+        conversation_id = data['conversation_id'] # grabs the conversation ID
+        stream = jarvis.run_stream_only(data['prompt']) # prompts Jarvis
+        for chunk in stream: # Uses a generator (see python docs) to emit each token by itself over websocket
+            emit("chunk", chunk)
+    except:
+        print('Something very bad happened')
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=PORT, allow_unsafe_werkzeug=True)
