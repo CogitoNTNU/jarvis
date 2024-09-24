@@ -68,7 +68,7 @@ def handle_message(data):
 
 @socketio.on('user_prompt')
 def handle_prompt(data):
-    stream = jarvis.run_stream_only(data['prompt'])
+    stream = jarvis.run(data['prompt'])
     for chunk in stream:
         emit("chunk", chunk)
 
