@@ -7,15 +7,13 @@ from flask_cors import CORS
 #
 #   Server config
 #
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 app.config['SECRET_KEY'] = 'secret_key_xdddd'  # TODO: Make a better key
 CORS(app, resources={r"/*": {"origins": "*"}})  # TODO: Make the CORS actually not accept everything
 socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
 
 # Agent instantiation
 jarvis = Agent(Model.gpt_4o) # API key is configured in agent.py
-
-
 
 #
 #
@@ -25,7 +23,8 @@ jarvis = Agent(Model.gpt_4o) # API key is configured in agent.py
 
 @app.route("/")
 def hello_world():
-    return 'Hello from Jarvis http API'
+    return app.send_static_file('index.html')
+    
 
 @app.route('/send_message', methods=['POST', 'GET'])
 def llm_request():
