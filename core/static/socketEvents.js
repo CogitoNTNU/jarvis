@@ -9,19 +9,17 @@ socket.on('connect', () => {
 
 let tokenCounter = 0
 let msgCounter = 0
-let totalTokens = 0
 
 // prints tokens that are streamed to the console
 socket.on("chunk", (token)=>{
     if (tokenCounter == 0 && token.length == 0){
         openStreamedAIMessage()
-    }else if(token.length == 0){
-        // Ending token received, close the message
+    }else if(token.length == 0){ // Ending token received, close the message
         closeStreamedAIMessage()
         console.log("Tokens:", tokenCounter)
 
-        totalTokens += tokenCounter
-        console.log("Total tokens so far:", totalTokens)
+        state.totalTokensUsed += tokenCounter
+        console.log("Total tokens so far:", state.totalTokensUsed)
 
         tokenCounter = 0
         msgCounter ++

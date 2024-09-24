@@ -5,12 +5,8 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage
 from models import Model
-
-import os
 import json
-from dotenv import load_dotenv
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+from config import OPENAI_API_KEY
 
 class Agent:
     def __init__(self, model_type) -> None:
