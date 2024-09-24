@@ -22,7 +22,6 @@ jarvis = Agent(Model.gpt_4o) # API key is configured in agent.py
 #   HTTP(S) routes below
 #
 #
-
 @app.route("/")
 def hello_world():
     return app.send_static_file('index.html')
@@ -47,30 +46,29 @@ def summarize_store():
     embed_and_store(summary, user_id)
 
     return {"status": "success", "summary": summary}
+
 #
 #
 #   Socket.IO events below
 #
 #
-
-@socketio.on('connect')
+# Base event that's fired when a user connects
+@socketio.on('connect') 
 def connect(data):
     emit("You're connected to Jarvis streaming server...")
     print('Client connected')
 
-@socketio.event
+# Base event that's fired when user gracefully disconnects
+@socketio.on('disconnect')
 def disconnect():
     print('Client disconnected')
 
-@socketio.on('message')
-def handle_message(data):
-    print(data['data'])
-
+# Custom event. Fired when the user sends a prompt.
 @socketio.on('user_prompt')
 def handle_prompt(data):
-    stream = jarvis.run_stream(data['prompt'])
-    for chunk in stream:
-        print(chunk, end="|", flush=True)
+    conversation_id = data['conversation_id'] # grabs the conversation ID
+    stream = jarvis.run_stream_only(data['prompt']) # prompts Jarvis
+    for chunk in stream: # Uses a generator (see python docs) to emit each token by itself over websocket
         emit("chunk", chunk)
 
 
