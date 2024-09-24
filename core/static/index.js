@@ -5,8 +5,13 @@ init = () => {
 }
 window.onload = init;
 
-// Placeholder
-active_conversation_id = 0
+// global state of the UI
+state = {
+    activeConversationId: 0,
+    userId: 0,
+    totalTokensUsed: 0
+}
+
 
 clear_log = async () => {
     try{

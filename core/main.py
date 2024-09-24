@@ -5,6 +5,7 @@ from summarize_chat import summarize_chat
 from rag import embed_and_store
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
+from config import PORT
 
 #
 #   Server config
@@ -73,4 +74,4 @@ def handle_prompt(data):
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host='0.0.0.0', port=3000, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=PORT, allow_unsafe_werkzeug=True)
