@@ -59,7 +59,7 @@ class Agent:
 
 
 # UNFINISHED
-    def run_stream(self, user_prompt: str):
+    def run_stream_only(self, user_prompt: str):
         """
         Run the agent, returning a token stream.
         """
@@ -69,7 +69,6 @@ class Agent:
         for chunk in self.llm.stream(user_prompt):
             yield chunk.content
 
-    
     #for running the agent comment out for testing in terminal
     def run(self, user_prompt: str):
         """
