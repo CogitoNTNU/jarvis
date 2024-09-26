@@ -9,6 +9,7 @@ socket.on('connect', () => {
 
 let tokenCounter = 0
 let msgCounter = 0
+let uuid = 0
 
 // prints tokens that are streamed to the console
 socket.on("chunk", (token)=>{
@@ -26,8 +27,20 @@ socket.on("chunk", (token)=>{
     }else{
         console.log(token)
     }
-    tokenCounter ++
+    tokenCounter ++;
 })
+
+socket.on("tokens", (tokens) => {
+    state.totalTokensUsed += tokens
+    console.log("Total tokens so far:", state.totalTokensUsed)
+})
+
+socket.on("start_message", () => {
+    //uuid = 33333 //Placeholder UUID
+    uuid = generateUUID();
+    console.log(uuid);
+    
+}) 
 
 let closeStreamedAIMessage = () => {
     console.log("Message end")
