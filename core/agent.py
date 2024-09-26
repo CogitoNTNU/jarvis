@@ -67,13 +67,14 @@ class Agent:
             yield chunk.content
 
     #for running the agent comment out for testing in terminal
-    async def run(self, user_prompt: str):
+    def run(self, user_prompt: str) -> tuple[str, int]:
         """
-        Run the agent with a user prompt and return the output.
+        Run the agent with a user prompt and return a tuple containing the llm 
+        response and the total amount of tokens used.
         """
         first = True
-        async for event in self.graph.stream({"messages": [("user", user_prompt)]}):
-            print(event)
+        for event in self.graph.stream({"messages": [("user", user_prompt)]}):
+            #print(event)
             for value in event.values():
                 messages = value["messages"][-1]
                 gathered = ""
@@ -89,10 +90,9 @@ class Agent:
 
                 if isinstance(messages, BaseMessage):
                     total_tokens = messages.usage_metadata.get('total_tokens', 0)
-                    #messages = messages.content
-                    print(gathered)
+                    
 
-                    return f"Assistant:", messages.content, gathered, total_tokens, f"Total tokens used {total_tokens}"
+                    return messages.content, total_tokens
                 
     #for testing in terminal
     """ def run(self, user_prompt: str):
