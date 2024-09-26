@@ -12,10 +12,10 @@ let msgCounter = 0
 let uuid = 0
 
 // prints tokens that are streamed to the console
-socket.on("chunk", (token)=>{
-    if (tokenCounter == 0 && token.length == 0){
+socket.on("chunk", (chunk)=>{
+    if (tokenCounter == 0 && chunk.length == 0){
         openStreamedAIMessage()
-    }else if(token.length == 0){ // Ending token received, close the message
+    }else if(chunk.length == 0){ // Ending token received, close the message
         closeStreamedAIMessage()
         console.log("Tokens:", tokenCounter)
 
@@ -25,7 +25,8 @@ socket.on("chunk", (token)=>{
         tokenCounter = 0
         msgCounter ++
     }else{
-        console.log(token)
+        console.log(chunk);
+        addStreamedMessage(uuid, chunk);
     }
     tokenCounter ++;
 })
