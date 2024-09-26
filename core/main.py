@@ -1,4 +1,4 @@
-from flask import Flask, request, url_for
+from flask import Flask, request, url_for, jsonify
 from agent import Agent
 from models import Model
 from summarize_chat import summarize_chat
@@ -6,6 +6,7 @@ from rag import embed_and_store
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
 from config import PORT
+import asyncio
 
 #
 #   Server config
@@ -70,11 +71,24 @@ def handle_prompt(data):
     print("huh")
     try:
         conversation_id = data['conversation_id'] # grabs the conversation ID
-        stream = jarvis.run(data['prompt']) # prompts Jarvis
-        for chunk in stream: # Uses a generator (see python docs) to emit each token by itself over websocket
-            emit("chunk", chunk)
-    except:
-        print('Something very bad happened')
+        stream, tokens = jarvis.run(data['prompt']) # prompts Jarvis
+        #stream = jarvis.run_stream_only(data['prompt'])
+        socketio.emit("start_message")
+        chunk = ""
+        for char in stream:
+            if len(chunk) > 4:
+                asyncio.sleep(1)
+                socketio.emit("chunk", chunk)
+                chunk = char
+            else:
+                chunk += char
+        socketio.emit("chunk", chunk)
+        socketio.emit("tokens", tokens)
+            
+        return jsonify({"status": "success"})
+    except Exception as e:
+        print(f'Something very bad happened: {e}')
+        return jsonify({"status": "error"})
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=PORT, allow_unsafe_werkzeug=True)
