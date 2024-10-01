@@ -36,7 +36,6 @@ let endStreamedAIMessage = () => {
     output = marked.parse(output)
     state.activeAIMessage.innerHTML = output
     state.activeAIMessage = null // Gets deleted from the state.
-    
 }
 
 let startStreamedAIMessage = (uuid) => {
