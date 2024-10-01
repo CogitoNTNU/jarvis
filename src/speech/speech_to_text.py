@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import numpy as np
 import wave
 from audioRecorder import AudioRecorder
+from audioProcessor import AudioProcessor
 import time
 from threading import Thread
 
@@ -56,6 +57,9 @@ def chunks_to_full_audio(chunks):
 
 def handle_chunk(chunk, index):
     create_tmp_wav_file(chunk, path=f"tmp{index}.wav")
+    processor = AudioProcessor(f"tmp{index}.wav")
+    processor.process()
+    processor.save_audio(f"tmp{index}.wav")
     audio_file = path_to_audio_file(f"tmp{index}.wav")
 
     text.append(speech_to_text(audio_file=audio_file))

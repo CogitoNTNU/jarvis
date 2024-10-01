@@ -11,6 +11,7 @@ dotenv.load_dotenv()
 def web_search(user_query):
     """
     Use this tool to search the web for information. user_query must be a string.
+    Never specify the date, year or any other specific time information unless the user asks for it.
 
     Args:
         user_query: The query(string) to search for.
