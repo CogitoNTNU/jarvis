@@ -35,7 +35,7 @@ class AudioRecorder:
         # sys.stdout.flush()
         return rms < self.silence_threshold
     
-    def record(self, MERGE_SIZE=60, min_frames_with_sound=10):
+    def record(self, MERGE_SIZE=60, min_frames_with_sound=20):
         self.start_recording()
 
         self.audio_chunks = []
