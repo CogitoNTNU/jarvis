@@ -2,12 +2,11 @@ from openai import OpenAI
 import dotenv
 import os
 import json
+import config
 
 dotenv.load_dotenv()
 
 def get_perplexity_response(user_query):
-    YOUR_API_KEY = os.getenv("PERPLEXITY_API_KEY")
-
     messages = [
         {
             "role": "system",
@@ -19,7 +18,7 @@ def get_perplexity_response(user_query):
         },
     ]
 
-    client = OpenAI(api_key=YOUR_API_KEY, base_url="https://api.perplexity.ai")
+    client = OpenAI(api_key=config.PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai")
 
     # chat completion without streaming
     response = client.chat.completions.create(

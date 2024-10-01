@@ -24,13 +24,19 @@ sendMessage = async () => {
 
 addStreamedChunk = (messagePart) => {
     if(state.activeAIMessage){
-        state.activeAIMessage.innerText += messagePart; // Append to innertext of the message
+        state.activeAIMessage.innerHTML += messagePart; // Append to innertext of the message
+        let chat_history = document.getElementById("chat_history")
+        chat_history.scrollTop = chat_history.scrollHeight;
     }
 }
 
 let endStreamedAIMessage = () => {
     console.log("Message end")
+    let output = state.activeAIMessage.innerHTML
+    output = marked.parse(output)
+    state.activeAIMessage.innerHTML = output
     state.activeAIMessage = null // Gets deleted from the state.
+    
 }
 
 let startStreamedAIMessage = (uuid) => {
