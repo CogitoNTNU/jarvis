@@ -56,8 +56,8 @@ class AudioProcessor:
 
     def process(self):
         self.remove_silence()
-        self.reduce_noise()
-        self.boost_audio()
+        #self.reduce_noise()
+        #self.boost_audio()
         
         return self.verify_audio_long_enough()
 
