@@ -2,7 +2,6 @@ from flask import Flask, request, url_for, jsonify
 from agent import Agent
 from models import Model
 from summarize_chat import summarize_chat
-from perplexity import get_perplexity_response
 from rag import embed_and_store
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
@@ -49,18 +48,6 @@ def summarize_store():
     embed_and_store(summary, user_id)
 
     return {"status": "success", "summary": summary}
-
-@app.route('/web_search', methods=['POST'])
-def perplexity():
-    data = request.json
-    user_query = data.get('user_query')
-
-    if not user_query:
-        return {"error": "user_query is required"}, 400
-
-    message = get_perplexity_response(user_query)
-
-    return {"status": "success", "response": message}
 
 #
 #
