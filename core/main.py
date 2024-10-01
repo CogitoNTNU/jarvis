@@ -71,17 +71,17 @@ def handle_prompt(data):
     print("huh")
     try:
         conversation_id = data['conversation_id'] # grabs the conversation ID
+        socketio.emit("start_message")
         stream, tokens = jarvis.run(data['prompt']) # prompts Jarvis
         #stream = jarvis.run_stream_only(data['prompt'])
-        socketio.emit("start_message")
         chunk = ""
         for char in stream:
             if len(chunk) > 4:
-                asyncio.sleep(1)
                 socketio.emit("chunk", chunk)
                 chunk = char
             else:
                 chunk += char
+        asyncio.sleep(500)
         socketio.emit("chunk", chunk)
         socketio.emit("tokens", tokens)
             
