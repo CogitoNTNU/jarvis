@@ -74,7 +74,6 @@ class Agent:
         """
         first = True
         for event in self.graph.stream({"messages": [("user", user_prompt)]}):
-            #print(event)
             for value in event.values():
                 messages = value["messages"][-1]
                 gathered = ""
@@ -89,10 +88,13 @@ class Agent:
                         gathered += messages
 
                 if isinstance(messages, BaseMessage):
-                    total_tokens = messages.usage_metadata.get('total_tokens', 0)
+                    if hasattr(messages, 'usage_metadata'):
+                        total_tokens = messages.usage_metadata.get('total_tokens', 0)
+                        gathered += messages.content
+                    else:
+                        print(f"Warning: Message of type {type(messages)} does not have usage_metadata")
                     
-
-                    return messages.content, total_tokens
+        return gathered, total_tokens
                 
     #for testing in terminal
     """ def run(self, user_prompt: str):
