@@ -7,9 +7,10 @@ window.onload = init;
 
 // global state of the UI
 state = {
-    activeConversationId: 0,
-    userId: 0,
-    totalTokensUsed: 0
+    activeConversationId: 0, // The active conversation ID, so the UI knows what conversation to display and load.
+    userId: 0, // The user ID using the interface. probably not going to be used for a while.
+    totalTokensUsed: 0,  // Track of total tokens and $$$ used
+    aiMessageId: 0 // The message id. Set when a response is received from the AI in chat.js
 }
 
 clear_log = async () => {
@@ -49,26 +50,15 @@ let setLoading = (newLoadingVal) => {
 // For seeing formatted HTML in javascript files, this extension for VSCode is recommended:
 // https://marketplace.visualstudio.com/items?itemName=pushqrdx.inline-html
 
-addMessage = (message, uuid) => {
+
+addMessage = (uuid) => {
 let html = /*html*/`
     <li class = "chat_element">
-        <img class="profile_picture" src="./trainer.png">
+        <img class="profile_picture" src="./static/trainer.png">
         <div class="chat_message_container">
-            <div id=${uuid} class="chat_message">${message}</div>
+            <div id=${uuid} class="chat_message"></div>
     </li>`;
     document.getElementById('chat_history').innerHTML += html;
-}
-
-addStreamedMessage = (uuid, messagePart) => {
-    let element = document.getElementById(uuid);
-
-    if (element == null) {
-        addMessage(messagePart, uuid);
-        element = document.getElementById(uuid);
-    } else {
-        // Concat ChatPart on message with uuid
-        element.innerHTML += messagePart;
-    }
 }
 
 addUserMessage = (message) => {
