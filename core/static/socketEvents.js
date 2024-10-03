@@ -10,24 +10,23 @@ socket.on('connect', () => {
 let tokenCounter = 0
 let uuid = 0
 
-// prints tokens that are streamed to the console
-socket.on("chunk", (chunk)=>{
+// prints chunks that are streamed to the console and adds them to the chat
+socket.on("chunk", async (chunk)=>{
     console.log(chunk);
-    addStreamedChunk(chunk);
-    tokenCounter ++;
+    await addStreamedMessage(uuid, chunk);
 })
 
-socket.on("tokens", (tokens) => {
+socket.on("tokens", async (tokens) => {
     state.totalTokensUsed += tokens
     console.log("Total tokens so far:", state.totalTokensUsed)
     endStreamedAIMessage()
 })
 
-socket.on("start_message", () => {
+socket.on("start_message", async () => {
     uuid = generateUUID();
     console.log(uuid);
-    startStreamedAIMessage(uuid)
-})
+    await addStreamedMessage(uuid, "");
+}) 
 
 // Remember to parse the streamed response
 
