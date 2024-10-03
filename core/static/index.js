@@ -50,15 +50,26 @@ let setLoading = (newLoadingVal) => {
 // For seeing formatted HTML in javascript files, this extension for VSCode is recommended:
 // https://marketplace.visualstudio.com/items?itemName=pushqrdx.inline-html
 
-
-addMessage = (uuid) => {
+async function addMessage(message, uuid) {
 let html = /*html*/`
     <li class = "chat_element">
         <img class="profile_picture" src="./static/trainer.png">
         <div class="chat_message_container">
-            <div id=${uuid} class="chat_message"></div>
+            <div id=${uuid} class="chat_message"> ${message} </div>
     </li>`;
     document.getElementById('chat_history').innerHTML += html;
+}
+
+async function addStreamedMessage(uuid, messagePart) {
+    let element = document.getElementById(uuid);
+
+    if (element == null) {
+        await addMessage(messagePart, uuid);
+        element = document.getElementById(uuid);
+    } else {
+        // Concat ChatPart on message with uuid
+        element.innerHTML += messagePart;
+    }
 }
 
 addUserMessage = (message) => {
