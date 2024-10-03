@@ -8,58 +8,26 @@ socket.on('connect', () => {
 });
 
 let tokenCounter = 0
-let msgCounter = 0
 let uuid = 0
 
 // prints tokens that are streamed to the console
 socket.on("chunk", (chunk)=>{
-    if (tokenCounter == 0 && chunk.length == 0){
-        openStreamedAIMessage()
-    }else if(chunk.length == 0){ // Ending token received, close the message
-        closeStreamedAIMessage()
-        console.log("Tokens:", tokenCounter)
-
-        state.totalTokensUsed += tokenCounter
-        console.log("Total tokens so far:", state.totalTokensUsed)
-
-        tokenCounter = 0
-        msgCounter ++
-    }else{
-        console.log(chunk);
-        addStreamedMessage(uuid, chunk);
-    }
+    console.log(chunk);
+    addStreamedChunk(chunk);
     tokenCounter ++;
 })
 
 socket.on("tokens", (tokens) => {
     state.totalTokensUsed += tokens
     console.log("Total tokens so far:", state.totalTokensUsed)
+    endStreamedAIMessage()
 })
 
 socket.on("start_message", () => {
-    //uuid = 33333 //Placeholder UUID
     uuid = generateUUID();
     console.log(uuid);
-    
-}) 
-
-let closeStreamedAIMessage = () => {
-    console.log("Message end")
-}
-
-let openStreamedAIMessage = () => {
-    console.log("Message start")
-    // create an AI message in html, with its own ID (ai_message_0, ai_message_1 etc.)
-    id = "ai_message_" + msgCounter
-    // append to its innerText as the streams come through.
-}
-
-let generateUUID = () => {
-    return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
-        (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
-    );
-}
-
+    startStreamedAIMessage(uuid)
+})
 
 // Remember to parse the streamed response
 

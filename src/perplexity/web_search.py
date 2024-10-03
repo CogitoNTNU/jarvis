@@ -1,6 +1,5 @@
 from openai import OpenAI
-import dotenv
-import os
+import dotenv, os, json
 
 dotenv.load_dotenv()
 
@@ -10,14 +9,14 @@ messages = [
     {
         "role": "system",
         "content": (
-            "You are an artificial intelligence assistant and you need to "
-            "engage in a helpful, detailed, polite conversation with a user."
+            "You are an artificial intelligence assistant that will present concise up to date information about the user's query. "
+            
         ),
     },
     {
         "role": "user",
         "content": (
-            "Hvordan blir været i Trondheim i morgen?"
+            "Hvordan er været i Trondheim i morgen?"
         ),
     },
 ]
@@ -28,8 +27,13 @@ client = OpenAI(api_key=YOUR_API_KEY, base_url="https://api.perplexity.ai")
 response = client.chat.completions.create(
     model="llama-3.1-sonar-small-128k-online",
     messages=messages,
+    temperature=0.0,
 )
-print(response)
+data = response.json()
+print(data)
+message = json.loads(data)["choices"][0]["message"]["content"]
+print(message)
+
 
 # chat completion with streaming
 """
@@ -39,5 +43,7 @@ response_stream = client.chat.completions.create(
     stream=True,
 )
 for response in response_stream:
-    print(response)
+    if response.choices[0].delta.content is not None:
+        print(response.choices[0].delta.content, end='')
+print()  # Add a newline at the end
 """
