@@ -31,11 +31,16 @@ addStreamedChunk = (messagePart) => {
 }
 
 let endStreamedAIMessage = () => {
-    console.log("Message end")
-    let output = state.activeAIMessage.innerHTML
-    output = marked.parse(output)
-    state.activeAIMessage.innerHTML = output
-    state.activeAIMessage = null // Gets deleted from the state.
+    if (state.activeAIMessage) {
+        console.log("Message end")
+        let output = state.activeAIMessage.innerHTML
+        output = marked.parse(output)
+        state.activeAIMessage.innerHTML = output
+        state.activeAIMessage = null // Gets deleted from the state.
+    } else {
+        console.log("No active AI message to end.")
+    }
+    
 }
 
 let startStreamedAIMessage = (uuid) => {
