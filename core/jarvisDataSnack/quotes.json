@@ -1,0 +1,41 @@
+{
+    "scientists_quotes": [
+      {
+        "name": "Albert Einstein",
+        "quote": "Imagination is more important than knowledge. For knowledge is limited, whereas imagination embraces the entire world."
+      },
+      {
+        "name": "Marie Curie",
+        "quote": "Nothing in life is to be feared, it is only to be understood. Now is the time to understand more, so that we may fear less."
+      },
+      {
+        "name": "Isaac Newton",
+        "quote": "If I have seen further it is by standing on the shoulders of giants."
+      },
+      {
+        "name": "Galileo Galilei",
+        "quote": "You cannot teach a man anything; you can only help him find it within himself."
+      },
+      {
+        "name": "Nikola Tesla",
+        "quote": "The present is theirs; the future, for which I really worked, is mine."
+      },
+      {
+        "name": "Stephen Hawking",
+        "quote": "Intelligence is the ability to adapt to change."
+      },
+      {
+        "name": "Carl Sagan",
+        "quote": "Somewhere, something incredible is waiting to be known."
+      },
+      {
+        "name": "Poe Bidau Gustang",
+        "quote": "A bug is a bug"
+      },
+      {
+        "name": "Lo Po Bia Traumerei",
+        "quote": "I am the one who decides who lives and who dies"
+      }
+    ]
+  }
+  
