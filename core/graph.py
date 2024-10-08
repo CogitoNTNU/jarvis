@@ -7,7 +7,7 @@ from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage
 from models import Model
 import json
 from config import OPENAI_API_KEY
-from agent import Agent
+from agent import Agent, Agent1 
 
 
 class Graph:
@@ -32,9 +32,6 @@ class Graph:
             "chatbot",
             tools_condition
         )
-        self.workflow.add_conditional_edges(
-            "chatbot",
-            router
         self.graph = self.workflow.compile()
 
         with open("core/graph_node_network.png", 'wb') as f:
