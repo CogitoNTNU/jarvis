@@ -14,7 +14,7 @@ class Graph:
     def __init__(self):
         LANGCHAIN_TRACING_V2: str = "true"
 
-        self.llm = Agent.llm
+        self.llm = Agent1.llm
 
         self.llm_with_tools = self.llm.bind_tools(get_tools())
         self.workflow = StateGraph(GraphState)

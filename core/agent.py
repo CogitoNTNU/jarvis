@@ -10,13 +10,13 @@ from config import OPENAI_API_KEY
 
 
 
-""" class Agent:
+class Agent1:
     llm = ChatOpenAI(
         model = Model.gpt_4o,
         temperature=0,
         max_tokens=512,
         )
- """
+
 
 class Agent:
     def __init__(self, model_type) -> None:
