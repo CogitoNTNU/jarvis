@@ -1,5 +1,5 @@
 from flask import Flask, request, url_for, jsonify
-from agent import Agent
+from graph import Graph
 from models import Model
 from summarize_chat import summarize_chat
 from rag import embed_and_store
@@ -17,12 +17,12 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # TODO: Make the CORS actually n
 socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
 
 # Agent instantiation
-jarvis = Agent(Model.gpt_4o) # API key is configured in agent.py
+jarvis = Graph() # API key is configured in agent.py
 
 #
 #
 #   HTTP(S) routes below
-#
+#s
 #
 @app.route("/")
 def hello_world():
