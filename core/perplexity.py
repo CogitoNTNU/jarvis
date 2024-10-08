@@ -29,3 +29,16 @@ def get_perplexity_response(user_query):
     return message
 
 print(get_perplexity_response(user_query))
+
+# chat completion with streaming
+"""
+response_stream = client.chat.completions.create(
+    model="llama-3.1-sonar-small-128k-online",
+    messages=messages,
+    stream=True,
+)
+for response in response_stream:
+    if response.choices[0].delta.content is not None:
+        print(response.choices[0].delta.content, end='')
+print()  # Add a newline at the end
+"""
