@@ -66,6 +66,7 @@ class Graph:
         """
         try:
             input = {"messages": [("human", user_prompt)]}
+            socketio.emit("start_message", " ")
             async for chunk in self.graph.astream(input, stream_mode="values"):
                 if type(chunk["messages"][-1]) == HumanMessage:
                     continue

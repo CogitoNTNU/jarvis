@@ -43,13 +43,6 @@ let endStreamedAIMessage = () => {
     
 }
 
-let startStreamedAIMessage = (uuid) => {
-    console.log("Message start")
-    addMessage(uuid); // Create an AI message when it begins streaming.
-    let ai_message = document.getElementById(uuid)
-    state.activeAIMessage = ai_message // Active element gets added to the state.
-}
-
 // Generates unique id on socket.on("start_message")
 let generateUUID = () => {
     return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
