@@ -15,7 +15,7 @@ Main js file for loading the dynamic UI elements.
     document.addEventListener('click', function(event){
         const settings = document.getElementById("settingsPage");
         const settingsButton = document.getElementById("settingsButton");
-        if(!settings.contains(event.target) && !settingsButton.contains(event.target)) {
+        if(!settings.contains(event.target) && !settingsButton.contains(event.target) && settings.style.display=="block") {
             settingsPage()
         }
      });
