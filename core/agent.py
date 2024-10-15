@@ -27,10 +27,11 @@ class Agent:
             model=model_type,
             temperature=0,
             max_tokens=512,
+            streaming=True,
         )
 
         self.llm_with_tools = self.llm.bind_tools(get_tools())
-        
+
         self.workflow = StateGraph(GraphState)
 
         # Adding nodes to the workflow
@@ -61,7 +62,7 @@ class Agent:
         """
         #state_of_chatbot = self.llm_with_tools.invoke(state["messages"]).tool_calls
         #print("Tools called: " + state_of_chatbot["name"][-1].content)
-        
+
         return {"messages": [self.llm_with_tools.invoke(state["messages"])]}
 
 
@@ -79,7 +80,7 @@ class Agent:
     #for running the agent comment out for testing in terminal
     def run(self, user_prompt: str) -> tuple[str, int]:
         """
-        Run the agent with a user prompt and return a tuple containing the llm 
+        Run the agent with a user prompt and return a tuple containing the llm
         response and the total amount of tokens used.
         """
         first = True
@@ -103,9 +104,9 @@ class Agent:
                         gathered += messages.content
                     else:
                         print(f"Warning: Message of type {type(messages)} does not have usage_metadata")
-                    
+
         return gathered, total_tokens
-                
+
     #for testing in terminal
     """ def run(self, user_prompt: str):
         for event in self.graph.stream({"messages": [("user", user_prompt)]}):
@@ -118,5 +119,5 @@ if __name__ == "__main__":
     while True:
         user_prompt = input("User: ")
         agent.run(user_prompt) """
-    
+
 # Counting tokens: https://python.langchain.com/docs/how_to/llm_token_usage_tracking/
