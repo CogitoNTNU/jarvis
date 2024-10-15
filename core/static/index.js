@@ -8,6 +8,8 @@ Main js file for loading the dynamic UI elements.
  init = () => {
     document.getElementById('send_button').addEventListener('click', sendMessage)
     document.getElementById('clear_log').addEventListener('click', clear_log)
+
+    document.querySelector(".chatHistory").innerHTML += chatHistoryList()
 }
 window.onload = init;
 

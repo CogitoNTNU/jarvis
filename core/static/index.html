@@ -15,20 +15,27 @@
 </head>
     <body>
         <h2 class="heading">Jarvis</h2>
-        <div id="chat_history_container">
-            <div name="chat_list" id="chat_list">
-            </div>
-                <div name="history" id="chat_history">
-            </div>
-        </div>
+        <div class = "mainContent">
+            <div class = "chatHistory">
 
-        <div class="chat_input_container">
-            <div id="chat_input">
-                <textarea type="text" id="chat_input_text" placeholder="Type a message..." value=""></textarea>
+            </div>
+            <div class="chat">
+                <div id="chat_history_container">
+                    <div name="chat_list" id="chat_list">
+                    </div>
+                        <div name="history" id="chat_history">
+                    </div>
+                </div>
+        
+                <div class="chat_input_container">
+                    <div id="chat_input">
+                        <textarea type="text" id="chat_input_text" placeholder="Type a message..." value=""></textarea>
+                    </div>
+                </div>
+                <button id="send_button">Send</button> 
+                <p style="display:inline;margin-left: 12px;">Parse AI output</p><input id="checkbox" style="margin-left: 12px;" type="checkbox" checked="true"></input>
+                <button id="clear_log">Clear chat log</button>
             </div>
         </div>
-        <button id="send_button">Send</button> 
-        <p style="display:inline;margin-left: 12px;">Parse AI output</p><input id="checkbox" style="margin-left: 12px;" type="checkbox" checked="true"></input>
-        <button id="clear_log">Clear chat log</button>
     </body>
 </html>
