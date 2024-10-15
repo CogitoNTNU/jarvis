@@ -62,25 +62,13 @@ class Graph:
         Run the agent with a user prompt and return a tuple containing the llm 
         response and the total amount of tokens used.
         """
-        total_tokens = 0
         try:
             input = {"messages": [("human", user_prompt)]}
-            async for event in self.graph.astream_events(input, version='v2'):
-                print(event)
-                event_message = event["messages"][-1].content
-                # Check for if event is a chunck of the AI response
-                if isinstance(event_message, AIMessageChunk):
-                    event_message = event["messages"][-1].content
-                    print(event_message)
-                    socketio.emit("chunk", event_message)
-
-                # Check if the event is a BaseMessage containing token count
-                if isinstance(event_message, BaseMessage):
-                    if hasattr(event_message, 'usage_metadata'):
-                        total_tokens = event_message.usage_metadata.get('total_tokens', 0)
-                    else:
-                        print(f"Warning: Message of type {type(event_message)} does not have usage_metadata")
-            socketio.emit("tokens", total_tokens)
+            async for chunk in self.graph.astream(input, stream_mode="values"):
+                event_message = chunk["messages"][-1].content
+                print(event_message)
+                socketio.emit("chunk", event_message)
+                # socketio.emit("tokens", tokens)
             return "success"
         except Exception as e:
             print(e)
