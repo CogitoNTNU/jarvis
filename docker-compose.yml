@@ -1,16 +1,4 @@
 services:
-  # ui-service:
-  #   build: ./ui
-  #   env_file: .env
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ./ui:/app  # Mount the application code
-  #     - /app/node_modules
-  #   networks:
-  #     - backend
-  #   stop_signal: SIGINT
-  #   ports:
-  #     - "3000:3000"
 
   llm-service:
     build: ./core
@@ -26,18 +14,6 @@ services:
     ports:
       - "3000:3000"
 
-#  speech-service:
-#    build: ./speech
-#    env_file: .env
-#    restart: unless-stopped
-#    environment:
-#    volumes:
-#      - ./speech:/app
-#    networks:
-#      - backend
-#    stop_signal: SIGINT
- #   ports:
- #     - "3069:3069" #nice
 
 networks:
   backend:
