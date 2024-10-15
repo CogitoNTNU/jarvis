@@ -63,12 +63,11 @@ class Graph:
         response and the total amount of tokens used.
         """
         try:
-            print("RUNNINGGGGG  ")
             input = {"messages": [("human", user_prompt)]}
             async for chunk in self.graph.astream(input, stream_mode="values"):
-                chunk["messages"][-1].pretty_print()
-                print("hello")
-                # socketio.emit("chunk", chunk)
+                event_message = chunk["messages"][-1].content
+                print(event_message)
+                socketio.emit("chunk", event_message)
                 # socketio.emit("tokens", tokens)
             return "success"
         except Exception as e:
