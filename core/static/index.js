@@ -10,6 +10,15 @@ Main js file for loading the dynamic UI elements.
     document.getElementById('clear_log').addEventListener('click', clear_log)
 
     document.querySelector(".chatHistory").innerHTML += chatHistoryList()
+
+    // To hide settings page when clicking somewhere else after it's opened.
+    document.addEventListener('click', function(event){
+        const settings = document.getElementById("settingsPage");
+        const settingsButton = document.getElementById("settingsButton");
+        if(!settings.contains(event.target) && !settingsButton.contains(event.target)) {
+            settingsPage()
+        }
+     });
 }
 window.onload = init;
 
