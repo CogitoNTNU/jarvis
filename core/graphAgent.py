@@ -8,6 +8,8 @@ from models import Model
 import json
 from config import OPENAI_API_KEY
 from agent import Agent, Agent1 
+import asyncio
+from time import sleep
 
 
 class Graph:
@@ -65,10 +67,15 @@ class Graph:
         try:
             input = {"messages": [("human", user_prompt)]}
             async for chunk in self.graph.astream(input, stream_mode="values"):
+                if type(chunk["messages"][-1]) == HumanMessage:
+                    continue
                 event_message = chunk["messages"][-1].content
-                print(event_message)
-                socketio.emit("chunk", event_message)
-                # socketio.emit("tokens", tokens)
+                event_message = event_message.split(" ")
+                for word in event_message:
+                    sleep(0.05)
+                    socketio.emit("chunk", word+" ")
+                socketio.emit("chunk", "<br>")
+            socketio.emit("tokens", 0) # a way to emit ending of the message
             return "success"
         except Exception as e:
             print(e)

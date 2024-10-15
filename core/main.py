@@ -62,11 +62,10 @@ def disconnect():
 @socketio.on('user_prompt')
 def handle_prompt(data):
     try:
-        print("Hello!")
         conversation_id = data['conversation_id'] # grabs the conversation ID
         socketio.emit("start_message")
         response = asyncio.run(jarvis.run(data['prompt'], socketio), debug=True) # prompts Jarvis and hands off emitting to the graphAgent.
-
+        
         return jsonify({"status": response})
     except Exception as e:
         print(f'Something very bad happened: {e}')
