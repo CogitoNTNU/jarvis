@@ -1,5 +1,5 @@
 // When user sends a message (pressing send button) this funciton runs
-sendMessage = async () => {
+sendMessage = () => {
     let userInput = ""
     try{
         let chat_text_field = document.getElementById('chat_input_text')
@@ -8,13 +8,17 @@ sendMessage = async () => {
         chat_text_field.value = ""
         chat_history = document.getElementById("chat_history")
         chat_history.scrollTop = chat_history.scrollHeight;
-    }catch(e){
+    } catch(e){
         console.log(e)
     }
 
     // Send the message via the open socket
     try{
-        let res = await socket.emit('user_prompt', {prompt: userInput, conversation_id: state.activeConversationId})
+        console.log("User promt is: " + userInput);
+        const payload = {prompt: userInput, conversation_id: state.activeConversationId}
+        console.log("Payload is: ", payload);
+        let res = socket.emit('user_prompt', payload)
+        console.log("Prompt sent to backend");
         // Stream to the current active AI chat box
     }catch(e){
         console.log("Something went wrong", e)
@@ -30,7 +34,7 @@ addStreamedChunk = (messagePart) => {
     }
 }
 
-let endStreamedAIMessage = () => {
+endStreamedAIMessage = () => {
     if (state.activeAIMessage) {
         console.log("Message end")
         let output = state.activeAIMessage.innerHTML
@@ -40,7 +44,7 @@ let endStreamedAIMessage = () => {
     } else {
         console.log("No active AI message to end.")
     }
-    
+
 }
 
 let startStreamedAIMessage = (uuid) => {
