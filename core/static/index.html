@@ -5,16 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <script src="/static/lib_files/socket.io.js"></script>
     <script src="/static/lib_files/marked.min.js"></script>
+    <script src="/static/ui_elements/settings.js"></script>
     <script src="/static/ui_elements/chatHistoryList.js"></script>
     <script src="/static/chat.js"></script>
     <script src="/static/socketEvents.js"></script>
     <script  src="/static/index.js" defer></script>
     <script src="/static/eventlisteners.js"></script>
     <link rel="stylesheet" href="/static/index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
     <title>Jarvis</title>
 </head>
     <body>
-        <h2 class="heading">Jarvis</h2>
+        <div id="settingsPage">
+            <h2 class="russo-one-regular">Settings</h2>
+        </div>
+
+        <header>
+            <h2 class="heading russo-one-regular">Jarvis</h2>
+            <div class="toolbar">
+                <image class="icon" src="./static/settings.png" onclick="settingsPage()"></image>
+            </div>
+        </header>
+
         <div class = "mainContent">
             <div class = "chatHistory">
 
@@ -36,6 +50,14 @@
                 <p style="display:inline;margin-left: 12px;">Parse AI output</p><input id="checkbox" style="margin-left: 12px;" type="checkbox" checked="true"></input>
                 <button id="clear_log">Clear chat log</button>
             </div>
+            <div class="processesContainer">
+                <p style="margin-top: 36px">Debug & running Jarvis processes</p>
+            </div>
         </div>
+        <div class="linebreak"></div>
+        <footer>
+            <label>Permissions and licensing:</label>
+            <a href="https://fonts.google.com/specimen/Russo+One/license#permission-conditions">Russo font license.</a>
+        </footer>
     </body>
 </html>

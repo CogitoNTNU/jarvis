@@ -5,7 +5,7 @@ Builds
 let chatHistoryList = () => {
     let html = /*html*/ `
         <div id="chatHistoryList">
-        <h3>Chat history</h3>
+        <h3 class="russo-one-regular">Chat history</h3>
     `
     // Example chats. TODO: Do a GET request later on.
     let chats = [
@@ -43,7 +43,8 @@ let chatHistoryList = () => {
     for (let i = 0; i < chats.length; i++){
         html += /*html*/ `
             <div class = "historicalChatThumbnail">
-
+                <h3 class="chatThumbnailHeading">${chats[i].name}</h3>
+                <p>${chats[i].description}</p>
             </div>
         `
     }
