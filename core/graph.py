@@ -7,14 +7,14 @@ from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage
 from models import Model
 import json
 from config import OPENAI_API_KEY
-from agent import Agent, Agent1 
+from Agents.simpleagent import SimpleAgent
 
 
 class Graph:
     def __init__(self):
         LANGCHAIN_TRACING_V2: str = "true"
 
-        self.llm = Agent1.llm
+        self.llm = SimpleAgent.llm
 
         self.llm_with_tools = self.llm.bind_tools(get_tools())
         self.workflow = StateGraph(GraphState)
