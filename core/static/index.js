@@ -1,7 +1,24 @@
+/*
+
+Main js file for loading the dynamic UI elements.
+    
+*/
+
 // Runs on inital startup, after window (html) has finished loading
-init = () => {
+ init = () => {
     document.getElementById('send_button').addEventListener('click', sendMessage)
     document.getElementById('clear_log').addEventListener('click', clear_log)
+
+    document.querySelector(".chatHistory").innerHTML += chatHistoryList()
+
+    // To hide settings page when clicking somewhere else after it's opened.
+    document.addEventListener('click', function(event){
+        const settings = document.getElementById("settingsPage");
+        const settingsButton = document.getElementById("settingsButton");
+        if(!settings.contains(event.target) && !settingsButton.contains(event.target) && settings.style.display=="block") {
+            settingsPage()
+        }
+     });
 }
 window.onload = init;
 
@@ -11,18 +28,6 @@ state = {
     userId: 0, // The user ID using the interface. probably not going to be used for a while.
     totalTokensUsed: 0,  // Track of total tokens and $$$ used
     aiMessageId: 0 // The message id. Set when a response is received from the AI in chat.js
-}
-
-clear_log = async () => {
-    try{
-        res = await fetch('/clear_chat_history')
-        result = await res.json()
-        console.log(result)
-        chat_history.innerHTML = ""
-        alert("Chatlog cleared successfully!")
-    }catch(e){
-        console.log("It borked")
-    }
 }
 
 // Changes the loading icon

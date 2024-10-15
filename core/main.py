@@ -6,7 +6,7 @@ from rag import embed_and_store
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
 from config import PORT
-import asyncio
+import asyncio  
 
 #
 #   Server config
@@ -81,7 +81,7 @@ def handle_prompt(data):
                 chunk = char
             else:
                 chunk += char
-        asyncio.sleep(500)
+        #asyncio.sleep(500)
         socketio.emit("chunk", chunk)
         socketio.emit("tokens", tokens)
             

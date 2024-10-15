@@ -4,6 +4,8 @@ import tools.web_search as web_search
 import tools.find_files as find_files
 import tools.read_file as read_file
 import tools.read_pdf as read_pdf
+import tools.weather as weather
+import tools.google_calender_create as create_calender_event
 
 def get_tools() -> list[StructuredTool]:
     tools = []
@@ -12,7 +14,7 @@ def get_tools() -> list[StructuredTool]:
     tools.append(find_files.get_tool())
     tools.append(read_file.get_tool())
     tools.append(read_pdf.get_tool())
-
-    
+    tools.append(weather.get_tool())
+    tools.append(create_calender_event.get_tool())
 
     return tools

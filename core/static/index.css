@@ -3,6 +3,12 @@
     --background: #050505;
 }
 
+.russo-one-regular {
+    font-family: "Russo One", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }  
+
 body {
     font-family: Arial, sans-serif;
     /* Darkmode */
@@ -133,3 +139,171 @@ body {
     0%, 80%, 100% { transform: scale(0); }
     40% { transform: scale(1.0); }
 }
+
+.mainContent{
+    display: flex;
+    flex-direction: row;
+}
+
+.chat{
+    width: 65%;
+}
+
+.chatHistory {
+    width: 250px;
+    height: 80vh;
+    margin: 6px;
+    margin-top: 8px;
+    border-radius: 12px;
+    background-color: #2d2d2d;
+    overflow-y: scroll;
+}
+
+.chatHistory::-webkit-scrollbar {
+    width: 8px;
+    box-shadow: inset 0 0 5px grey; 
+    border-radius: 10px;
+  }
+   
+  /* Handle */
+.chatHistory::-webkit-scrollbar-thumb {
+    background: rgb(21, 21, 21);
+    border-radius: 10px;
+  }
+  
+  /* Handle on hover */
+.chatHistory::-webkit-scrollbar-thumb:hover {
+    background: #ce6504;
+  }
+
+.historicalChatThumbnail{
+    height: 120px;
+    margin: 12px;
+    border-radius: 10px;
+    background-color: rgb(73, 73, 73);
+    overflow: hidden;
+}
+.historicalChatThumbnail:hover{
+    border-color: #ce6504;
+    border-style:groove;
+    box-shadow: 0px 0px 20px #ce6504;
+}
+
+h3{
+    margin-left: 12px;
+}
+p{
+    margin-left: 24px;
+    margin-top: 6px;
+    color: #b8b8b8;
+}
+.chatThumbnailHeading{
+    font-size: 16px;
+    margin: 0px;
+    margin-left: 12px;
+    padding-top: 12px;
+}
+
+.processesContainer{
+    width: 250px;
+    height: 80vh;
+    margin-top: 8px;
+    border-radius: 10px;
+    background-color: #2d2d2d;
+    overflow-y: scroll;
+}
+.processesContainer::-webkit-scrollbar {
+    width: 8px;
+    box-shadow: inset 0 0 5px grey; 
+    border-radius: 10px;
+  }
+   
+  /* Handle */
+.processesContainer::-webkit-scrollbar-thumb {
+    background: rgb(21, 21, 21);
+    border-radius: 10px;
+  }
+  
+  /* Handle on hover */
+.processesContainer::-webkit-scrollbar-thumb:hover {
+    background: #ce6504;
+  }
+
+.processes{
+
+}
+
+header{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.icon{
+    height: 36px;
+    width: 36px;
+    margin: 2px;
+}
+.icon:hover{
+    border-color: #ce6504;
+    border-style: groove;
+    margin: 0px;
+    box-shadow: 0px 0px 20px #ce6504;
+}
+.toolbar{
+    margin-left: auto;
+}
+
+#settingsPage{
+    display: flex;
+    justify-content: center;
+    
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 50%;
+    height: 50%;
+    background-color: #434343;
+    z-index: 2;
+    border-style: solid;
+    border-color: #050505;
+    border-width: 6px;
+    border-radius: 12px;
+    display: none;
+}
+#settingsPage>h2{
+    text-align: center;
+}
+
+a{
+    color: #ce6504;
+}
+.linebreak{
+    margin: auto;
+    width: 90%;
+    border-radius: 24px;
+    height: 2px;
+    background-color: #434343;
+    margin-bottom: 24px;
+    margin-top: 24px
+}
+
+@media screen and (max-width: 600px) {
+    .mainContent{
+        flex-direction: column;
+    }
+    .processesContainer{
+        margin: auto;
+        width: 95%;
+    }
+    .chat{
+        margin: auto;
+        width: 95%;
+    }
+    .chatHistory{
+        margin-left: 24px;
+        width: 80%;
+        height: 400px;
+    }
+  }

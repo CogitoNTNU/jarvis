@@ -7,15 +7,17 @@ from langchain_core.tools.structured import StructuredTool
 dotenv.load_dotenv()
 
 @tool
-def web_search(user_query):
+def weather_forecast(user_query):
     """
-    Use this tool to search the web for information. user_query must be a string.
-    Never specify the date, year or any other specific time information unless the user specifies it.
+    Use this tool to search for weather forecasts. user_query must be a string and formualated as a question.'
+    Example: Hvordan blir været i Trondheim i morgen?
+    Example: Hvordan blir været på Kapp til helgen?
+    Example: Hvordan blir været i Bergen 02.11.2024?
 
     Args:
         user_query: The query(string) to search for.
     """
-    
+
     messages = [
         {
             "role": "user",
@@ -37,4 +39,4 @@ def web_search(user_query):
     return message
 
 def get_tool() -> StructuredTool:
-    return web_search
+    return weather_forecast
