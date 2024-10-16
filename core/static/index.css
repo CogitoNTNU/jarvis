@@ -146,11 +146,11 @@ body {
 }
 
 .chat{
-    width: 65%;
+    width: 100%;
 }
 
 .chatHistory {
-    width: 250px;
+    width: 400px;
     height: 80vh;
     margin: 6px;
     margin-top: 8px;
@@ -205,7 +205,7 @@ p{
 }
 
 .processesContainer{
-    width: 250px;
+    width: 400px;
     height: 80vh;
     margin-top: 8px;
     border-radius: 10px;
