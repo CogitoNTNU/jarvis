@@ -63,12 +63,12 @@ def summarize_store():
 @socketio.on('connect') 
 def connect(data):
     emit("You're connected to Jarvis streaming server...")
-    print('Client connected')
+    print('UI connected to backend')
 
 # Base event that's fired when user gracefully disconnects
 @socketio.on('disconnect')
 def disconnect():
-    print('Client disconnected')
+    print('UI disconnected')
 
 # Custom event. Fired when the user sends a prompt.
 @socketio.on('user_prompt')
