@@ -42,6 +42,8 @@ def summarize_store():
 
     return {"status": "success", "summary": summary}
 
+
+
 #
 #
 #   Socket.IO events below
@@ -64,7 +66,7 @@ def handle_prompt(data):
     try:
         conversation_id = data['conversation_id'] # grabs the conversation ID
         socketio.emit("start_message")
-        response = asyncio.run(jarvis.run(data['prompt'], socketio), debug=True) # prompts Jarvis and hands off emitting to the graphAgent.
+        asyncio.run(jarvis.run(data['prompt'], socketio), debug=True) # prompts Jarvis and hands off emitting to the graphAgent.
         
         return jsonify({"status": response})
     except Exception as e:
