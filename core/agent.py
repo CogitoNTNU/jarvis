@@ -15,6 +15,7 @@ class Agent1:
         model = Model.gpt_4o,
         temperature=0,
         max_tokens=512,
+        #streaming=True, #Can't use because of metadata
     )
 
 
@@ -41,6 +42,7 @@ class Agent:
         # Defining edges between nodes
         self.workflow.add_edge(START, "chatbot")
         self.workflow.add_edge("tools", "chatbot")
+        self.workflow.add_edge("chatbot", END)
 
         # Defining conditional edges
         self.workflow.add_conditional_edges(
