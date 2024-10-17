@@ -3,10 +3,10 @@ services:
     build: ./core
     restart: unless-stopped
     environment:
-      - FLASK_ENV=development # Autorestarts flask when code changes are detected
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - LANGSMITH_API_KEY=&{LANGSMITH_API_KEY}
-      - PORT=&{PORT}
+      FLASK_ENV: ${FLASK_ENV} # Autorestarts flask when code changes are detected
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY}
+      PORT: ${PORT}
     volumes:
       - ./core:/app  # Mount the application code to detect live changes
     networks:
