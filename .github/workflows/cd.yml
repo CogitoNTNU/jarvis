@@ -1,0 +1,43 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Only runs if CI was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract short SHA
+        id: git_sha
+        run: echo "GIT_SHA=$(git rev-parse --short $GITHUB_SHA)" >> $GITHUB_ENV
+
+      - name: Build and Push Docker Backend Image
+        run: |
+          docker build -t ghcr.io/cogitontnu/jarvis-core:${{ env.GIT_SHA }} ./core
+          docker push ghcr.io/cogitontnu/jarvis-core:${{ env.GIT_SHA }}
+
+      ## Add Build and Push for Docker Frontend Image when it becomes relevant

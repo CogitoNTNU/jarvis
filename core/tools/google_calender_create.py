@@ -61,8 +61,8 @@ if __name__ == "__main__":
     summary = "Test Event"
     location = "Online"
     description = "This is a test event created by the Google Calendar tool"
-    start_time = "2024-10-09T12:00:00Z"  # Format: YYYY-MM-DDTHH:MM:SSZ
-    end_time = "2024-10-09T15:00:00Z"    # Format: YYYY-MM-DDTHH:MM:SSZ
+    start_time = "2024-10-16T12:00:00Z"  # Format: YYYY-MM-DDTHH:MM:SSZ
+    end_time = "2024-10-16T15:00:00Z"    # Format: YYYY-MM-DDTHH:MM:SSZ
     
     result = create_calendar_event(summary, location, description, start_time, end_time)
     print(result)

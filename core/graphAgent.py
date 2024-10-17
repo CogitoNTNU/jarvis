@@ -7,14 +7,17 @@ from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, A
 from models import Model
 import json
 from config import OPENAI_API_KEY
-from agent import Agent, Agent1 
+from Agents.simpleagent import SimpleAgent
+#from agent import Agent, Agent1 
+import asyncio
+from time import sleep
 
 
 class Graph:
     def __init__(self):
         LANGCHAIN_TRACING_V2: str = "true"
 
-        self.llm = Agent1.llm
+        self.llm = SimpleAgent.llm
 
         self.llm_with_tools = self.llm.bind_tools(get_tools())
         self.workflow = StateGraph(GraphState)
@@ -62,9 +65,9 @@ class Graph:
         """
         Run the agent with a user prompt and emit the response and total tokens via socket
         """
-        total_tokens = 0
         try:
             input = {"messages": [("human", user_prompt)]}
+            socketio.emit("start_message", " ")
             async for event in self.graph.astream_events(input, version='v2'):
                 event_type = event.get('event')
 
@@ -88,7 +91,6 @@ class Graph:
                                     total_tokens = usage_metadata.get('total_tokens')
                                     socketio.emit("tokens", total_tokens)
 
-    
             return "success"
         except Exception as e:
             print(e)

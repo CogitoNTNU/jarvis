@@ -6,7 +6,19 @@ from rag import embed_and_store
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
 from config import PORT
-import asyncio
+import asyncio  
+from modules.user_data_setup import check_folders
+from modules.chat import read_chat
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+
+#
+#   Setup
+#
+print("J is booting up....")
+check_folders() # Check directories are made for user data
+read_chat("1")
 
 #
 #   Server config
@@ -62,15 +74,16 @@ def disconnect():
 @socketio.on('user_prompt')
 def handle_prompt(data):
     try:
-        print("Hello!")
         conversation_id = data['conversation_id'] # grabs the conversation ID
         socketio.emit("start_message")
-        response = asyncio.run(jarvis.run(data['prompt'], socketio), debug=True) # prompts Jarvis and hands off emitting to the graphAgent.
-
-        return jsonify({"status": response})
+        asyncio.run(jarvis.run(data['prompt'], socketio), debug=True) # prompts Jarvis and hands off emitting to the graphAgent.
+        
+        return jsonify({"status": "success"})
     except Exception as e:
         print(f'Something very bad happened: {e}')
         return jsonify({"status": "error"})
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=PORT, allow_unsafe_werkzeug=True)
+
+# hello
