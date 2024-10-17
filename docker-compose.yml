@@ -1,5 +1,4 @@
 services:
-
   llm-service:
     build: ./core
     restart: unless-stopped
