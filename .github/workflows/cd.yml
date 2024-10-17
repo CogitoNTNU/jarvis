@@ -37,7 +37,7 @@ jobs:
 
       - name: Build and Push Docker Backend Image
         run: |
-          docker build -t ghcr.io/cogitontnu/jarvis-core:${{ env.GIT_SHA }} ./backend
+          docker build -t ghcr.io/cogitontnu/jarvis-core:${{ env.GIT_SHA }} ./core
           docker push ghcr.io/cogitontnu/jarvis-core:${{ env.GIT_SHA }}
 
       ## Add Build and Push for Docker Frontend Image when it becomes relevant
