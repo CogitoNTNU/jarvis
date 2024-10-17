@@ -2,11 +2,9 @@ services:
   llm-service:
     build: ./core
     restart: unless-stopped
+    env_file: .env
     environment:
       - FLASK_ENV=development # Autorestarts flask when code changes are detected
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - LANGSMITH_API_KEY=&{LANGSMITH_API_KEY}
-      - PORT=&{PORT}
     volumes:
       - ./core:/app  # Mount the application code to detect live changes
     networks:
@@ -14,7 +12,6 @@ services:
     stop_signal: SIGINT
     ports:
       - "3000:3000"
-
 
 networks:
   backend:

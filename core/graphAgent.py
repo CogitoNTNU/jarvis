@@ -8,7 +8,7 @@ from models import Model
 import json
 from config import OPENAI_API_KEY
 from Agents.simpleagent import SimpleAgent
-from agent import Agent, Agent1 
+#from agent import Agent, Agent1 
 import asyncio
 from time import sleep
 
