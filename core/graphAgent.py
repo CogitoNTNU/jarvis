@@ -3,7 +3,7 @@ from graphstate import GraphState
 from tools.tools import get_tools
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage
+from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage
 from models import Model
 import json
 from config import OPENAI_API_KEY
@@ -29,6 +29,7 @@ class Graph:
         # Defining edges between nodes
         self.workflow.add_edge(START, "chatbot")
         self.workflow.add_edge("tools", "chatbot")
+        self.workflow.add_edge("chatbot", END)
         
         # Defining conditional edges
         self.workflow.add_conditional_edges(
@@ -60,24 +61,36 @@ class Graph:
             yield chunk.content
 
     #for running the agent comment out for testing in terminal
-    async def run(self, user_prompt: str, socketio) -> tuple[str, int]:
+    async def run(self, user_prompt: str, socketio):
         """
-        Run the agent with a user prompt and return a tuple containing the llm 
-        response and the total amount of tokens used.
+        Run the agent with a user prompt and emit the response and total tokens via socket
         """
         try:
             input = {"messages": [("human", user_prompt)]}
             socketio.emit("start_message", " ")
-            async for chunk in self.graph.astream(input, stream_mode="values"):
-                if type(chunk["messages"][-1]) == HumanMessage:
+            async for event in self.graph.astream_events(input, version='v2'):
+                event_type = event.get('event')
+
+                # Passes over events that are start events
+                if event_type == 'on_chain_start':
+                    print("This event is on_chain_start")
                     continue
-                event_message = chunk["messages"][-1].content
-                event_message = event_message.split(" ")
-                for word in event_message:
-                    sleep(0.05)
-                    socketio.emit("chunk", word+" ")
-                socketio.emit("chunk", "<br>")
-            socketio.emit("tokens", 0) # a way to emit ending of the message
+
+                # Returns the AI response 
+                # //TODO Fix that it streams chuncks it rather than AIMessage
+                if event_type == 'on_chain_end':
+                    print(event['data'])
+                    for message in event['data']['output']['messages']:
+                        if isinstance(message, AIMessage):
+                            data = message.content
+                            socketio.emit("chunk", data)
+
+                            if hasattr(message, 'usage_metadata'):
+                                usage_metadata = message.usage_metadata
+                                if usage_metadata:
+                                    total_tokens = usage_metadata.get('total_tokens')
+                                    socketio.emit("tokens", total_tokens)
+
             return "success"
         except Exception as e:
             print(e)
