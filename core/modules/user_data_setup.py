@@ -2,7 +2,7 @@ import os
 
 def check_folders():
     main_folder = "user_data/"
-    pathsToCheck = ["chats", "images", "pdfs", "fbx"]
+    pathsToCheck = ["chats", "chats_metadata"]
     for directory in pathsToCheck:
         path = main_folder + directory # creates path user_data/chats for example. Everything should be under user_data as its gitignored.
         check_and_create_folder(path) # Does a relative folder check, and builds the directory if it doesn't exist

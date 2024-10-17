@@ -40,6 +40,11 @@ jarvis = Graph() # API key is configured in agent.py
 def hello_world():
     return app.send_static_file('index.html')
 
+# Route to get metadata like name, id, descriptions of all user chats
+@app.route("/chats/metadata")
+def get_chats():
+    return "lmao"
+
 @app.route('/vectorize_chat', methods=['POST'])
 def summarize_store():
     data = request.json
