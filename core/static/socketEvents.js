@@ -32,6 +32,15 @@ socket.on("start_message", async () => {
 
 }) 
 
+socket.on("tool_call", async (tool_call) => {
+    console.log("Tool called: ", tool_call);
+})
+
+socket.on("tool_response", async (tool_response) => {
+    console.log("Response from tool: ", tool_response);
+    
+})
+
 // Remember to parse the streamed response
 
 /*
