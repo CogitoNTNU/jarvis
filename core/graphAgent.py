@@ -38,9 +38,9 @@ class Graph:
         )
         self.graph = self.workflow.compile()
 
-        #with open("core/graph_node_network.png", 'wb') as f:
-            #f.write(self.graph.get_graph().draw_mermaid_png())
-    
+        with open("graph_node_network.png", 'wb') as f:
+            f.write(self.graph.get_graph().draw_mermaid_png())
+
     def chatbot(self, state: GraphState):
         """
         Simple bot that invokes the list of previous messages
