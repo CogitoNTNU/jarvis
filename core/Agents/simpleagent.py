@@ -8,5 +8,4 @@ class SimpleAgent:
         model = Model.gpt_4o,
         temperature=0,
         max_tokens=512,
-        streaming=True
         )
