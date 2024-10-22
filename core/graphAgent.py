@@ -69,27 +69,22 @@ class Graph:
             input = {"messages": [("human", user_prompt)]}
             socketio.emit("start_message", " ")
             async for event in self.graph.astream_events(input, version='v2'):
+                #print(event)
                 event_type = event.get('event')
 
-                # Passes over events that are start events
-                if event_type == 'on_chain_start':
-                    print("This event is on_chain_start")
-                    continue
+                # Focuses only on the 'on_chain_stream'-events. 
+                # There may be better events to base the response on
+                if event_type == 'on_chain_stream' and event['name'] == 'LangGraph':
+                    chunk = event['data']['chunk']
+                    if 'chatbot' in chunk:
+                        ai_message = event['data']['chunk']['chatbot']['messages'][-1]
 
-                # Returns the AI response 
-                # //TODO Fix that it streams chuncks it rather than AIMessage
-                if event_type == 'on_chain_end':
-                    print(event['data'])
-                    for message in event['data']['output']['messages']:
-                        if isinstance(message, AIMessage):
-                            data = message.content
-                            socketio.emit("chunk", data)
-
-                            if hasattr(message, 'usage_metadata'):
-                                usage_metadata = message.usage_metadata
-                                if usage_metadata:
-                                    total_tokens = usage_metadata.get('total_tokens')
-                                    socketio.emit("tokens", total_tokens)
+                        if 'tool_calls' in ai_message.additional_kwargs:
+                            continue
+                    
+                        socketio.emit("chunk", ai_message.content)
+                        socketio.emit("tokens", ai_message.usage_metadata['total_tokens'])
+                            
 
             return "success"
         except Exception as e:
