@@ -137,3 +137,6 @@ dmypy.json
 
 #wav files
 *.wav
+
+#calender json
+/core/tools/calendarjson
