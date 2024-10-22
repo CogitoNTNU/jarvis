@@ -8,32 +8,66 @@ from models import Model
 import json
 from config import OPENAI_API_KEY
 from Agents.simpleagent import SimpleAgent
-#from agent import Agent, Agent1 
+from graphtools import graphtool
 import asyncio
 from time import sleep
-
+import functools
 
 class Graph:
     def __init__(self):
         LANGCHAIN_TRACING_V2: str = "true"
-
-        self.llm = SimpleAgent.llm
-
-        self.llm_with_tools = self.llm.bind_tools(get_tools())
+        llm = SimpleAgent.llm
+        proof_reader = graphtool.create_agent(
+            llm,
+            get_tools(),
+            system_message="You should proof read the text before you send it to the user.",
+        )
+        proof_read_node = functools.partial(graphtool.agent_node, agent=proof_reader, name="proof_reader")
+        simple_agent = graphtool.create_agent(
+            llm,
+            get_tools(),
+            system_message="You should take the input of the user and use the tools available to you to generate a response.",
+        )   
+        simple_agent_node = functools.partial(graphtool.agent_node, agent=simple_agent, name="simple_agent")
+        
+        tool_node = ToolNode(get_tools())
         self.workflow = StateGraph(GraphState)
         # Adding nodes to the workflow
-        self.workflow.add_node("chatbot", self.chatbot)
-        self.workflow.add_node("tools", ToolNode(get_tools()))
+        self.workflow.add_node("simple_agent", simple_agent_node)
+        self.workflow.add_node("proof_reader", proof_read_node)
+        self.workflow.add_node("call_tool", tool_node)
         # TODO: Visualize these tools
 
         # Defining edges between nodes
-        self.workflow.add_edge(START, "chatbot")
-        self.workflow.add_edge("tools", "chatbot")
-        self.workflow.add_edge("chatbot", END)
+        self.workflow.add_conditional_edges(
+                    "simple_agent",
+                    graphtool.router,
+                    {"continue": "simple_agent", "call_tool": "call_tool", END: END},
+                )       
+        self.workflow.add_conditional_edges(
+            "proof_reader",
+            graphtool.router,
+            {"continue": "proof_reader", "call_tool": "call_tool", END: END},
+        )
+        
+        self.workflow.add_conditional_edges(
+            "call_tool",
+            # Each agent node updates the 'sender' field
+            # the tool calling node does not, meaning
+            # this edge will route back to the original agent
+            # who invoked the tool
+            lambda x: x["sender"],
+            {
+                "simple_agent": "simple_agent",
+                "proof_reader": "proof_reader",
+            },
+        )
+        self.workflow.add_edge(START, "simple_agent")
+        self.workflow.add_edge("proof_reader", END)
         
         # Defining conditional edges
         self.workflow.add_conditional_edges(
-            "chatbot",
+            "simple_agent",
             tools_condition
         )
         self.graph = self.workflow.compile()
