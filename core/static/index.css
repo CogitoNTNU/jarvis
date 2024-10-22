@@ -70,6 +70,8 @@ body {
     border: 1px solid #050505;
     background-color: #2d2d2d;
     overflow-y: scroll;
+    display: flex;
+    flex-direction: row;
 }
 /* Hide scrollbar for Chrome, Safari and Opera */
 #chat_input::-webkit-scrollbar {
@@ -83,11 +85,20 @@ body {
 }
 
 #chat_input_text {
-    width: 100%;
+    width: 90%;
     height: 9vh;
     border: none;
     background-color: #2d2d2d;
     color: var(--onSurface);
+}
+
+#voice_button {
+    width: 10%;
+    height: 9vh;
+    background-color: #4d4d4d;
+    border-radius: 10px;
+    font-size: 24px;
+
 }
 
 .chat_input_container{
@@ -146,11 +157,11 @@ body {
 }
 
 .chat{
-    width: 65%;
+    width: 100%;
 }
 
 .chatHistory {
-    width: 250px;
+    width: 400px;
     height: 80vh;
     margin: 6px;
     margin-top: 8px;
@@ -205,7 +216,7 @@ p{
 }
 
 .processesContainer{
-    width: 250px;
+    width: 400px;
     height: 80vh;
     margin-top: 8px;
     border-radius: 10px;

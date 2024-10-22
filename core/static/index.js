@@ -58,7 +58,7 @@ let setLoading = (newLoadingVal) => {
 async function addMessage(message, uuid) {
 let html = /*html*/`
     <li class = "chat_element">
-        <img class="profile_picture" src="./static/trainer.png">
+        <img class="profile_picture" src="./static/rickroll-roll.gif">
         <div class="chat_message_container">
             <div id=${uuid} class="chat_message"> ${message} </div>
     </li>`;
@@ -80,7 +80,7 @@ async function addStreamedMessage(uuid, messagePart) {
 addUserMessage = (message) => {
     let html = /*html*/`
     <li class = "chat_element">
-        <img class="profile_picture" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftoppng.com%2Fpublic%2Fuploads%2Fpreview%2Fuser-account-management-logo-user-icon-11562867145a56rus2zwu.png&f=1&nofb=1&ipt=5314f437c2b8d23762941ef06df17a94034191b5759f8871931e3fb0def23aed&ipo=images">
+        <img class="profile_picture" src="https://media1.tenor.com/m/pMhSj9NfCXsAAAAd/saul-goodman-better-call-saul.gif">
         <div class="chat_message_container">
             <div class="chat_message">${message}</div>
     </li>`

@@ -7,11 +7,7 @@ PORT = os.getenv("PORT")
 PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 
 #add langsmith api to env as LANGSMITH_API_KEY = "your_api_key" on EU server
-LANGSMITH_API_KEY: str
-if os.getenv(key="LANGSMITH_API_KEY"):
-    LANGSMITH_API_KEY: str = os.getenv(key="LANGSMITH_API_KEY")
-else:
-    LANGSMITH_API_KEY: str = "lmao"
+LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY", "no_key")
 
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_ENDPOINT"] = "https://eu.api.smith.langchain.com"
