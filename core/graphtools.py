@@ -16,7 +16,7 @@ class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], operator.add]
     sender: str
 
-class gaphtool:
+class graphtool:
     def __init__(self, graph):
         self.graph = graph
         self.nodes = graph.nodes()

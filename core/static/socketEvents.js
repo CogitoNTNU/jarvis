@@ -12,7 +12,13 @@ let uuid = 0
 
 // prints chunks that are streamed to the console and adds them to the chat
 socket.on("chunk", async (chunk)=>{
-    console.log(chunk);
+    if(!state.activeAIMessage){
+        console.log("STARTED MESSAGE")
+        uuid = generateUUID();
+        await addStreamedMessage(uuid, "");
+        ai_message = document.getElementById(uuid)
+        state.activeAIMessage = ai_message
+    }
     await addStreamedMessage(uuid, chunk);
 })
 
@@ -23,9 +29,7 @@ socket.on("tokens", async (tokens) => {
 })
 
 socket.on("start_message", async () => {
-    uuid = generateUUID();
-    console.log(uuid);
-    await addStreamedMessage(uuid, "");
+
 }) 
 
 // Remember to parse the streamed response

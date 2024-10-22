@@ -10,6 +10,15 @@ from config import OPENAI_API_KEY
 
 
 
+class Agent1:
+    llm = ChatOpenAI(
+        model = Model.gpt_4o,
+        temperature=0,
+        max_tokens=512,
+        #streaming=True, #Can't use because of metadata
+    )
+
+
 class Agent:
     def __init__(self, model_type) -> None:
         #Langsmith Tracing
@@ -33,6 +42,7 @@ class Agent:
         # Defining edges between nodes
         self.workflow.add_edge(START, "chatbot")
         self.workflow.add_edge("tools", "chatbot")
+        self.workflow.add_edge("chatbot", END)
 
         # Defining conditional edges
         self.workflow.add_conditional_edges(
@@ -75,19 +85,14 @@ class Agent:
         response and the total amount of tokens used.
         """
         first = True
-        for event in self.graph.stream({"messages": [("user", user_prompt)]}):
+        for event in self.graph.stream("tell me about orcas?"):
             for value in event.values():
                 messages = value["messages"][-1]
                 gathered = ""
                 # if messages.content and not isinstance(messages, HumanMessage):
                 #     print(messages.content, end="|", flush=True)
 
-                if isinstance(messages, AIMessageChunk):
-                    if first:
-                        gathered = messages
-                        first = False
-                    else:
-                        gathered += messages
+                gathered += messages
 
                 if isinstance(messages, BaseMessage):
                     if hasattr(messages, 'usage_metadata'):

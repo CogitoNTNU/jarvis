@@ -1,23 +1,12 @@
 services:
-  # ui-service:
-  #   build: ./ui
-  #   env_file: .env
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ./ui:/app  # Mount the application code
-  #     - /app/node_modules
-  #   networks:
-  #     - backend
-  #   stop_signal: SIGINT
-  #   ports:
-  #     - "3000:3000"
-
   llm-service:
     build: ./core
-    env_file: .env
     restart: unless-stopped
     environment:
-      - FLASK_ENV=development # Autorestarts flask when code changes are detected
+      FLASK_ENV: ${FLASK_ENV} # Autorestarts flask when code changes are detected
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY}
+      PORT: ${PORT}
     volumes:
       - ./core:/app  # Mount the application code to detect live changes
     networks:
@@ -26,18 +15,6 @@ services:
     ports:
       - "3000:3000"
 
-#  speech-service:
-#    build: ./speech
-#    env_file: .env
-#    restart: unless-stopped
-#    environment:
-#    volumes:
-#      - ./speech:/app
-#    networks:
-#      - backend
-#    stop_signal: SIGINT
- #   ports:
- #     - "3069:3069" #nice
 
 networks:
   backend:
