@@ -3,7 +3,7 @@ from graphstate import GraphState
 from tools.tools import get_tools
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage
+from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
 from models import Model
 import json
 from config import OPENAI_API_KEY
@@ -79,12 +79,23 @@ class Graph:
                     if 'chatbot' in chunk:
                         ai_message = event['data']['chunk']['chatbot']['messages'][-1]
 
-                        if 'tool_calls' in ai_message.additional_kwargs:
+                        if isinstance(ai_message, AIMessage):
+                            if 'tool_calls' in ai_message.additional_kwargs:
+                                tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
+                                #function = tool_calls['function']
+                                socketio.emit("tool_call", tool_call)
+                                continue
+                        
+                            socketio.emit("chunk", ai_message.content)
+                            socketio.emit("tokens", ai_message.usage_metadata['total_tokens'])
                             continue
-                    
-                        socketio.emit("chunk", ai_message.content)
-                        socketio.emit("tokens", ai_message.usage_metadata['total_tokens'])
-                            
+                
+                if event_type == 'on_chain_stream' and event['name'] == 'tools':
+                    tool_response = event['data']['chunk']['messages'][-1]
+
+                    if isinstance(tool_response, ToolMessage):
+                        socketio.emit("tool_response", tool_response.content)
+                        continue
 
             return "success"
         except Exception as e:
