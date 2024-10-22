@@ -89,7 +89,6 @@ if __name__ == "__main__":
         
         time.sleep(2)
 
-        remove_tmp_wav_file()
     
     else:
         audio_file = path_to_audio_file(sys.argv[1])
