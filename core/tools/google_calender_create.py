@@ -5,6 +5,7 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from langchain_core.tools.structured import StructuredTool
 from langchain_core.tools import tool
+from pydantic import BaseModel, Field
 
 load_dotenv()
 
@@ -20,7 +21,14 @@ def get_calendar_service():
     service = build("calendar", "v3", credentials=creds)
     return service
 
-@tool   # Remove for testing
+class create_calendar_event_parameters(BaseModel):
+    summary: str = Field(description="Event title", example="Test Event")
+    location: str = Field(description="Event location", example="Online")
+    description: str = Field(description="Event description", example="This is a test event created by the Google Calendar tool")
+    start_time: str = Field(description="Event start time in ISO format(YYYY-MM-DDTHH:MM:SSZ), the current time can be collected from current_time_iso_format tool", example="2024-10-16T12:00:00Z")
+    end_time: str = Field(description="Event end time in ISO format(YYYY-MM-DDTHH:MM:SSZ), can use add_time tool to add for example an hour", example="2024-10-16T15:00:00Z")
+
+@tool("create_calendar_event",args_schema=create_calendar_event_parameters)   # # Remove for testing
 def create_calendar_event(summary: str, location: str, description: str, start_time: str, end_time: str) -> str:
     """
     Use this tool to create an event in the calendar.

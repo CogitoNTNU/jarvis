@@ -3,11 +3,16 @@ import dotenv
 import config
 from langchain_core.tools import tool
 from langchain_core.tools.structured import StructuredTool
+from pydantic import BaseModel, Field
 
 dotenv.load_dotenv()
 
-@tool
-def weather_forecast(user_query):
+
+class weather_forecast_parameters(BaseModel):
+    user_query: str = Field(description="The query to search for.", 
+                            examples=["Hvordan blir været i Trondheim i morgen?","Hvordan blir været på Kapp til helgen?", "Hvordan blir været i Bergen 02.11.2024?"])
+@tool("weather_forecast", args_schema=weather_forecast_parameters)
+def weather_forecast(user_query: str) -> str:
     """
     Use this tool to search for weather forecasts. user_query must be a string and formualated as a question.'
     Example: Hvordan blir været i Trondheim i morgen?
