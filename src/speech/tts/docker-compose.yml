@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  ttssend:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - RECEIVER_IP=${RECEIVER_IP}
+      - RECEIVER_PORT=${RECEIVER_PORT}
+      - TTS_ENGINE=narakeet
+      - NARAKEET_API_KEY=${NARAKEET_API_KEY}
+      - CACHING_MAX_SIZE=100
+    volumes:
+      - ./cache:/cache
+
