@@ -29,7 +29,6 @@ class Graph:
             system_message="You should take the input of the user and use the tools available to you to generate a response.",
         )   
         simple_agent_node = functools.partial(graphtool.agent_node, agent=simple_agent, name="simple_agent")
-        
         tool_node = ToolNode(get_tools())
         self.workflow = StateGraph(GraphState)
         # Adding nodes to the workflow
@@ -42,34 +41,18 @@ class Graph:
         self.workflow.add_conditional_edges(
                     "simple_agent",
                     graphtool.router,
-                    {"continue": "simple_agent", "call_tool": "call_tool", END: END},
+                    {"continue": "proof_reader", "call_tool": "call_tool"},
                 )       
-        self.workflow.add_conditional_edges(
-            "proof_reader",
-            graphtool.router,
-            {"continue": "proof_reader", "call_tool": "call_tool", END: END},
-        )
         
-        self.workflow.add_conditional_edges(
-            "call_tool",
-            # Each agent node updates the 'sender' field
-            # the tool calling node does not, meaning
-            # this edge will route back to the original agent
-            # who invoked the tool
-            lambda x: x["sender"],
-            {
-                "simple_agent": "simple_agent",
-                "proof_reader": "proof_reader",
-            },
-        )
+        self.workflow.add_edge("call_tool", "simple_agent")
+        self.workflow.add_edge("simple_agent", "proof_reader")
+
+
         self.workflow.add_edge(START, "simple_agent")
         self.workflow.add_edge("proof_reader", END)
         
         # Defining conditional edges
-        self.workflow.add_conditional_edges(
-            "simple_agent",
-            tools_condition
-        )
+      
         self.graph = self.workflow.compile()
 
         with open("graph_node_network.png", 'wb') as f:
@@ -110,14 +93,14 @@ class Graph:
                 # There may be better events to base the response on
                 if event_type == 'on_chain_stream' and event['name'] == 'LangGraph':
                     chunk = event['data']['chunk']
-                    if 'chatbot' in chunk:
-                        ai_message = event['data']['chunk']['chatbot']['messages'][-1]
+                    if 'simple_agent' in chunk:
+                        ai_message = event['data']['chunk']['simple_agent']['messages'][-1]
 
                         if isinstance(ai_message, AIMessage):
-                            if 'tool_calls' in ai_message.additional_kwargs:
-                                tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
+                            if 'call_tool' in ai_message.additional_kwargs:
+                                tool_call = ai_message.additional_kwargs['call_tool'][0]['function']
                                 #function = tool_calls['function']
-                                socketio.emit("tool_call", tool_call)
+                                socketio.emit("call_tool", tool_call)
                                 continue
                         
                             socketio.emit("chunk", ai_message.content)
