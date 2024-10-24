@@ -10,6 +10,7 @@ import asyncio
 from modules.user_data_setup import check_folders
 from modules.chat import read_chat
 import logging
+from speech_to_text.speech_to_text import main as speech_to_text_main
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
@@ -43,7 +44,7 @@ def hello_world():
 # Route to get metadata like name, id, descriptions of all user chats
 @app.route("/chats/metadata")
 def get_chats():
-    return "lmao"
+    return "lmao" # Why does this return lmao?
 
 @app.route('/vectorize_chat', methods=['POST'])
 def summarize_store():
@@ -88,7 +89,22 @@ def handle_prompt(data):
         print(f'Something very bad happened: {e}')
         return jsonify({"status": "error"})
 
+# Custom event. Fired when the user click the button with the cute little microphone icon.
+@socketio.on('start_recording')
+def handle_recording(data):
+    try:
+        conversation_id = data['conversation_id'] # grabs the conversation ID
+        socketio.emit("start_message")
+        text = asyncio.run(speech_to_text_main()) # prompts Jarvis and hands off emitting to the graphAgent.
+        print(text)
+        asyncio.run(jarvis.run(text, socketio), debug=True) # prompts Jarvis and hands off emitting to the graphAgent.
+        return jsonify({"status": "success"})
+    except Exception as e:
+        print(f'Something very bad happened: {e}')
+        return jsonify({"status": "error"})
+
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=PORT, allow_unsafe_werkzeug=True)
 
 # hello
+# TODO say hello back to whoever wrote this
