@@ -15,20 +15,20 @@ services:
     ports:
       - "3000:3000"
 
-  speech-to-text:
-    build: ./speechToText
-    restart: unless-stopped
-    environment:
-      FLASK_ENV: ${FLASK_ENV} # Autorestarts flask when code changes are detected
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      PORT: ${PORT_STT}
-    volumes:
-      - ./core:/app  # Mount the application code to detect live changes
-    networks:
-      - backend
-    stop_signal: SIGINT
-    ports:
-      - "3001:3001"
+  # speech-to-text:
+  #   build: ./speechToText
+  #   restart: unless-stopped
+  #   environment:
+  #     FLASK_ENV: ${FLASK_ENV} # Autorestarts flask when code changes are detected
+  #     OPENAI_API_KEY: ${OPENAI_API_KEY}
+  #     PORT: ${PORT_STT}
+  #   volumes:
+  #     - ./core:/app  # Mount the application code to detect live changes
+  #   networks:
+  #     - backend
+  #   stop_signal: SIGINT
+  #   ports:
+  #     - "3001:3001"
 
 networks:
   backend:
