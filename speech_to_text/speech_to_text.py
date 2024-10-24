@@ -3,9 +3,8 @@ import os
 from dotenv import load_dotenv
 import numpy as np
 import wave
-from audioRecorder import AudioRecorder
-from audioProcessor import AudioProcessor
-import time
+from speech_to_text.audioRecorder import AudioRecorder
+from speech_to_text.audioProcessor import AudioProcessor
 from threading import Thread
 
 load_dotenv()
@@ -55,7 +54,7 @@ def chunks_to_full_audio(chunks):
     return b"".join(chunks)
 
 
-def handle_chunk(chunk, index):
+def handle_chunk(chunk, index,text):
     create_tmp_wav_file(chunk, path=f"tmp{index}.wav")
     processor = AudioProcessor(f"tmp{index}.wav")
     processor.process()
@@ -64,32 +63,30 @@ def handle_chunk(chunk, index):
 
     text.append(speech_to_text(audio_file=audio_file))
     audio_file.close()
-    print(text[-1].text)
     remove_tmp_wav_file(index)
 
+def main():
+    
+    CHUNK_SIZE = 1024  # Number of frames in a buffer
+    RATE = 16000       # 16 000 Hz is a common rate for speech processing
+    CHANNELS = 1       # Mono audio
+    SILENCE_THRESHOLD = 25  # Used to detect silence for stopping recording
+    MAX_SILENCE_DURATION = 5  # Seconds of silence to stop recording
 
+    recorder = AudioRecorder(chunk_size=CHUNK_SIZE, rate=RATE, channels=CHANNELS, silence_threshold=SILENCE_THRESHOLD, max_silence_duration=MAX_SILENCE_DURATION)
+        
+    text = []
+    index = 0
+    for chunk in recorder.record(30):
+        t = Thread(target=handle_chunk, args=(chunk,index,text))
+        index += 1
+        t.start()
+        
+    return " ".join([t.text for t in text])
 if __name__ == "__main__":
     import sys
     if len(sys.argv) ==1:
-
-        CHUNK_SIZE = 1024  # Number of frames in a buffer
-        RATE = 16000       # 16 000 Hz is a common rate for speech processing
-        CHANNELS = 1       # Mono audio
-        SILENCE_THRESHOLD = 25  # Used to detect silence for stopping recording
-        MAX_SILENCE_DURATION = 5  # Seconds of silence to stop recording
-
-        recorder = AudioRecorder(chunk_size=CHUNK_SIZE, rate=RATE, channels=CHANNELS, silence_threshold=SILENCE_THRESHOLD, max_silence_duration=MAX_SILENCE_DURATION)
-        
-        text = []
-        index = 0
-        for chunk in recorder.record(30):
-            t = Thread(target=handle_chunk, args=(chunk,index))
-            index += 1
-            t.start()
-        
-        time.sleep(2)
-
-    
+        print(main())  
     else:
         audio_file = path_to_audio_file(sys.argv[1])
         transcription = speech_to_text(audio_file)
