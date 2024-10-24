@@ -9,6 +9,8 @@ Main js file for loading the dynamic UI elements.
     document.getElementById('send_button').addEventListener('click', sendMessage)
     document.getElementById('clear_log').addEventListener('click', clear_log)
 
+    document.getElementById('voice_button').addEventListener('click', startRecording)
+
     document.querySelector(".chatHistory").innerHTML += chatHistoryList()
 
     // To hide settings page when clicking somewhere else after it's opened.
