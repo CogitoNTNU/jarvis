@@ -13,30 +13,34 @@ from graphtools import graphtool
 import asyncio
 from time import sleep
 import functools
+from noder import jarvis_agent, tool_decider, router, response_generator
 
 class Graph:
-    MAIN_AGENT = "chatbot"
     def __init__(self):
         LANGCHAIN_TRACING_V2: str = "true"
         
-        self.llm = SimpleAgent.llm
-        self.llm_with_tools = self.llm.bind_tools(get_tools())
-
         self.workflow = StateGraph(GraphState)
 
-        self.workflow.add_node(self.MAIN_AGENT, self.chatbot)
+        self.workflow.add_node("jarvis_agent", jarvis_agent)
+        self.workflow.add_node("use_tool", tool_decider)
+        self.workflow.add_node("generate", response_generator)
         self.workflow.add_node("tools", ToolNode(get_tools()))
 
-        self.workflow.add_edge(START, self.MAIN_AGENT)
-        self.workflow.add_edge("tools", self.MAIN_AGENT)
+        self.workflow.add_edge(START, "jarvis_agent")
+        self.workflow.add_edge("use_tool", "tools")
+        self.workflow.add_edge("tools", "jarvis_agent")
+        self.workflow.add_edge("generate", END)
 
         # Defining conditional edges
         self.workflow.add_conditional_edges(
-            self.MAIN_AGENT,
-            tools_condition,
-            {"tools": "tools", "__end__": END}
+            "jarvis_agent",
+            router,
+            {"generate": "generate", "use_tool": "use_tool"}
         )
+
         self.graph = self.workflow.compile()
+        
+        
 
         with open("graph_node_network.png", 'wb') as f:
             f.write(self.graph.get_graph().draw_mermaid_png())
