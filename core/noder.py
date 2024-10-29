@@ -1,8 +1,9 @@
 from graphstate import GraphState
 from Agents.simpleagent import SimpleAgent, ToolsAgent
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from typing import Literal
+
 
 
 def jarvis_agent(state: GraphState):
