@@ -51,7 +51,7 @@ def tool_decider(state: GraphState):
         """,
     )
 
-    chain = prompt | ToolsAgent.agent | StrOutputParser()
+    chain = prompt | ToolsAgent.agent
     response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
     return {"messages": [response]}
 
