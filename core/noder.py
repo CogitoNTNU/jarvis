@@ -77,6 +77,6 @@ def response_generator(state: GraphState):
         Formulate a response that answer the users question
         """,
     )
-    chain = prompt | SimpleAgent
+    chain = prompt | SimpleAgent.llm
     response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
     return {"message": [response]}
