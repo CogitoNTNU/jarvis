@@ -1,5 +1,4 @@
-from typing import Annotated
-from typing import TypedDict
+from typing import Annotated, TypedDict, Literal
 from langgraph.graph.message import add_messages
 
 
@@ -9,3 +8,4 @@ class GraphState(TypedDict):
     # (in this case, it appends messages to the list, rather than overwriting them)
     messages: Annotated[list, add_messages]
     data: dict
+    tool_decision: Literal["use_tools", "generate"]
