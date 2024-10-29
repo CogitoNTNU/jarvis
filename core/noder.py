@@ -20,14 +20,16 @@ def jarvis_agent(state: GraphState):
 
         Data: {data}
 
-        Your options are the following
+        Your options are the following:
+        1. 'use_tools': Call on tools to help solve the users problem
+        2. 'generate': Generate a response if you have what you need to answer
 
         Answer with the option name and nothing else
         """,
     )
     chain = prompt | SimpleAgent.llm | StrOutputParser()
-
-    return chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
+    response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
+    return {"tool_decision": response}
 
 def tool_decider(state: GraphState):
     """Agent to determine what tool to use"""
@@ -55,10 +57,26 @@ def tool_decider(state: GraphState):
 
 def router(state: GraphState) -> Literal["use_tools", "generate"]:
     """Router to determine what to do"""
-    return state["decision"]
+    return state["tool_decision"]
 
 def response_generator(state: GraphState):
     """Agent that generates a response to user based on user request 
     and possible data from tool calls"""
-    #TODO Implement
-    return ""
+    prompt = PromptTemplate(
+        template= """
+        You are a personal assistant and your job is to generate a response to the user. 
+
+        Here are the previous messages:
+        
+        Message: {messages}
+
+        Here is the data currently accumulated: 
+
+        Data: {data}
+
+        Formulate a response that answer the users question
+        """,
+    )
+    chain = prompt | SimpleAgent
+    response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
+    return {"message": [response]}
