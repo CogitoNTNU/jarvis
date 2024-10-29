@@ -17,7 +17,7 @@ def current_time_iso_format(basetool):
     Returns:
         str: The current time in ISO format.
     """
-    time = datetime.now().replace(microsecond=0).strftime('%Y-%m-%dT%H:%M:%SZ')
+    time = datetime.now().replace(microsecond=0).strftime('%Y-%m-%dT%H:%M:%S')
     return time
 
 def get_tool() -> StructuredTool:
