@@ -20,14 +20,15 @@ def jarvis_agent(state: GraphState):
         Data: {data}
 
         Your options are the following:
-        1. 'use_tools': Call on tools to help solve the users problem
+        1. 'use_tool': Call on tools to help solve the users problem
         2. 'generate': Generate a response if you have what you need to answer
 
         Answer with the option name and nothing else
         """,
     )
-    chain = prompt | SimpleAgent.llm | StrOutputParser()
-    response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
+    chain = prompt | ToolsAgent.agent | StrOutputParser()
+    response = chain.invoke({
+        "messages": state["messages"], "data": state.get("data", {})})
     return {"tool_decision": response}
 
 def tool_decider(state: GraphState):
@@ -54,7 +55,7 @@ def tool_decider(state: GraphState):
     response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
     return {"messages": [response]}
 
-def router(state: GraphState) -> Literal["use_tools", "generate"]:
+def router(state: GraphState) -> Literal["use_tool", "generate"]:
     """Router to determine what to do"""
     return state["tool_decision"]
 
