@@ -77,23 +77,19 @@ class Graph:
 
                 # Focuses only on the 'on_chain_stream'-events. 
                 # There may be better events to base the response on
-                if event_type == 'on_chain_stream' and event['name'] == 'LangGraph':
-                    chunk = event['data']['chunk']
+                if event_type == 'on_chain_end' and event['name'] == 'LangGraph':
+                    ai_message = event['data']['output']['messages'][-1]
 
-                    # Filters the stream to only get events by main agent
-                    if self.MAIN_AGENT in chunk:
-                        ai_message = event['data']['chunk'][self.MAIN_AGENT]['messages'][-1]
-
-                        if isinstance(ai_message, AIMessage):
-                            if 'tool_calls' in ai_message.additional_kwargs:
-                                tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
-                                #tool_call_id = ai_message.additional_kwargs['call_tool'][0]['tool_call_id']
-                                socketio.emit("tool_call", tool_call)
-                                continue
-                        
-                            socketio.emit("chunk", ai_message.content)
-                            socketio.emit("tokens", ai_message.usage_metadata['total_tokens'])
+                    if isinstance(ai_message, AIMessage):
+                        if 'tool_calls' in ai_message.additional_kwargs:
+                            tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
+                            #tool_call_id = ai_message.additional_kwargs['call_tool'][0]['tool_call_id']
+                            socketio.emit("tool_call", tool_call)
                             continue
+                    
+                        socketio.emit("chunk", ai_message.content)
+                        socketio.emit("tokens", ai_message.usage_metadata['total_tokens'])
+                        continue
                 
                 if event_type == 'on_chain_stream' and event['name'] == 'tools':
                     tool_response = event['data']['chunk']['messages'][-1]
