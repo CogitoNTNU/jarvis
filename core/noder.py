@@ -4,8 +4,6 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from typing import Literal
 
-
-
 def jarvis_agent(state: GraphState):
     """Agent to determine how to answer user question"""
     prompt = PromptTemplate(
@@ -80,4 +78,4 @@ def response_generator(state: GraphState):
     )
     chain = prompt | SimpleAgent.llm
     response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
-    return {"message": [response]}
+    return {"messages": [response]}
