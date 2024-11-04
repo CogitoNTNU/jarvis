@@ -3,6 +3,14 @@ import time
 import numpy as np
 import sys
 
+'''
+    chunk_size:
+    rate:
+    channels: Stereo or mono?
+    silence_threshold: 
+    max_silence_duration: 
+'''
+
 
 class AudioRecorder:
     def __init__(self, chunk_size=1024, rate=16000, channels=1, silence_threshold=500, max_silence_duration=5):
@@ -19,7 +27,6 @@ class AudioRecorder:
         self.stream = self.audio.open(format=pyaudio.paInt16, channels=self.channels, rate=self.rate, input=True, frames_per_buffer=self.chunk_size)
         self.audio_chunks = []
         print("Recording started")
-
 
     def stop_recording(self):
         self.stream.stop_stream()

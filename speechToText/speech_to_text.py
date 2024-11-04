@@ -11,7 +11,6 @@ from threading import Thread
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-
 def create_tmp_wav_file(chunk, rate=16000, channels=1, path="tmp.wav"):
     with wave.open(path, 'wb') as wav_file:
         wav_file.setnchannels(channels)  # Mono audio
@@ -38,7 +37,6 @@ def speech_to_text(audio_file):
     transcription.text.replace(prompt, "")
     return transcription
 
-
 def path_to_audio_file(path):
     audio_file = open(path, "rb")
     return audio_file
@@ -52,20 +50,6 @@ def chunks_to_text(chunks):
 
 def chunks_to_full_audio(chunks):
     return b"".join(chunks)
-
-
-def handle_chunk(chunk, index):
-    create_tmp_wav_file(chunk, path=f"tmp{index}.wav")
-    processor = AudioProcessor(f"tmp{index}.wav")
-    processor.process()
-    processor.save_audio(f"tmp{index}.wav")
-    audio_file = path_to_audio_file(f"tmp{index}.wav")
-
-    text.append(speech_to_text(audio_file=audio_file))
-    audio_file.close()
-    print(text[-1].text)
-    remove_tmp_wav_file(index)
-
 
 if __name__ == "__main__":
     import sys

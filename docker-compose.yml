@@ -1,3 +1,5 @@
+version: "2.1" # To keep the docker-resource constraints under deploy active. Else we need swarm in v3
+
 services:
   llm-service:
     build: ./core
@@ -14,6 +16,11 @@ services:
     stop_signal: SIGINT
     ports:
       - "3000:3000"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 2048M # Memory limit for the compose
 
   # speech-to-text:
   #   build: ./speechToText

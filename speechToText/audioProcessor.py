@@ -5,10 +5,6 @@ import noisereduce as nr
 from silero_vad import load_silero_vad, get_speech_timestamps, read_audio
 from scipy.signal import resample
 
-
-
-
-
 class AudioProcessor:
     def __init__(self, audio_path=None):
         if audio_path is not None:
@@ -28,7 +24,6 @@ class AudioProcessor:
         scaled_audio = np.int16(reduced_noise * 32767)
         self.audio = scaled_audio
 
-
     def save_audio(self, output_path):
         wavfile.write(output_path, 16000, self.audio)
 
@@ -36,15 +31,18 @@ class AudioProcessor:
         model = load_silero_vad()
         wav = read_audio(self.audio_path)
         speech_timestamps = get_speech_timestamps(wav, model)
-        speech_segments = [wav[segment['start']:segment['end']] for segment in speech_timestamps]
-        combined_speech = np.concatenate(speech_segments)
-
-        if output_path is not None:
-            wavfile.write(output_path, 16000, combined_speech)
+        speech_timestamps = get_speech_timestamps(wav, model)
+        if not speech_timestamps:
+            print("No speech detected in the audio.")
         else:
-            self.audio = combined_speech
+            speech_segments = [wav[segment['start']:segment['end']] for segment in speech_timestamps]
+            combined_speech = np.concatenate(speech_segments)
 
-           
+            if output_path is not None:
+                wavfile.write(output_path, 16000, combined_speech)
+            else:
+                self.audio = combined_speech
+
     def boost_audio(self, factor=1.5):
         boosted_audio = self.audio * factor
         self.audio= np.clip(boosted_audio, -32768, 32767).astype(np.int16)
