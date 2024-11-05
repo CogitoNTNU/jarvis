@@ -13,7 +13,7 @@ from graphtools import graphtool
 import asyncio
 from time import sleep
 import functools
-from noder import jarvis_agent, tool_decider, router, response_generator
+from noder import jarvis_agent, tool_agent_decider, router, response_generator
 
 class Graph:
     def __init__(self):
@@ -22,9 +22,10 @@ class Graph:
         self.workflow = StateGraph(GraphState)
 
         self.workflow.add_node("jarvis_agent", jarvis_agent)
-        self.workflow.add_node("use_tool", tool_decider)
+        self.workflow.add_node("use_tool", tool_agent_decider)
         self.workflow.add_node("generate", response_generator)
         self.workflow.add_node("tools", ToolNode(get_tools()))
+        self.workflow.add_node("calendar_tool", ToolNode(get_tools()))
 
         self.workflow.add_edge(START, "jarvis_agent")
         self.workflow.add_edge("use_tool", "tools")
