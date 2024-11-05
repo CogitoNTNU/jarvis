@@ -78,6 +78,17 @@ async function addStreamedMessage(uuid, messagePart) {
         element.innerHTML += messagePart;
     }
 }
+async function addStreamedRecording(uuid, messagePart) {
+    let element = document.getElementById(uuid);
+
+    if (element == null) {
+        await addRecordedMessage(messagePart, uuid);
+        element = document.getElementById(uuid);
+    } else {
+        // Concat ChatPart on message with uuid
+        element.innerHTML += messagePart;
+    }
+}
 
 addUserMessage = (message) => {
     let html = /*html*/`

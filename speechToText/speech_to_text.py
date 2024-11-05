@@ -54,7 +54,7 @@ def chunks_to_full_audio(chunks):
     return b"".join(chunks)
 
 
-def handle_chunk(chunk, index):
+def handle_chunk(chunk, index, text):
     create_tmp_wav_file(chunk, path=f"tmp{index}.wav")
     processor = AudioProcessor(f"tmp{index}.wav")
     processor.process()
@@ -67,26 +67,32 @@ def handle_chunk(chunk, index):
     remove_tmp_wav_file(index)
 
 
+async def startRecording():
+    CHUNK_SIZE = 1024  # Number of frames in a buffer
+    RATE = 16000       # 16 000 Hz is a common rate for speech processing
+    CHANNELS = 1       # Mono audio
+    SILENCE_THRESHOLD = 25  # Used to detect silence for stopping recording
+    MAX_SILENCE_DURATION = 5  # Seconds of silence to stop recording
+    return "can you hear me?"
+    recorder = AudioRecorder(chunk_size=CHUNK_SIZE, rate=RATE, channels=CHANNELS, silence_threshold=SILENCE_THRESHOLD, max_silence_duration=MAX_SILENCE_DURATION)
+    
+    text = []
+    threads = []
+    index = 0
+    for chunk in recorder.record(30):
+        t = Thread(target=handle_chunk, args=(chunk,index,text))
+        threads.append(t)
+        index += 1
+        t.start()
+
+    for t in threads:
+        t.join()
+    return " ".join([t.text for t in text])
+    
 if __name__ == "__main__":
     import sys
     if len(sys.argv) ==1:
-
-        CHUNK_SIZE = 1024  # Number of frames in a buffer
-        RATE = 16000       # 16 000 Hz is a common rate for speech processing
-        CHANNELS = 1       # Mono audio
-        SILENCE_THRESHOLD = 25  # Used to detect silence for stopping recording
-        MAX_SILENCE_DURATION = 5  # Seconds of silence to stop recording
-
-        recorder = AudioRecorder(chunk_size=CHUNK_SIZE, rate=RATE, channels=CHANNELS, silence_threshold=SILENCE_THRESHOLD, max_silence_duration=MAX_SILENCE_DURATION)
-        
-        text = []
-        index = 0
-        for chunk in recorder.record(30):
-            t = Thread(target=handle_chunk, args=(chunk,index))
-            index += 1
-            t.start()
-        
-        time.sleep(2)
+        startRecording()
     else:
         audio_file = path_to_audio_file(sys.argv[1])
         transcription = speech_to_text(audio_file)

@@ -21,9 +21,9 @@ services:
     environment:
       FLASK_ENV: ${FLASK_ENV} # Autorestarts flask when code changes are detected
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      PORT: ${PORT_STT}
+      PORT_STT: ${PORT_STT}
     volumes:
-      - ./core:/app  # Mount the application code to detect live changes
+      - ./speechToText:/app  # Mount the application code to detect live changes
     networks:
       - backend
     stop_signal: SIGINT

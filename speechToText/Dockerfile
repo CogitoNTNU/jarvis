@@ -3,7 +3,15 @@ FROM python:3.10-bookworm
 
 # Set the working directory in the container
 WORKDIR /app
+RUN apt-get update && apt-get install -y \
+    portaudio19-dev \
+    libasound2-dev \
+    libpulse-dev \
+    && rm -rf /var/lib/apt/lists/*
 
+
+
+    
 # Copy only requrirements to keep cache.
 COPY requirements.txt requirements.txt
 

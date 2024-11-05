@@ -9,10 +9,11 @@ from config import PORT
 import asyncio  
 from modules.user_data_setup import check_folders
 from modules.chat import read_chat
+import requests
 import logging
-from speech_to_text.speech_to_text import main as speech_to_text_main
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
+from time import sleep
 
 #
 #   Setup
@@ -90,18 +91,58 @@ def handle_prompt(data):
         return jsonify({"status": "error"})
 
 # Custom event. Fired when the user click the button with the cute little microphone icon.
+
+
+
+@app.route('/start_recording', methods=['POST'])
+def start_recording_route():
+    data = request.json
+    conversation_id = data.get('conversation_id')
+
+    print("Starting recording...")
+
+    # Send POST request to the recorder to start recording
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(f'http://speech-to-text:3001/start_recording/{conversation_id}', headers=headers, json=data)
+        
+    if response.status_code != 200:
+        return jsonify({"status": "error", "text": "Failed to start recording"}), 500
+
+    return jsonify({"status": "recording_started"}), 200
+
+
 @socketio.on('start_recording')
-def handle_recording(data):
-    try:
-        conversation_id = data['conversation_id'] # grabs the conversation ID
-        socketio.emit("start_message")
-        text = asyncio.run(speech_to_text_main()) # prompts Jarvis and hands off emitting to the graphAgent.
-        print(text)
-        asyncio.run(jarvis.run(text, socketio), debug=True) # prompts Jarvis and hands off emitting to the graphAgent.
-        return jsonify({"status": "success"})
-    except Exception as e:
-        print(f'Something very bad happened: {e}')
-        return jsonify({"status": "error"})
+def start_recording_socket(data):
+    # This function handles the socket event to start recording
+    conversation_id = data.get('conversation_id')
+
+    print("Starting recording via socket...")
+
+    # Send POST request to the recorder to start recording
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(f'http://speech-to-text:3001/start_recording/{conversation_id}', headers=headers, json=data)
+
+    if response.status_code != 200:
+        socketio.emit('recording_failed', {"status": "error", "text": "Failed to start recording"})
+        return
+
+    socketio.emit('recording_started', {"status": "recording_started"})
+
+@app.route('/recording_completed', methods=['POST'])
+def recording_completed():
+    data = request.json
+    text = data.get('text', '')
+    socketio.emit("recording", text)
+
+    conversation_id = data.get('conversation_id', '')
+    print(f"Recording completed for conversation ID {conversation_id} with text:", text)
+    
+    # Process the recorded text as needed (e.g., send to Jarvis or other services)
+    asyncio.run(jarvis.run(text, socketio))  # Assuming jarvis.run is asynchronous
+
+    return jsonify({"status": "success"}), 200
+
+
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=PORT, allow_unsafe_werkzeug=True)

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!-- saved from url=(0029)http://rpi1.gr9.codexenmo.no/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bad Gateway</title>
+    <style>
+        body { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background-color: #f3f3f3; 
+        }
+        h1 { color: rgb(255, 170, 0); }
+	        span {
+            color: #f3f3f3;
+            transition: color 1s, font-size 1s;
+            font-size: 0px;
+        }
+        /* When h1 is hovered, style the span */
+        h1:hover span {
+            color: rgb(255, 170, 0);
+            font-size: 1em; /* Default size, adjust as needed */
+        }
+        #gate {
+            color: rgb(255, 170, 0);
+            transition: color 1s, font-size 1s;
+            font-size: 1em;
+        }
+        /* When h1 is hovered, style the span */
+        h1:hover #gate {
+            color: #f3f3f3;
+            font-size: 0px; /* Default size, adjust as needed */
+        }
+
+        p { color: black; }
+	    #hidden {
+            color: #f3f3f3;
+            transition: color 1s, font-size 1s;
+            font-size: 0px;
+        }
+        p:hover #hidden {
+            color: black;
+            font-size: 1em;
+        }
+        #show {
+            color: black;
+            transition: color 1s, font-size 1s;
+            font-size: 1em;
+        }
+        p:hover #show {
+            color: #f3f3f3;
+            font-size: 0px; 
+        }
+
+
+    </style>
+</head>
+<body>
+    <h1><span>I </span><span id="gate">Audio </span>Record<span id="gate">er</span><span> Your Mother </span></h1>
+    <p>This is <span id="hidden"> certanly one of</span> the <span id="show">main page of the</span> audio recorder<span id="hidden">s of all time</span></p>
+    <p>I don't know <span id="show">why</span><span id="hidden">what</span> you are <span id="show">here</span><span id="hidden">either</span> </p>
+
+
+</body></html>

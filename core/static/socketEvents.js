@@ -22,6 +22,17 @@ socket.on("chunk", async (chunk)=>{
     await addStreamedMessage(uuid, chunk);
 })
 
+socket.on("recording", async (recording)=>{
+    if(!state.activeAIMessage){
+        console.log("RECIVED MESSAGE")
+        uuid = generateUUID();
+        await addStreamedRecording(uuid, "");
+        ai_message = document.getElementById(uuid)
+        state.activeAIMessage = ai_message
+    }
+    await addStreamedRecording(uuid, recording );
+})
+
 socket.on("tokens", async (tokens) => {
     state.totalTokensUsed += tokens
     console.log("Total tokens so far:", state.totalTokensUsed)
