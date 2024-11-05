@@ -40,3 +40,14 @@ def calender_based_tools() -> list[StructuredTool]:
     tools.append(read_calender_event.get_tool())
     tools.append(current_time_iso_format.get_tool())
     tools.append(create_time_to_iso_format.get_tool())
+
+    return tools
+
+def get_other_tools() -> list[StructuredTool]:
+    tools = []
+    tools.append(add_tool.get_tool())
+    tools.append(find_files.get_tool())
+    tools.append(read_file.get_tool())
+    tools.append(read_pdf.get_tool())
+
+    return tools
