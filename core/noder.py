@@ -178,3 +178,28 @@ def calender_tool_decider(state: GraphState):
 def calendar_router(state: GraphState) -> Literal["use_calendar_tool", "return_to_jarvis"]:
     """Router to determine what to do"""
     return state["tool_decision"]
+
+def other_agent(state: GraphState):
+    """Agent that handles other tools available in the system"""
+    prompt = PromptTemplate(
+        template= """
+        Your job is to create tool_calls to tools.
+        The tool or tools you decide
+        to call should help answer the users question.
+
+        Here are previous messages:
+        
+        Message: {messages}
+
+        Data currently accumulated: 
+
+        Data: {data}
+
+        Please decide what tools to use to help the user and
+        add them to the additional_kwargs in the AI_message
+        """,
+    )
+    chain = prompt | SimpleAgent.llm.bind_tools(get_other_tools())
+    response = chain.invoke({
+        "messages": state["messages"], "data": state.get("data", {})})
+    return {"messages": [response]}
