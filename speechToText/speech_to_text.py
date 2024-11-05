@@ -26,7 +26,15 @@ def remove_tmp_wav_file(index=None):
         if os.path.exists("tmp.wav"):
             os.remove("tmp.wav")
 
-def speech_to_text(audio_file):
+def speech_to_text(audio_file = None, filepath = None):
+    if audio_file is None and filepath is None:
+        raise ValueError("Either audio_file or filepath must be provided")
+    if audio_file is None:
+        audio_file = path_to_audio_file(f"{filepath}")
+    if filepath is None:
+        filepath = "tmp.wav"
+    handle_audio(audio_file, path=filepath)
+
     prompt="Transcribe the following Norwegian speech to text, the sentances may be cut off, do not make up words or fill in the sentances"
     transcription = client.audio.transcriptions.create(
     model="whisper-1", 
@@ -63,6 +71,13 @@ def handle_chunk(chunk, index, text):
     audio_file.close()
     print(text[-1].text)
     remove_tmp_wav_file(index)
+
+def handle_audio(audio_file, path="tmp.wav"):
+    processor = AudioProcessor(audio_file)
+    processor.process()
+    processor.save_audio(path)
+    audio_file = path_to_audio_file(path)
+    return audio_file
 
 
 async def startRecording():

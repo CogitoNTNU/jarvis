@@ -3,7 +3,9 @@
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bad Gateway</title>
+    <title>Audio recorder</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="/static/record.js"></script>
     <style>
         body { 
             display: flex; 
@@ -59,6 +61,8 @@
     </style>
 </head>
 <body>
+    <div id="status">Waiting for server to start recording...</div>
+
     <h1><span>I </span><span id="gate">Audio </span>Record<span id="gate">er</span><span> Your Mother </span></h1>
     <p>This is <span id="hidden"> certanly one of</span> the <span id="show">main page of the</span> audio recorder<span id="hidden">s of all time</span></p>
     <p>I don't know <span id="show">why</span><span id="hidden">what</span> you are <span id="show">here</span><span id="hidden">either</span> </p>
