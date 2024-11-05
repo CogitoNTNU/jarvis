@@ -9,7 +9,8 @@ def jarvis_agent(state: GraphState):
     prompt = PromptTemplate(
         template= """
         Your job is to determine if you need tools to answer the
-        users question.
+        users question and answer with only the name of the option
+        choose.
 
         Here are previous messages:
         
