@@ -33,3 +33,10 @@ def get_perplexity_based_tools() -> list[StructuredTool]:
     tools.append(web_search.get_tool())
 
     return tools
+
+def calender_based_tools() -> list[StructuredTool]: 
+    tools = []
+    tools.append(create_calender_event.get_tool())
+    tools.append(read_calender_event.get_tool())
+    tools.append(current_time_iso_format.get_tool())
+    tools.append(create_time_to_iso_format.get_tool())
