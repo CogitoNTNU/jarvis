@@ -3,7 +3,8 @@ from Agents.simpleagent import SimpleAgent, ToolsAgent
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from typing import Literal
-from tools.tools import get_tools
+from tools.tools import get_tools, get_perplexity_based_tools
+
 def jarvis_agent(state: GraphState):
     """Agent to determine how to answer user question"""
     prompt = PromptTemplate(
@@ -112,3 +113,28 @@ def calender_agent(state: GraphState):
     response = chain.invoke({
         "messages": state["messages"], "data": state.get("data", {}), "calender_events": get_tools()[]})
     return {"tool_decision": response}
+
+def perplexity_agent(state: GraphState):
+    """Agent that handles tools using the perplexity api"""
+    prompt = PromptTemplate(
+        template= """
+        Your job is to create tool_calls to tools using the perplexity API.
+        The tool or tools you decide
+        to call should help answer the users question.
+
+        Here are previous messages:
+        
+        Message: {messages}
+
+        Data currently accumulated: 
+
+        Data: {data}
+
+        Please decide what tools to use to help the user and
+        add them to the additional_kwargs in the AI_message
+        """,
+    )
+    chain = prompt | SimpleAgent.llm.bind_tools(get_perplexity_based_tools())
+    response = chain.invoke({
+        "messages": state["messages"], "data": state.get("data", {})})
+    return {"messages": [response]}
