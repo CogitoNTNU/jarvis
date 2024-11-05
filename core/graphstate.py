@@ -9,3 +9,4 @@ class GraphState(TypedDict):
     messages: Annotated[list, add_messages]
     data: dict
     tool_decision: Literal["use_tool", "generate"]
+    agent_decision: Literal["perplexity", "calendar", "other"]
