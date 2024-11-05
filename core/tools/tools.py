@@ -24,3 +24,10 @@ def get_tools() -> list[StructuredTool]:
     tools.append(current_time_iso_format.get_tool())
 
     return tools
+
+def get_perplexity_based_tools() -> list[StructuredTool]:
+    tools = []
+    tools.append(weather.get_tool())
+    tools.append(web_search.get_tool())
+
+    return tools
