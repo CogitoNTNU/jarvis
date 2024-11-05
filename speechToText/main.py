@@ -11,6 +11,20 @@ app = Flask(__name__, static_url_path='/static')
 app.config['SECRET_KEY'] = 'secret_key_xdddd'  # TODO: Make a better key
 CORS(app, resources={r"/*": {"origins": "*"}})  # TODO: Make the CORS actually not accept everything
 socketio = SocketIO(app, cors_allowed_origins="*") 
+
+# Runs in multiple threads, printing the output, also appending the read text to the text list.
+def handle_chunk(chunk, index):
+    create_tmp_wav_file(chunk, path=f"tmp{index}.wav")
+    processor = AudioProcessor(f"tmp{index}.wav")
+    processor.process()
+    processor.save_audio(f"tmp{index}.wav")
+    audio_file = path_to_audio_file(f"tmp{index}.wav")
+
+    text.append(speech_to_text(audio_file=audio_file))
+    audio_file.close()
+    print(text[-1].text)
+    remove_tmp_wav_file(index)
+
 # Routes
 
 @app.route("/")
