@@ -33,12 +33,12 @@ def jarvis_agent(state: GraphState):
         "messages": state["messages"], "data": state.get("data", {})})
     return {"tool_decision": response}
 
-def tool_decider(state: GraphState):
+def tool_agent_decider(state: GraphState):
     """Agent to determine what tool to use"""
     prompt = PromptTemplate(
         template= """
-        Your job is to create tool_calls. The tool or tools you decide
-        to call should help answer the users question.
+        Your job is to decide which Agent that should answer the users question.
+        Answer only with the name of the agent you want to use.
 
         Here are the previous messages:
         
@@ -48,18 +48,24 @@ def tool_decider(state: GraphState):
 
         Data: {data}
 
-        Please decide what tools to use to help the user and
-        add them to the additional_kwargs in the AI_message
+        Your options for agents are the following:
+        1. 'perplexity': This agent has access to tools that use the perplexity API. 
+                         These tools are the following:
+        2. 'calendar': 
         """,
     )
 
-    chain = prompt | ToolsAgent.agent
+    chain = prompt | SimpleAgent.llm
     response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
     return {"messages": [response]}
 
 def router(state: GraphState) -> Literal["use_tool", "generate"]:
     """Router to determine what to do"""
     return state["tool_decision"]
+
+def tool_agent_router(state: GraphState) -> Literal["placeholder"]:
+    """Router to determine which agent to use"""
+    return state["agent_decision"]
 
 def response_generator(state: GraphState):
     """Agent that generates a response to user based on user request 
@@ -111,7 +117,7 @@ def calender_agent(state: GraphState):
     )
     chain = prompt | ToolsAgent.agent | StrOutputParser()
     response = chain.invoke({
-        "messages": state["messages"], "data": state.get("data", {}), "calender_events": get_tools()[]})
+        "messages": state["messages"], "data": state.get("data", {}), "calender_events": get_tools()})
     return {"tool_decision": response}
 
 def perplexity_agent(state: GraphState):
