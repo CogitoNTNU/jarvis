@@ -75,6 +75,10 @@ async function addStreamedMessage(uuid, messagePart) {
         // Concat ChatPart on message with uuid
         element.innerHTML += messagePart;
     }
+    
+    // Add auto-scroll
+    let chat_history = document.getElementById("chat_history")
+    chat_history.scrollTop = chat_history.scrollHeight;
 }
 
 addUserMessage = (message) => {
