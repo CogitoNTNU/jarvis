@@ -13,7 +13,7 @@ from graphtools import graphtool
 import asyncio
 from time import sleep
 import functools
-from noder import jarvis_agent, tool_agent_decider, router, response_generator
+from noder import *
 
 class Graph:
     def __init__(self):
@@ -22,13 +22,21 @@ class Graph:
         self.workflow = StateGraph(GraphState)
 
         self.workflow.add_node("jarvis_agent", jarvis_agent)
-        self.workflow.add_node("use_tool", tool_agent_decider)
+        self.workflow.add_node("agent_decider", tool_agent_decider)
         self.workflow.add_node("generate", response_generator)
         self.workflow.add_node("tools", ToolNode(get_tools()))
-        self.workflow.add_node("calendar_tool", ToolNode(get_tools()))
+        
+        self.workflow.add_node("perplexity_agent", perplexity_agent)
+        self.workflow.add_node("calender_tool", ToolNode(get_tools()))
+        self.workflow.add_node("use_calender_tool", calender_tool_decider)
+        self.workflow.add_node("calender_decider", calender_desicion_agent)
+        self.workflow.add_node("other_agent", other_agent)
 
         self.workflow.add_edge(START, "jarvis_agent")
-        self.workflow.add_edge("use_tool", "tools")
+        self.workflow.add_edge("perplexity_agent", "tools")
+        self.workflow.add_edge("use_calender_tool", "calender_tool")
+        self.workflow.add_edge("calender_tool", "calender_decider")
+        self.workflow.add_edge("other_agent", "tools")
         self.workflow.add_edge("tools", "jarvis_agent")
         self.workflow.add_edge("generate", END)
 
@@ -36,7 +44,19 @@ class Graph:
         self.workflow.add_conditional_edges(
             "jarvis_agent",
             router,
-            {"generate": "generate", "use_tool": "use_tool"}
+            {"generate": "generate", "use_tool": "agent_decider"}
+        )
+        
+        self.workflow.add_conditional_edges(
+            "agent_decider",
+            agent_router,
+            {"perplexity": "perplexity_agent", "calender": "calender_decider", "other": "other_agent"}
+        )
+
+        self.workflow.add_conditional_edges(
+            "calender_decider",
+            calender_router,
+            {"use_calender_tool": "use_calender_tool", "return_to_jarvis": "jarvis_agent"}
         )
 
         self.graph = self.workflow.compile()

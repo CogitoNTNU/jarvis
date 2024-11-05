@@ -66,13 +66,13 @@ def tool_agent_decider(state: GraphState):
         "calender_tools": calender_based_tools(),
         "other_tools": get_other_tools()
         })
-    return {"messages": [response]}
+    return {"agent_decision": [response]}
 
-def router(state: GraphState) -> Literal["use_tool", "generate"]:
+def router(state: GraphState) -> Literal["generate", "use_tool"]:
     """Router to determine what to do"""
     return state["tool_decision"]
 
-def tool_agent_router(state: GraphState) -> Literal["perplexity", "calendar", "other"]:
+def tool_agent_router(state: GraphState) -> Literal["perplexity", "calender", "other"]:
     """Router to determine which agent to use"""
     return state["agent_decision"]
 
@@ -97,6 +97,10 @@ def response_generator(state: GraphState):
     chain = prompt | SimpleAgent.llm
     response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
     return {"messages": [response]}
+
+def agent_router(state: GraphState) -> Literal["perplexity", "calender", "other"]:
+    """Router to determine what agent to use"""
+    return state["agent_decision"]
 
 def perplexity_agent(state: GraphState):
     """Agent that handles tools using the perplexity api"""
@@ -141,7 +145,7 @@ def calender_desicion_agent(state: GraphState):
         Data: {data}
 
         Your options are the following:
-        1. 'use_calendar_tool': Call on calendar_tools to help solve the users problem
+        1. 'use_calender_tool': Call on calender_tools to help solve the users problem
         2. 'return_to_jarvis': go back to the jarvis agent
 
         Answer with the option name and nothing else.
@@ -156,7 +160,8 @@ def calender_tool_decider(state: GraphState):
     """Agent that handles all actions in the calender"""
     prompt = PromptTemplate(
         template= """
-        Your job is to create and handle the tool calls needed to create and read calender events.
+        Your job is to create and handle the tool calls needed to create and read calender events.¨
+        You will based on previous messages and data decide what tools to use. and create the tool calls.
         Here are previous messages:
         
         Message: {messages}
@@ -175,7 +180,7 @@ def calender_tool_decider(state: GraphState):
     return {"messages": response}
 
 
-def calendar_router(state: GraphState) -> Literal["use_calendar_tool", "return_to_jarvis"]:
+def calender_router(state: GraphState) -> Literal["use_calender_tool", "return_to_jarvis"]:
     """Router to determine what to do"""
     return state["tool_decision"]
 
