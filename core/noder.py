@@ -3,7 +3,7 @@ from Agents.simpleagent import SimpleAgent, ToolsAgent
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from typing import Literal
-from tools.tools import get_tools, get_perplexity_based_tools
+from tools.tools import get_tools, get_perplexity_based_tools, calender_based_tools, get_other_tools
 
 from tools.tools import get_tools
 
@@ -52,20 +52,28 @@ def tool_agent_decider(state: GraphState):
 
         Your options for agents are the following:
         1. 'perplexity': This agent has access to tools that use the perplexity API. 
-                         These tools are the following:
-        2. 'calendar': 
+                         These tools are the following: {perplexity_tools}
+        2. 'calender':   This agent has access to calender tools
+                         These tools are the following: {calender_tools}
+        3. 'other':      Other tools available: {other_tools}
         """,
     )
 
     chain = prompt | SimpleAgent.llm
-    response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
+    response = chain.invoke({
+        "messages": state["messages"], 
+        "data": state.get("data", {}),
+        "perplexity_tools": get_perplexity_based_tools(),
+        "calender_tools": calender_based_tools(),
+        "other_tools": get_other_tools()
+        })
     return {"messages": [response]}
 
 def router(state: GraphState) -> Literal["use_tool", "generate"]:
     """Router to determine what to do"""
     return state["tool_decision"]
 
-def tool_agent_router(state: GraphState) -> Literal["placeholder"]:
+def tool_agent_router(state: GraphState) -> Literal["perplexity", "calendar", "other"]:
     """Router to determine which agent to use"""
     return state["agent_decision"]
 
