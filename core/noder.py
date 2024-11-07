@@ -13,6 +13,7 @@ def jarvis_agent(state: GraphState):
         Your job is to determine if you need tools to answer the
         users question and answer with only the name of the option
         chosen. You have access to chat history using tools, thus also some personal data can be retrieved.
+        
 
         Here are previous messages:
         
@@ -27,6 +28,7 @@ def jarvis_agent(state: GraphState):
         - 'generate': Generate a response if you have what you need to answer
 
         Answer with the option name and nothing else there should not be any ' or " in the answer.
+        Answer only one of the options!
         """,
     )
     chain = prompt | ToolsAgent.agent | StrOutputParser()
@@ -141,8 +143,8 @@ def calendar_decision_agent(state: GraphState):
         Your job is to determine if you which calendar related tools you need to answer the
         jarvis agents question and answer with only the name of the option
         choose.
-
-        if you have searched for calendeer events once you should return to jarvis.
+        you should create a claender event or read calendar events. if the user has asked for it.
+        if you have searched for calender events atleast once you should probably return to jarvis.
         the same is for creatting a event, you only need to create that event once. and return to jarvis.
 
         Here are previous messages:
