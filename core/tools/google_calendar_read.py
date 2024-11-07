@@ -13,15 +13,15 @@ SCOPES = [
     "https://www.googleapis.com/auth/calendar",
     "https://www.googleapis.com/auth/calendar.events",
 ]
-
 def get_calendar_service():
+    
     creds = Credentials.from_service_account_file(
         os.getenv("GOOGLE_AUTH_KEY"), scopes=SCOPES
     )
     service = build("calendar", "v3", credentials=creds)
     return service
 
-class read_calendar_events_parameters(BaseModel):
+class read_calendar_events_parameters(BaseModel):   
     time_min: str = Field(
         description="Start time to fetch events from in ISO format(YYYY-MM-DDTHH:MM:SS), the current time can be collected from current_time_iso_format tool",
         example="2024-10-16T00:00:00"
@@ -43,28 +43,13 @@ def read_calendar_events(time_min: str, time_max: str, maxResults: int = 10) -> 
     """
     service = get_calendar_service()
 
-    try:
-        # Parse input strings into datetime objects
-        time_min_dt = datetime.fromisoformat(time_min)
-        time_max_dt = datetime.fromisoformat(time_max)
-        
-        # If timezone info is missing, add UTC timezone
-        if time_min_dt.tzinfo is None:
-            time_min_dt = time_min_dt.replace(tzinfo=timezone.utc)
-        if time_max_dt.tzinfo is None:
-            time_max_dt = time_max_dt.replace(tzinfo=timezone.utc)
-        
-        # Validate that time_min is before time_max
-        if time_min_dt >= time_max_dt:
-            return "Error: time_min must be earlier than time_max."
-        
-        # Convert back to RFC3339 strings
-        time_min_formatted = time_min_dt.isoformat()
-        time_max_formatted = time_max_dt.isoformat()
+    dt_min =datetime.strptime(time_min, '%Y-%m-%dT%H:%M:%S')
+    dt_max =datetime.strptime(time_max, '%Y-%m-%dT%H:%M:%S')
+    dt_utc_min = dt_min.replace(tzinfo=timezone.utc)
+    dt_utc_max = dt_max.replace(tzinfo=timezone.utc)
+    time_min = dt_utc_min.isoformat()
+    time_max = dt_utc_max.isoformat()
 
-    except ValueError as e:
-        return f"Invalid time format: {e}"
-    
     events_result = service.events().list(
         calendarId=os.getenv("GOOGLE_CALENDAR_ID"),
         timeMin=time_min,
@@ -101,9 +86,10 @@ def get_tool() -> StructuredTool:
 
 if __name__ == "__main__":
     # Example usage
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
+    
     time_min = now.isoformat() 
     time_max = (now + timedelta(days=7)).isoformat()
-    
+    print(time_min, time_max)
     result = read_calendar_events(time_min, time_max)
     print(result)
