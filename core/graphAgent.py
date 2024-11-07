@@ -31,6 +31,7 @@ class Graph:
         self.workflow.add_node("use_calendar_tool", calendar_tool_decider)
         self.workflow.add_node("calendar_decider", calendar_desicion_agent)
         self.workflow.add_node("other_agent", other_agent)
+        
 
         self.workflow.add_edge(START, "jarvis_agent")
         self.workflow.add_edge("perplexity_agent", "tools")

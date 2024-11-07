@@ -5,6 +5,14 @@ var socket = io("ws://localhost:3000"); // websocket querying port 3001, where F
 
 socket.on('connect', () => {
     socket.emit('message', {data: 'I\'m connected!'});
+    
+    socket.emit('get_chat_history', (history) => {
+        // Restore chat history to UI
+        history.chat_history.forEach(entry => {
+            addUserMessage(entry.human_message);
+            addMessage(entry.ai_message);
+        });
+    });
 });
 
 let tokenCounter = 0
