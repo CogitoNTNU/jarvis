@@ -3,7 +3,7 @@ from Agents.simpleagent import SimpleAgent, ToolsAgent
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from typing import Literal
-from tools.tools import get_tools, get_perplexity_based_tools, calender_based_tools, get_other_tools
+from tools.tools import get_tools, get_perplexity_based_tools, calendar_based_tools, get_other_tools
 
 
 def jarvis_agent(state: GraphState):
@@ -23,8 +23,8 @@ def jarvis_agent(state: GraphState):
         Data: {data}
 
         Your options are the following:
-        1. 'use_tool': Call on tools to help solve the users problem
-        2. 'generate': Generate a response if you have what you need to answer
+        - 'use_tool': Call on tools to help solve the users problem
+        - 'generate': Generate a response if you have what you need to answer
 
         Answer with the option name and nothing else
         """,
@@ -50,20 +50,23 @@ def tool_agent_decider(state: GraphState):
         Data: {data}
 
         Your options for agents are the following:
-        1. 'perplexity': This agent has access to tools that use the perplexity API. 
+        - 'perplexity': This agent has access to tools that use the perplexity API. 
                          These tools are the following: {perplexity_tools}
-        2. 'calender':   This agent has access to calender tools
-                         These tools are the following: {calender_tools}
-        3. 'other':      Other tools available: {other_tools}
+        - 'calendar':   This agent has access to calendar tools
+                         These tools are the following: {calendar_tools}
+        - 'other':      Other tools available: {other_tools}
+
+
+        Answer with the option name and nothing else
         """,
     )
 
-    chain = prompt | SimpleAgent.llm
+    chain = prompt | SimpleAgent.llm | StrOutputParser()
     response = chain.invoke({
         "messages": state["messages"], 
         "data": state.get("data", {}),
         "perplexity_tools": get_perplexity_based_tools(),
-        "calender_tools": calender_based_tools(),
+        "calendar_tools": calendar_based_tools(),
         "other_tools": get_other_tools()
         })
     return {"agent_decision": [response]}
@@ -72,7 +75,7 @@ def router(state: GraphState) -> Literal["generate", "use_tool"]:
     """Router to determine what to do"""
     return state["tool_decision"]
 
-def tool_agent_router(state: GraphState) -> Literal["perplexity", "calender", "other"]:
+def agent_router(state: GraphState) -> Literal["perplexity", "calendar", "other"]:
     """Router to determine which agent to use"""
     return state["agent_decision"]
 
@@ -98,9 +101,6 @@ def response_generator(state: GraphState):
     response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
     return {"messages": [response]}
 
-def agent_router(state: GraphState) -> Literal["perplexity", "calender", "other"]:
-    """Router to determine what agent to use"""
-    return state["agent_decision"]
 
 def perplexity_agent(state: GraphState):
     """Agent that handles tools using the perplexity api"""
@@ -128,11 +128,11 @@ def perplexity_agent(state: GraphState):
     return {"messages": [response]}
 
 
-def calender_desicion_agent(state: GraphState):
-    """Agent that decides what to do with the calender"""
+def calendar_desicion_agent(state: GraphState):
+    """Agent that decides what to do with the calendar"""
     prompt = PromptTemplate(
         template= """
-        Your job is to determine if you wich calender related tools you need to answer the
+        Your job is to determine if you wich calendar related tools you need to answer the
         jarvis agents question and answer with only the name of the option
         choose.
 
@@ -145,8 +145,8 @@ def calender_desicion_agent(state: GraphState):
         Data: {data}
 
         Your options are the following:
-        1. 'use_calender_tool': Call on calender_tools to help solve the users problem
-        2. 'return_to_jarvis': go back to the jarvis agent
+        - 'use_calendar_tool': Call on calendar_tools to help solve the users problem
+        - 'return_to_jarvis': go back to the jarvis agent
 
         Answer with the option name and nothing else.
         """,
@@ -154,13 +154,13 @@ def calender_desicion_agent(state: GraphState):
     chain = prompt | ToolsAgent.agent | StrOutputParser()
     response = chain.invoke({
         "messages": state["messages"], "data": state.get("data", {})})
-    return {"tool_decision": response}
+    return {"calendar_decision": response}
 
-def calender_tool_decider(state: GraphState):
-    """Agent that handles all actions in the calender"""
+def calendar_tool_decider(state: GraphState):
+    """Agent that handles all actions in the calendar"""
     prompt = PromptTemplate(
         template= """
-        Your job is to create and handle the tool calls needed to create and read calender events.¨
+        Your job is to create and handle the tool calls needed to create and read calendar events.¨
         You will based on previous messages and data decide what tools to use. and create the tool calls.
         Here are previous messages:
         
@@ -175,14 +175,14 @@ def calender_tool_decider(state: GraphState):
         add them to the additional_kwargs in the AI_message
         """,
     )
-    chain = prompt | SimpleAgent.llm.bind_tools(calender_based_tools()) | StrOutputParser()
+    chain = prompt | SimpleAgent.llm.bind_tools(calendar_based_tools())
     response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
     return {"messages": response}
 
 
-def calender_router(state: GraphState) -> Literal["use_calender_tool", "return_to_jarvis"]:
+def calendar_router(state: GraphState) -> Literal["use_calendar_tool", "return_to_jarvis"]:
     """Router to determine what to do"""
-    return state["tool_decision"]
+    return state["calendar_decision"]
 
 def other_agent(state: GraphState):
     """Agent that handles other tools available in the system"""

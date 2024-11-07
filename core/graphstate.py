@@ -10,3 +10,5 @@ class GraphState(TypedDict):
     data: dict
     tool_decision: Literal["use_tool", "generate"]
     agent_decision: Literal["perplexity", "calendar", "other"]
+    calendar_decision: Literal["use_calendar_tool", "return_to_jarvis"]
+    
