@@ -15,7 +15,7 @@ def rag_search(query: str)-> List[Tuple[str, float]]:
     Returns:
         List[Tuple[str, float]]: Relevant chat history 
     """
-    result = similarity_search(query)
+    result = similarity_search(query, "1")
 
     return result
 

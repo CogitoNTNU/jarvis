@@ -52,5 +52,6 @@ def get_other_tools() -> list[StructuredTool]:
     tools.append(find_files.get_tool())
     tools.append(read_file.get_tool())
     tools.append(read_pdf.get_tool())
+    tools.append(rag_search.get_tool())
 
     return tools
