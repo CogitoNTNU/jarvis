@@ -26,7 +26,7 @@ def jarvis_agent(state: GraphState):
         - 'use_tool': Call on tools to help solve the users problem
         - 'generate': Generate a response if you have what you need to answer
 
-        Answer with the option name and nothing else
+        Answer with the option name and nothing else there should not be any ' or " in the answer.
         """,
     )
     chain = prompt | ToolsAgent.agent | StrOutputParser()
@@ -50,14 +50,14 @@ def tool_agent_decider(state: GraphState):
         Data: {data}
 
         Your options for agents are the following:
-        - 'perplexity': This agent has access to tools that use the perplexity API. 
+        - "perplexity": This agent has access to tools that use the perplexity API. 
                          These tools are the following: {perplexity_tools}
-        - 'calendar':   This agent has access to calendar tools
+        - "calendar":   This agent has access to calendar tools
                          These tools are the following: {calendar_tools}
-        - 'other':      Other tools available: {other_tools}
+        - "other":      Other tools available: {other_tools}
 
 
-        Answer with the option name and nothing else
+        Answer with the option name and nothing else there should not be any ' or " in the answer.
         """,
     )
 
@@ -148,7 +148,7 @@ def calendar_desicion_agent(state: GraphState):
         - 'use_calendar_tool': Call on calendar_tools to help solve the users problem
         - 'return_to_jarvis': go back to the jarvis agent
 
-        Answer with the option name and nothing else.
+        Answer with the option name and nothing else there should not be any ' or " in the answer.
         """,
     )
     chain = prompt | ToolsAgent.agent | StrOutputParser()

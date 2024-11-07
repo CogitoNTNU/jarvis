@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
@@ -42,6 +42,28 @@ def read_calendar_events(time_min: str, time_max: str, maxResults: int = 10) -> 
     Use this tool to read events from the calendar within a specified time range.
     """
     service = get_calendar_service()
+
+    try:
+        # Parse input strings into datetime objects
+        time_min_dt = datetime.fromisoformat(time_min)
+        time_max_dt = datetime.fromisoformat(time_max)
+        
+        # If timezone info is missing, add UTC timezone
+        if time_min_dt.tzinfo is None:
+            time_min_dt = time_min_dt.replace(tzinfo=timezone.utc)
+        if time_max_dt.tzinfo is None:
+            time_max_dt = time_max_dt.replace(tzinfo=timezone.utc)
+        
+        # Validate that time_min is before time_max
+        if time_min_dt >= time_max_dt:
+            return "Error: time_min must be earlier than time_max."
+        
+        # Convert back to RFC3339 strings
+        time_min_formatted = time_min_dt.isoformat()
+        time_max_formatted = time_max_dt.isoformat()
+
+    except ValueError as e:
+        return f"Invalid time format: {e}"
     
     events_result = service.events().list(
         calendarId=os.getenv("GOOGLE_CALENDAR_ID"),
