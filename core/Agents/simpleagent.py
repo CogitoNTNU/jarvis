@@ -12,5 +12,4 @@ class SimpleAgent:
         )
     
 class ToolsAgent:
-    def __init__(self):
-        self.agent = SimpleAgent.llm.bind_tools(get_tools())
+    agent = SimpleAgent.llm.bind_tools(get_tools())

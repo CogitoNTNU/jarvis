@@ -13,31 +13,55 @@ from graphtools import graphtool
 import asyncio
 from time import sleep
 import functools
+from noder import *
 
 class Graph:
-    MAIN_AGENT = "chatbot"
     def __init__(self):
         LANGCHAIN_TRACING_V2: str = "true"
         
-        self.llm = SimpleAgent.llm
-        self.llm_with_tools = self.llm.bind_tools(get_tools())
-
         self.workflow = StateGraph(GraphState)
 
-        self.workflow.add_node(self.MAIN_AGENT, self.chatbot)
+        self.workflow.add_node("jarvis_agent", jarvis_agent)
+        self.workflow.add_node("agent_decider", tool_agent_decider)
+        self.workflow.add_node("generate", response_generator)
         self.workflow.add_node("tools", ToolNode(get_tools()))
+        
+        self.workflow.add_node("perplexity_agent", perplexity_agent)
+        self.workflow.add_node("calendar_tool", ToolNode(get_tools()))
+        self.workflow.add_node("use_calendar_tool", calendar_tool_decider)
+        self.workflow.add_node("calendar_decider", calendar_desicion_agent)
+        self.workflow.add_node("other_agent", other_agent)
 
-        self.workflow.add_edge(START, self.MAIN_AGENT)
-        self.workflow.add_edge("tools", self.MAIN_AGENT)
+        self.workflow.add_edge(START, "jarvis_agent")
+        self.workflow.add_edge("perplexity_agent", "tools")
+        self.workflow.add_edge("use_calendar_tool", "calendar_tool")
+        self.workflow.add_edge("calendar_tool", "calendar_decider")
+        self.workflow.add_edge("other_agent", "tools")
+        self.workflow.add_edge("tools", "jarvis_agent")
+        self.workflow.add_edge("generate", END)
 
         # Defining conditional edges
         self.workflow.add_conditional_edges(
-            self.MAIN_AGENT,
-            tools_condition,
-            {"tools": "tools", "__end__": END}
+            "jarvis_agent",
+            router,
+            {"generate": "generate", "use_tool": "agent_decider"}
         )
-        self.graph = self.workflow.compile()
+        
+        self.workflow.add_conditional_edges(
+            "agent_decider",
+            agent_router,
+            {"perplexity": "perplexity_agent", "calendar": "calendar_decider", "other": "other_agent"}
+        )
 
+        self.workflow.add_conditional_edges(
+            "calendar_decider",
+            calendar_router,
+            {"use_calendar_tool": "use_calendar_tool", "return_to_jarvis": "jarvis_agent"}
+        )
+
+        self.graph = self.workflow.compile()
+        
+        
         with open("graph_node_network.png", 'wb') as f:
             f.write(self.graph.get_graph().draw_mermaid_png())
 
@@ -73,23 +97,19 @@ class Graph:
 
                 # Focuses only on the 'on_chain_stream'-events. 
                 # There may be better events to base the response on
-                if event_type == 'on_chain_stream' and event['name'] == 'LangGraph':
-                    chunk = event['data']['chunk']
+                if event_type == 'on_chain_end' and event['name'] == 'LangGraph':
+                    ai_message = event['data']['output']['messages'][-1]
 
-                    # Filters the stream to only get events by main agent
-                    if self.MAIN_AGENT in chunk:
-                        ai_message = event['data']['chunk'][self.MAIN_AGENT]['messages'][-1]
-
-                        if isinstance(ai_message, AIMessage):
-                            if 'tool_calls' in ai_message.additional_kwargs:
-                                tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
-                                #tool_call_id = ai_message.additional_kwargs['call_tool'][0]['tool_call_id']
-                                socketio.emit("tool_call", tool_call)
-                                continue
-                        
-                            socketio.emit("chunk", ai_message.content)
-                            socketio.emit("tokens", ai_message.usage_metadata['total_tokens'])
+                    if isinstance(ai_message, AIMessage):
+                        if 'tool_calls' in ai_message.additional_kwargs:
+                            tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
+                            #tool_call_id = ai_message.additional_kwargs['call_tool'][0]['tool_call_id']
+                            socketio.emit("tool_call", tool_call)
                             continue
+                    
+                        socketio.emit("chunk", ai_message.content)
+                        socketio.emit("tokens", ai_message.usage_metadata['total_tokens'])
+                        continue
                 
                 if event_type == 'on_chain_stream' and event['name'] == 'tools':
                     tool_response = event['data']['chunk']['messages'][-1]
@@ -102,3 +122,4 @@ class Graph:
         except Exception as e:
             print(e)
             return "error"
+        
