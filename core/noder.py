@@ -12,7 +12,7 @@ def jarvis_agent(state: GraphState):
         template= """
         Your job is to determine if you need tools to answer the
         users question and answer with only the name of the option
-        choose.
+        chosen.
 
         Here are previous messages:
         
@@ -89,6 +89,8 @@ def response_generator(state: GraphState):
     prompt = PromptTemplate(
         template= """
         You are a personal assistant and your job is to generate a response to the user. 
+        You should format the response so that it is easy for an text-to-speech model
+        to communicate to the user
 
         Here are the previous messages:
         
@@ -98,7 +100,7 @@ def response_generator(state: GraphState):
 
         Data: {data}
 
-        Formulate a response that answer the users question
+        Formulate a response that answer the users question and is formatted correctly
         """,
     )
     chain = prompt | SimpleAgent.llm
