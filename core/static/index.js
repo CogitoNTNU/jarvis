@@ -63,6 +63,17 @@ let html = /*html*/`
             <div id=${uuid} class="chat_message"> ${message} </div>
     </li>`;
     document.getElementById('chat_history').innerHTML += html;
+    const messages = getAllChatMessages();
+    console.log(messages);
+}
+
+async function getAllChatMessages() {
+    const chatMessages = document.querySelectorAll('.chat_message');
+    const messagesList = [];
+    chatMessages.forEach((element) => {
+        messagesList.push(element.textContent.trim());
+    });
+    return messagesList;
 }
 
 async function addStreamedMessage(uuid, messagePart) {
