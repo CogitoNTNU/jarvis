@@ -3,7 +3,7 @@ import wave
 from scipy.io import wavfile
 import noisereduce as nr
 from silero_vad import load_silero_vad, get_speech_timestamps, read_audio
-from scipy.signal import resample
+import subprocess
 
 class AudioProcessor:
     def __init__(self, audio_path=None):
@@ -58,7 +58,24 @@ class AudioProcessor:
         #self.boost_audio()
         
         return self.verify_audio_long_enough()
+    
 
+def convert_webm_to_wav(input_file, output_file_path):
+    """
+    Convert a .webm file to .wav using ffmpeg.
+    """
+    try:
+        # Run ffmpeg command to convert the .webm file to .wav
+        result = subprocess.run([
+            'ffmpeg', '-i', input_file, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', output_file_path
+        ], capture_output=True, text=True)
+
+        if result.returncode != 0:
+            print("FFmpeg error:", result.stderr)
+        print(f"Successfully converted {input_file} to {output_file_path}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error during ffmpeg conversion: {e}")
+        raise e
 # for debugging
 if __name__ == "__main__":
 

@@ -27,13 +27,11 @@ def remove_tmp_wav_file(index=None):
             os.remove("tmp.wav")
 
 def speech_to_text(audio_file = None, filepath = None):
-    if audio_file is None and filepath is None:
-        raise ValueError("Either audio_file or filepath must be provided")
     if audio_file is None:
-        audio_file = path_to_audio_file(f"{filepath}")
-    if filepath is None:
-        filepath = "tmp.wav"
-    handle_audio(audio_file, path=filepath)
+        if filepath is None:
+            raise ValueError("Either audio_file or filepath must be provided")
+        audio_file = path_to_audio_file(filepath)
+    #audio_file=handle_audio(audio_file, path=filepath)
 
     prompt="Transcribe the following Norwegian speech to text, the sentances may be cut off, do not make up words or fill in the sentances"
     transcription = client.audio.transcriptions.create(
@@ -43,7 +41,7 @@ def speech_to_text(audio_file = None, filepath = None):
     prompt=prompt,
     )
     transcription.text.replace(prompt, "")
-    return transcription
+    return transcription.text
 
 def path_to_audio_file(path):
     audio_file = open(path, "rb")

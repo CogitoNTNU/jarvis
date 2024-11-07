@@ -1,7 +1,8 @@
 const silenceThreshold = 10; // RMS threshold to detect silence
-const maxSilenceDuration = 1; // seconds
+const maxSilenceDuration = 3; // seconds
 let silenceStartTime = null;
-let mediaRecorder, audioBlob;
+let mediaRecorder, audioChunks = [];
+let isRecording = false;
 
 // Connect to the WebSocket server
 const socket = io.connect(window.location.origin);
@@ -12,24 +13,30 @@ socket.on('start_recording', () => {
     startRecording();
 });
 
+// Start recording audio
 async function startRecording() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    
+
+    // Create MediaRecorder instance
     mediaRecorder = new MediaRecorder(stream);
     mediaRecorder.start();
 
-    // Initialize the audioBlob to store recorded data
-    audioBlob = new Blob([], { type: 'audio/wav' });
+    isRecording = true;
+    document.getElementById('status').innerText = "Recording in progress...";
 
-    // Append data when available
-    mediaRecorder.ondataavailable = event => {
-        audioBlob = new Blob([audioBlob, event.data], { type: 'audio/wav' });
+    // Collect audio data chunks
+    mediaRecorder.ondataavailable = (event) => {
+        audioChunks.push(event.data);
     };
 
-    // Stop recording when silence is detected
+    // When the recording stops, we process and upload the audio
     mediaRecorder.onstop = async () => {
+        // Combine audio chunks into a single Blob
+        const combinedBlob = new Blob(audioChunks, { type: 'audio/webm' });
+
+        // Send the WebM file to the server (no conversion needed)
         const formData = new FormData();
-        formData.append('audio', audioBlob, 'recording.wav');
+        formData.append('audio', combinedBlob, 'recording.webm');
 
         try {
             const response = await fetch('/upload_audio', {
@@ -50,35 +57,38 @@ async function startRecording() {
         }
     };
 
-    // Check for silence
+    // Detect silence during the recording
     detectSilence();
 }
 
+// Detect silence based on time and silenceThreshold
 function detectSilence() {
     const silenceCheckInterval = setInterval(() => {
-        if (mediaRecorder.state === "inactive") {
+        if (mediaRecorder.state === "inactive" || !isRecording) {
             clearInterval(silenceCheckInterval);
             return;
         }
 
-        // Check for sound levels
+        // Here, we're checking if the audio chunks' duration is long enough to consider it "silence".
         const currentTime = performance.now();
-        
-        if (audioBlob.size === 0) {
+
+        if (audioChunks.length === 0) {
             // If no data has been recorded yet, we consider it silent
             if (!silenceStartTime) {
                 silenceStartTime = currentTime; // Start the silence timer
             }
         } else {
-            // Sound is detected
-            silenceStartTime = null; // Reset the silence timer
+            // Sound is detected, reset the silence timer
+            silenceStartTime = null;
         }
 
         // Check if silence duration exceeds the maximum silence duration
         if (silenceStartTime && (currentTime - silenceStartTime) / 1000 >= maxSilenceDuration) {
             document.getElementById('status').innerText = "Silence detected. Stopping recording...";
-            mediaRecorder.stop();
+            mediaRecorder.stop(); // Stop recording when silence is detected
             clearInterval(silenceCheckInterval); // Stop checking for silence
         }
     }, 1000);
+
+    
 }
