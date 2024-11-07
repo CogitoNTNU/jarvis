@@ -32,6 +32,8 @@ def jarvis_agent(state: GraphState):
     chain = prompt | ToolsAgent.agent | StrOutputParser()
     response = chain.invoke({
         "messages": state["messages"], "data": state.get("data", {})})
+    response.replace("'", "")
+    response.replace('"', '')
     return {"tool_decision": response}
 
 def tool_agent_decider(state: GraphState):
@@ -69,6 +71,8 @@ def tool_agent_decider(state: GraphState):
         "calendar_tools": calendar_based_tools(),
         "other_tools": get_other_tools()
         })
+    response.replace("'", "")
+    response.replace('"', '')
     return {"agent_decision": [response]}
 
 def router(state: GraphState) -> Literal["generate", "use_tool"]:
@@ -154,6 +158,8 @@ def calendar_desicion_agent(state: GraphState):
     chain = prompt | ToolsAgent.agent | StrOutputParser()
     response = chain.invoke({
         "messages": state["messages"], "data": state.get("data", {})})
+    response.replace("'", "")
+    response.replace('"', '')
     return {"calendar_decision": response}
 
 def calendar_tool_decider(state: GraphState):
