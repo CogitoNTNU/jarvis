@@ -12,7 +12,7 @@ def jarvis_agent(state: GraphState):
         template= """
         Your job is to determine if you need tools to answer the
         users question and answer with only the name of the option
-        choose.
+        chosen.
 
         Here are previous messages:
         
@@ -52,8 +52,8 @@ def tool_agent_decider(state: GraphState):
         Data: {data}
 
         Your options for agents are the following:
-        - "perplexity": This agent has access to tools that use the perplexity API. 
-                         These tools are the following: {perplexity_tools}
+        - "perplexity": This agent has access to tools that use the perplexity API and tools 
+                        for doing a RAG-search. These tools are the following: {perplexity_tools}
         - "calendar":   This agent has access to calendar tools
                          These tools are the following: {calendar_tools}
         - "other":      Other tools available: {other_tools}
@@ -89,6 +89,8 @@ def response_generator(state: GraphState):
     prompt = PromptTemplate(
         template= """
         You are a personal assistant and your job is to generate a response to the user. 
+        You should format the response so that it is easy for an text-to-speech model
+        to communicate to the user
 
         Here are the previous messages:
         
@@ -98,7 +100,7 @@ def response_generator(state: GraphState):
 
         Data: {data}
 
-        Formulate a response that answer the users question
+        Formulate a response that answer the users question and is formatted correctly
         """,
     )
     chain = prompt | SimpleAgent.llm
@@ -110,8 +112,8 @@ def perplexity_agent(state: GraphState):
     """Agent that handles tools using the perplexity api"""
     prompt = PromptTemplate(
         template= """
-        Your job is to create tool_calls to tools using the perplexity API.
-        The tool or tools you decide
+        Your job is to create tool_calls to tools using the perplexity API or 
+        to tools that do a RAG-search. The tool or tools you decide
         to call should help answer the users question.
 
         Here are previous messages:
@@ -132,11 +134,11 @@ def perplexity_agent(state: GraphState):
     return {"messages": [response]}
 
 
-def calendar_desicion_agent(state: GraphState):
+def calendar_decision_agent(state: GraphState):
     """Agent that decides what to do with the calendar"""
     prompt = PromptTemplate(
         template= """
-        Your job is to determine if you wich calendar related tools you need to answer the
+        Your job is to determine if you which calendar related tools you need to answer the
         jarvis agents question and answer with only the name of the option
         choose.
 
