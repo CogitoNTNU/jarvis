@@ -142,6 +142,9 @@ def calendar_decision_agent(state: GraphState):
         jarvis agents question and answer with only the name of the option
         choose.
 
+        if you have searched for calendeer events once you should return to jarvis.
+        the same is for creatting a event, you only need to create that event once. and return to jarvis.
+
         Here are previous messages:
         
         Message: {messages}
