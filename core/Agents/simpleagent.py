@@ -8,7 +8,7 @@ class SimpleAgent:
     llm = ChatOpenAI(
         model = Model.gpt_4o,
         temperature=0,
-        max_tokens=512,
+        max_tokens=1024,
         )
     
 class ToolsAgent:
