@@ -100,6 +100,14 @@ body {
     font-size: 24px;
 
 }
+#voice_button_recording {
+    width: 10%;
+    height: 9vh;
+    background-color: #673636;
+    border-radius: 10px;
+    font-size: 24px;
+
+}
 
 .chat_input_container{
     display: flex;
