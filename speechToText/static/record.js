@@ -1,8 +1,10 @@
 const silenceThreshold = 10; // RMS threshold to detect silence
 const maxSilenceDuration = 3; // seconds
+const maxRecordingDuration = 10000; // Maximum recording time in milliseconds (10 seconds)
 let silenceStartTime = null;
 let mediaRecorder, audioChunks = [];
 let isRecording = false;
+let recordingTimeout;
 
 // Connect to the WebSocket server
 const socket = io.connect(window.location.origin);
@@ -57,6 +59,14 @@ async function startRecording() {
         }
     };
 
+    // Start the timeout to stop recording after maxRecordingDuration
+    recordingTimeout = setTimeout(() => {
+        if (isRecording) {
+            document.getElementById('status').innerText = "Maximum recording duration reached. Stopping recording...";
+            mediaRecorder.stop(); // Stop recording after 10 seconds
+        }
+    }, maxRecordingDuration);
+
     // Detect silence during the recording
     detectSilence();
 }
@@ -89,6 +99,4 @@ function detectSilence() {
             clearInterval(silenceCheckInterval); // Stop checking for silence
         }
     }, 1000);
-
-    
 }
