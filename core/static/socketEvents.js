@@ -3,8 +3,16 @@
 // TODO: add this port to .env later
 var socket = io("ws://localhost:3000"); // websocket querying port 3001, where Flask is running.
 
-socket.on("connect", () => {
-  socket.emit("message", { data: "I'm connected!" });
+socket.on('connect', () => {
+    socket.emit('message', {data: 'I\'m connected!'});
+    
+    socket.emit('get_chat_history', (history) => {
+        // Restore chat history to UI
+        history.chat_history.forEach(entry => {
+            addUserMessage(entry.human_message);
+            addMessage(entry.ai_message);
+        });
+    });
 });
 
 let tokenCounter = 0;

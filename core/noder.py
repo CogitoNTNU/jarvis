@@ -12,7 +12,7 @@ def jarvis_agent(state: GraphState):
         template= """
         Your job is to determine if you need tools to answer the
         users question and answer with only the name of the option
-        chosen.
+        chosen. You have access to chat history using tools, thus also some personal data can be retrieved.
 
         Here are previous messages:
         
@@ -53,7 +53,7 @@ def tool_agent_decider(state: GraphState):
 
         Your options for agents are the following:
         - "perplexity": This agent has access to tools that use the perplexity API and tools 
-                        for doing a RAG-search. These tools are the following: {perplexity_tools}
+                        for doing a chat history search. These tools are the following: {perplexity_tools}
         - "calendar":   This agent has access to calendar tools
                          These tools are the following: {calendar_tools}
         - "other":      Other tools available: {other_tools}
@@ -113,7 +113,7 @@ def perplexity_agent(state: GraphState):
     prompt = PromptTemplate(
         template= """
         Your job is to create tool_calls to tools using the perplexity API or 
-        to tools that do a RAG-search. The tool or tools you decide
+        to tools that do a RAG-search on the chat history. The tool or tools you decide
         to call should help answer the users question.
 
         Here are previous messages:
@@ -202,6 +202,7 @@ def other_agent(state: GraphState):
         Your job is to create tool_calls to tools.
         The tool or tools you decide
         to call should help answer the users question.
+        You can also use the chat history search tool to help answer the users question.
 
         Here are previous messages:
         
