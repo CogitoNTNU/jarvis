@@ -38,7 +38,6 @@ def speech_to_text(audio_file = None, filepath = None):
     model="whisper-1", 
     file=audio_file, 
     language="no", 
-    prompt=prompt,
     )
     transcription.text.replace(prompt, "")
     return transcription.text

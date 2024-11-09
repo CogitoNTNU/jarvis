@@ -12,6 +12,11 @@ const socket = io.connect(window.location.origin);
 // Listen for "start_recording" event
 socket.on('start_recording', () => {
     document.getElementById('status').innerText = "Recording started by server...";
+    // reset variables
+    audioChunks = [];
+    silenceStartTime = null;
+    mediaRecorder = [];
+    clearTimeout(recordingTimeout);
     startRecording();
 });
 
