@@ -3,6 +3,7 @@ from models import Model
 from config import OPENAI_API_KEY
 from tools.tools import get_tools
 
+ # SimpleAgent defines what model is used.
 
 class SimpleAgent:
     llm = ChatOpenAI(

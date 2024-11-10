@@ -1,19 +1,22 @@
-from typing import Literal
-from langchain_openai import ChatOpenAI
+#from typing import Literal
+# from langchain_openai import ChatOpenAI
 from graphstate import GraphState
 from tools.tools import get_tools
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
-from models import Model
-import json
-from config import OPENAI_API_KEY
-from Agents.simpleagent import SimpleAgent
-from graphtools import graphtool
-import asyncio
-from time import sleep
-import functools
 from noder import *
+from time import sleep
+import tiktoken # To count tokens
+from models import Model
+#from config import OPENAI_API_KEY
+#from models import Model
+#import json
+#from Agents.simpleagent import SimpleAgent
+#from graphtools import graphtool
+#import asyncio
+#import functools
+
 
 class Graph:
     def __init__(self):
@@ -62,7 +65,6 @@ class Graph:
 
         self.graph = self.workflow.compile()
         
-        
         with open("graph_node_network.png", 'wb') as f:
             f.write(self.graph.get_graph().draw_mermaid_png())
 
@@ -73,6 +75,23 @@ class Graph:
         """
         return {"messages": [self.llm_with_tools.invoke(state["messages"])]}
     
+    # Counts tokens using the tiktoken native library from langchain. By default counts gpt4o tokens.
+    def count_tokens(messages, model=Model.gpt_4o):
+        encoding = tiktoken.encoding_for_model(model)
+        # Tokenize each message in the history and sum up the token count
+        total_tokens = 0
+        for role, content in messages:
+            total_tokens += len(encoding.encode(role))  # Count tokens for the role
+            total_tokens += len(encoding.encode(content))  # Count tokens for the content
+        return total_tokens
+
+    # Can trim history by removing a message at a time until within the specified token limit.
+    def trim_history(chat_history, max_tokens):
+        current_tokens = Graph.count_tokens(chat_history)
+        while current_tokens > max_tokens:
+            chat_history.pop(0)  # Remove the oldest message
+            current_tokens = Graph.count_tokens(chat_history)
+        return chat_history
 
 # UNFINISHED
     def run_stream_only(self, user_prompt: str):
@@ -91,7 +110,22 @@ class Graph:
         Run the agent with a user prompt and emit the response and total tokens via socket
         """
         try:
-            input = {"messages": [("human", user_prompt)]}
+            if 'system:' in user_prompt:
+                user_prompt = user_prompt.replace('system:', 'suggested prompt for my ai:')
+
+            # TODO: Link to the current chatID
+            # Graph.trim_history to remove excess tokens above the limit.
+            chat_history = [("human", "How many planets are there in the solar system?"),
+                            ("ai", "There are eight planets in our solar system. They are Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.")]
+
+            input = {"messages": [
+                ("system", """
+                    You are Jarvis, an AI assistant here to help the human accomplish tasks. 
+                    Respond in a conversational, natural style that sounds good when spoken aloud. 
+                    Keep responses short and to the point, using clear, engaging language. 
+                    When explaining your thought process, be concise and only describe essential steps to maintain a conversational flow.
+                 """)
+            ] + chat_history + [("human", user_prompt)]}
             socketio.emit("start_message", " ")
             async for event in self.graph.astream_events(input, version='v2'):
                 event_type = event.get('event')

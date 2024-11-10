@@ -111,7 +111,7 @@ def handle_prompt(data):
             "human_message": data['prompt'],
             "ai_message": ""  # Will be filled when AI responds
         }
-        
+
         socketio.emit("start_message")
         
         # Run the AI response
