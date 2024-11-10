@@ -96,10 +96,11 @@ async function addStreamedMessage(uuid, messagePart) {
 
 async function addToolResponseToProcessContainer(toolResponse) {
   let html = /*html*/ `
-    <div class="process_element">
+    <div class="processElement">
         <img class="process_icon" src="./static/tool_icon.png" alt="Tool Icon">
         <div class="process_message">${toolResponse}</div>
-    </div>`;
+    </div>
+    <hr style="border: 1px solid rgba(255, 255, 255, 0.1);">`;
   document.querySelector(".processesContainer").innerHTML += html;
 
   // Auto-scroll to the latest process
@@ -112,7 +113,7 @@ addUserMessage = (message) => {
     <li class = "chat_element">
         <img class="profile_picture" src="https://media1.tenor.com/m/pMhSj9NfCXsAAAAd/saul-goodman-better-call-saul.gif">
         <div class="chat_message_container">
-            <div class="chat_message">${message}</div>
+        <div class="chat_message">${message}</div>
     </li>`;
   document.getElementById("chat_history").innerHTML += html;
 };

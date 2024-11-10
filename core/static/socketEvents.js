@@ -44,9 +44,10 @@ socket.on("tool_call", async (tool_call) => {
 
 socket.on("tool_response", async (tool_response) => {
   console.log("Response from tool: ", tool_response);
-
-  // Add the tool response to the chat
-  await addToolResponseToProcessContainer(tool_response);
+  if(tool_response.length > 0){
+    // Add the tool response to the chat
+    await addToolResponseToProcessContainer(tool_response);
+  }
 });
 
 // Remember to parse the streamed response

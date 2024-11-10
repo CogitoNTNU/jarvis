@@ -86,7 +86,7 @@ body {
 
 #chat_input_text {
     width: 90%;
-    height: 9vh;
+    height: 90%;
     border: none;
     background-color: #2d2d2d;
     color: var(--onSurface);
@@ -94,11 +94,11 @@ body {
 
 #voice_button {
     width: 10%;
-    height: 9vh;
+    height: 90%;
     background-color: #4d4d4d;
     border-radius: 10px;
     font-size: 24px;
-
+    margin-left: 12px;
 }
 
 .chat_input_container{
@@ -317,4 +317,18 @@ a{
         width: 80%;
         height: 400px;
     }
+  }
+
+  .processElement{
+    margin: 4px;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .processElement>div{
+    margin-left: 8px;
+  }
+  .processElement>img{
+    width: 20px;
+    margin-left: 6px;
   }

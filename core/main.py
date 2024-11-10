@@ -104,7 +104,7 @@ def disconnect():
 def handle_prompt(data):
     try:
         session_id = request.sid
-        conversation_id = data['conversation_id']
+        conversation_id = data['conversation_id'] # unused for now
         
         # Create new chat entry with human message
         chat_entry = {
