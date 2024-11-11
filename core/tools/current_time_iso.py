@@ -2,9 +2,8 @@ import os
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 from langchain_core.tools.structured import StructuredTool
-from datetime import datetime
-
-
+from datetime import datetime, timezone
+import pytz
 
 
 #Dormamu I've come to bargain
@@ -17,7 +16,8 @@ def current_time_iso_format(basetool):
     Returns:
         str: The current time in ISO format.
     """
-    time = datetime.now().replace(microsecond=0).strftime('%Y-%m-%dT%H:%M:%SZ')
+    timezone = pytz.timezone('Europe/Stockholm')
+    time = datetime.now(timezone).replace(microsecond=0).strftime('%Y-%m-%dT%H:%M:%S')
     return time
 
 def get_tool() -> StructuredTool:

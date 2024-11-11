@@ -21,7 +21,7 @@ def create_time_iso_format(year: int, month: int, day: int, hour: int, minute: i
     Returns:
         str: The your inputed time in ISO format.
     """
-    time = datetime(year, month, day, hour, minute, second).replace(microsecond=0).strftime('%Y-%m-%dT%H:%M:%SZ')
+    time = datetime(year, month, day, hour, minute, second).replace(microsecond=0).strftime('%Y-%m-%dT%H:%M:%S')
     return time
 
 def get_tool() -> StructuredTool:

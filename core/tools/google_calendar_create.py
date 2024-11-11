@@ -25,8 +25,8 @@ class create_calendar_event_parameters(BaseModel):
     summary: str = Field(description="Event title", example="Test Event")
     location: str = Field(description="Event location", example="Online")
     description: str = Field(description="Event description", example="This is a test event created by the Google Calendar tool")
-    start_time: str = Field(description="Event start time in ISO format(YYYY-MM-DDTHH:MM:SSZ), the current time can be collected from current_time_iso_format tool", example="2024-10-16T12:00:00Z")
-    end_time: str = Field(description="Event end time in ISO format(YYYY-MM-DDTHH:MM:SSZ), can use add_time tool to add for example an hour", example="2024-10-16T15:00:00Z")
+    start_time: str = Field(description="Event start time in ISO format(YYYY-MM-DDTHH:MM:SS), the current time can be collected from current_time_iso_format tool", example="2024-10-16T12:00:00Z")
+    end_time: str = Field(description="Event end time in ISO format(YYYY-MM-DDTHH:MM:SS), can use add_time tool to add for example an hour", example="2024-10-16T15:00:00Z")
 
 @tool("create_calendar_event",args_schema=create_calendar_event_parameters)   # # Remove for testing
 def create_calendar_event(summary: str, location: str, description: str, start_time: str, end_time: str) -> str:
@@ -37,8 +37,8 @@ def create_calendar_event(summary: str, location: str, description: str, start_t
         summary(string): Event title.
         location(string): Event location. Default to "Anywhere but not nowhere" if user does not provide a location.
         description(string): Event description.
-        start_time(string): Event start time in ISO format(YYYY-MM-DDTHH:MM:SSZ)
-        end_time(string): Event end time in ISO format(YYYY-MM-DDTHH:MM:SSZ)
+        start_time(string): Event start time in ISO format(YYYY-MM-DDTHH:MM:SS)
+        end_time(string): Event end time in ISO format(YYYY-MM-DDTHH:MM:SS)
 
     Returns:
         Confirmation message with event details.
@@ -50,11 +50,11 @@ def create_calendar_event(summary: str, location: str, description: str, start_t
         "description": description,
         "start": {
             "dateTime": start_time,
-            "timeZone": "UTC",
+            "timeZone": "Europe/Oslo",
         },
         "end": {
             "dateTime": end_time,
-            "timeZone": "UTC",
+            "timeZone": "Europe/Oslo",
         },
     }
 
@@ -69,8 +69,8 @@ if __name__ == "__main__":
     summary = "Test Event"
     location = "Online"
     description = "This is a test event created by the Google Calendar tool"
-    start_time = "2024-10-16T12:00:00Z"  # Format: YYYY-MM-DDTHH:MM:SSZ
-    end_time = "2024-10-16T15:00:00Z"    # Format: YYYY-MM-DDTHH:MM:SSZ
+    start_time = "2024-11-04T12:00:00"  # Format: YYYY-MM-DDTHH:MM:SS
+    end_time = "2024-11-04T15:00:00"    # Format: YYYY-MM-DDTHH:MM:SS
     
     result = create_calendar_event(summary, location, description, start_time, end_time)
     print(result)

@@ -1,5 +1,8 @@
 # Custom Ignores
 user_data
+faiss_index.bin
+id_to_metadata.json
+user_to_vector_ids.json
 
 
 # Byte-compiled / optimized / DLL files
@@ -113,6 +116,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+#google auth key
+audify-433915-326da4ccd68f.json
 
 # Spyder project settings
 .spyderproject
