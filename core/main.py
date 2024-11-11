@@ -1,6 +1,6 @@
 from flask import Flask, request, url_for, jsonify
 from graphAgent import Graph
-from Agents.neoagent import Neoagent
+from core.Agents.neo_agent import NeoAgent
 from models import Model
 from summarize_chat import summarize_chat
 from rag import embed_and_store
@@ -31,9 +31,9 @@ socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
 
 # Agent instantiation
 # Graph() contains all complex tools
-# Neoagent() is a simple ReAct agent that only has websearch and the add tool. For testing purposes.
+# NeoAgent() is a simple ReAct agent that only has websearch and the add tool. For testing purposes.
 jarvis = Graph() # API key is configured in agent.py
-#jarvis = Neoagent()
+#jarvis = NeoAgent()
 
 # Initialize active_chats with the correct format
 active_chats = defaultdict(lambda: {"chat_history": []})

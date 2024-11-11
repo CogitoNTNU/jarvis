@@ -25,7 +25,7 @@ Simply put in steps:
 ReAct is a simple multi-step agent architecture.
 Smaller graphs are often better understood by the LLMs.
 """
-class Neoagent:
+class NeoAgent:
     def __init__(self):
         print("""
 ------------------------------

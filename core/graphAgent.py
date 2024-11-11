@@ -19,6 +19,11 @@ memory = MemorySaver() # Used to save state using checkpointing. See 'config' an
 
 class Graph:
     def __init__(self):
+        print("""
+------------------------------
+Instantiated Graph Agent....
+------------------------------
+            """)
         self.workflow = StateGraph(GraphState)
 
         self.workflow.add_node("jarvis_agent", jarvis_agent)
