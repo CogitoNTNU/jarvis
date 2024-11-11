@@ -7,8 +7,6 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
 from noder import *
 from time import sleep
-import tiktoken # To count tokens
-from models import Model
 #from config import OPENAI_API_KEY
 #from models import Model
 #import json
@@ -18,9 +16,6 @@ from models import Model
 #import functools
 from langgraph.checkpoint.memory import MemorySaver
 memory = MemorySaver() # Used to save state using checkpointing. See 'config' and astream execution furhter down.
-
-from dotenv import load_dotenv
-load_dotenv(dotenv_path='../.env', override=True)
 
 class Graph:
     def __init__(self):
@@ -76,24 +71,6 @@ class Graph:
         and returns the result which will be added to the list of messages.
         """
         return {"messages": [self.llm_with_tools.invoke(state["messages"])]}
-    
-    # Counts tokens using the tiktoken native library from langchain. By default counts gpt4o tokens.
-    def count_tokens(messages, model=Model.gpt_4o):
-        encoding = tiktoken.encoding_for_model(model)
-        # Tokenize each message in the history and sum up the token count
-        total_tokens = 0
-        for role, content in messages:
-            total_tokens += len(encoding.encode(role))  # Count tokens for the role
-            total_tokens += len(encoding.encode(content))  # Count tokens for the content
-        return total_tokens
-
-    # Can trim history by removing a message at a time until within the specified token limit.
-    def trim_history(chat_history, max_tokens):
-        current_tokens = Graph.count_tokens(chat_history)
-        while current_tokens > max_tokens:
-            chat_history.pop(0)  # Remove the oldest message
-            current_tokens = Graph.count_tokens(chat_history)
-        return chat_history
 
 # UNFINISHED
     def run_stream_only(self, user_prompt: str):

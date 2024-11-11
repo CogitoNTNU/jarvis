@@ -13,6 +13,7 @@ services:
       GOOGLE_AUTH_KEY: ${GOOGLE_AUTH_KEY}
       GOOGLE_CALENDAR_ID: ${GOOGLE_CALENDAR_ID}
       PORT: ${PORT}
+      TAVILY_API_KEY: ${TAVILY_API_KEY}
     volumes:
       - ./core:/app  # Mount the application code to detect live changes
     networks:

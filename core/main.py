@@ -17,9 +17,8 @@ from collections import defaultdict
 #
 #   Setup
 #
-print("J is booting up....")
+print("Jarvis is booting up....")
 check_folders() # Check directories are made for user data
-read_chat("1")
 
 #
 #   Server config

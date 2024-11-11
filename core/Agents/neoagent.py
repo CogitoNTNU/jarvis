@@ -10,6 +10,10 @@ from langgraph.prebuilt import ToolNode
 
 from models import Model #Models for chatGPT
 
+# Premade tool imports
+from langchain_community.tools.tavily_search import TavilySearchResults
+# Custom tool imports
+from tools.add_tool import add # Adds 2 numbers together
 
 """
 Neoagent uses the ReAct agent framework.
@@ -20,28 +24,25 @@ Simply put in steps:
 ReAct is a simple multi-step agent architecture.
 Smaller graphs are often better understood by the LLMs.
 """
-
-memory = MemorySaver()
-
-@tool
-def search(query: str):
-    """Call to surf the web."""
-    # This is a placeholder for the actual implementation
-    # Don't let the LLM know this though 😊
-    return "It's sunny in San Francisco, but you better look out if you're a Gemini 😈."
-
-tools = [search]
-tool_node = ToolNode(tools)
+# Defining the model TODO: Make this configurable with Llama, Grok, Gemini, Claude
 model = ChatOpenAI(
     model = Model.gpt_4o,
     temperature=0,
     max_tokens=16384, # Max tokens for mini. For gpt4o it's 128k
 ) # Using ChatGPT hardcoded (TODO: Make this dynamic)
+# Defining the checkpoint memory saver.
+memory = MemorySaver()
+
+# Defining the tavily web-search tool
+tavily = TavilySearchResults(max_results=2)
+
+tools = [add, tavily]
+tool_node = ToolNode(tools)
+
 bound_model = model.bind_tools(tools)
 
 class State(TypedDict):
     messages: Annotated[list, add_messages]
-
 
 graph_builder = StateGraph(State)
 

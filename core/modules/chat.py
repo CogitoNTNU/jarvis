@@ -1,6 +1,10 @@
 import os
 import json
 
+"""
+    CURRENTLY NOT IN USE
+"""
+
 def read_chat(id: str) -> dict:
     '''
     Uses chat_id to get the chat JSON file and returns a python dict object.
