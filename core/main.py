@@ -1,6 +1,6 @@
 from flask import Flask, request, url_for, jsonify
 from graphAgent import Graph
-from core.Agents.neo_agent import NeoAgent
+from Agents.neo_agent import NeoAgent
 from models import Model
 from summarize_chat import summarize_chat
 from rag import embed_and_store
