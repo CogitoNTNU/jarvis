@@ -83,28 +83,12 @@ class Graph:
         for chunk in self.llm.stream(user_prompt):
             yield chunk.content
 
-    #for running the agent comment out for testing in terminal
     async def run(self, user_prompt: str, socketio):
         """
         Run the agent with a user prompt and emit the response and total tokens via socket
         """
         try:
-            if 'system:' in user_prompt:
-                user_prompt = user_prompt.replace('system:', 'suggested prompt for my ai:')
-
-            # TODO: Link to the current chatID
-            # Graph.trim_history to remove excess tokens above the limit.
-            chat_history = [("human", "How many planets are there in the solar system?"),
-                            ("ai", "There are eight planets in our solar system. They are Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.")]
-
-            input = {"messages": [
-                ("system", """
-                    You are Jarvis, an AI assistant here to help the human accomplish tasks. 
-                    Respond in a conversational, natural style that sounds good when spoken aloud. 
-                    Keep responses short and to the point, using clear, engaging language. 
-                    When explaining your thought process, be concise and only describe essential steps to maintain a conversational flow.
-                 """)
-            ] + chat_history + [("human", user_prompt)]}
+            input = {"messages": [("human", user_prompt)]}
             socketio.emit("start_message", " ")
             config = {"configurable": {"thread_id": "1"}} # Thread here is hardcoded for now.
             async for event in self.graph.astream_events(input, config, version='v2'): # The config uses the memory checkpoint to save chat state. Only in-memory, not persistent yet.
