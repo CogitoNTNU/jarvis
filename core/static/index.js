@@ -5,25 +5,23 @@ Main js file for loading the dynamic UI elements.
 */
 
 // Runs on inital startup, after window (html) has finished loading
-init = () => {
-  document.getElementById("send_button").addEventListener("click", sendMessage);
-  document.getElementById("clear_log").addEventListener("click", clear_log);
+ init = () => {
+    document.getElementById('send_button').addEventListener('click', sendMessage)
+    document.getElementById('clear_log').addEventListener('click', clear_log)
 
-  document.querySelector(".chatHistory").innerHTML += chatHistoryList();
+    document.getElementById('voice_button').addEventListener('click', startRecording)
 
-  // To hide settings page when clicking somewhere else after it's opened.
-  document.addEventListener("click", function (event) {
-    const settings = document.getElementById("settingsPage");
-    const settingsButton = document.getElementById("settingsButton");
-    if (
-      !settings.contains(event.target) &&
-      !settingsButton.contains(event.target) &&
-      settings.style.display == "block"
-    ) {
-      settingsPage();
-    }
-  });
-};
+    document.querySelector(".chatHistory").innerHTML += chatHistoryList()
+
+    // To hide settings page when clicking somewhere else after it's opened.
+    document.addEventListener('click', function(event){
+        const settings = document.getElementById("settingsPage");
+        const settingsButton = document.getElementById("settingsButton");
+        if(!settings.contains(event.target) && !settingsButton.contains(event.target) && settings.style.display=="block") {
+            settingsPage()
+        }
+     });
+}
 window.onload = init;
 
 // global state of the UI
@@ -106,6 +104,17 @@ async function addToolResponseToProcessContainer(toolResponse) {
   // Auto-scroll to the latest process
   let processesContainer = document.querySelector(".processesContainer");
   processesContainer.scrollTop = processesContainer.scrollHeight;
+}
+async function addStreamedRecording(uuid, messagePart) {
+    let element = document.getElementById(uuid);
+
+    if (element == null) {
+        await addRecordedMessage(messagePart, uuid);
+        element = document.getElementById(uuid);
+    } else {
+        // Concat ChatPart on message with uuid
+        element.innerHTML += messagePart;
+    }
 }
 
 addUserMessage = (message) => {

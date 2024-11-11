@@ -10,9 +10,11 @@ from config import PORT
 import asyncio  
 from modules.user_data_setup import check_folders
 from modules.chat import read_chat
+import requests
 import logging
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR) #INFO, DEBUG, WARNING, ERROR, or CRITICAL - config as needed during development.
+log.setLevel(logging.ERROR)
+from time import sleep
 from collections import defaultdict
 
 #
@@ -50,7 +52,7 @@ def hello_world():
 # Route to get metadata like name, id, descriptions of all user chats
 @app.route("/chats/metadata")
 def get_chats():
-    return "lmao"
+    return "lmao" # Why does this return lmao?
 
 @app.route('/vectorize_chat', methods=['POST'])
 def summarize_store():
@@ -133,6 +135,56 @@ def handle_prompt(data):
         print(f'Something very bad happened: {e}')
         return jsonify({"status": "error"})
 
+# Custom event. Fired when the user click the button with the cute little microphone icon.
+@app.route('/start_recording', methods=['POST'])
+def start_recording_route():
+    data = request.json
+    conversation_id = data.get('conversation_id')
+
+    print("Starting recording...")
+
+    # Send POST request to the recorder to start recording
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(f'http://speech-to-text:3001/start_recording/{conversation_id}', headers=headers, json=data)
+        
+    if response.status_code != 200:
+        return jsonify({"status": "error", "text": "Failed to start recording"}), 500
+
+    return jsonify({"status": "recording_started"}), 200
+
+
+@socketio.on('start_recording')
+def start_recording_socket(data):
+    # This function handles the socket event to start recording
+    conversation_id = data.get('conversation_id')
+
+    print("Starting recording via socket...")
+
+    # Send POST request to the recorder to start recording
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(f'http://speech-to-text:3001/start_recording/{conversation_id}', headers=headers, json=data)
+
+    if response.status_code != 200:
+        socketio.emit('recording_failed', {"status": "error", "text": "Failed to start recording"})
+        return
+
+    socketio.emit('recording_started', {"status": "recording_started"})
+
+@app.route('/recording_completed', methods=['POST'])
+def recording_completed():
+    data = request.json
+    text = data.get('text', '')
+    socketio.emit("recording", text)
+
+    conversation_id = data.get('conversation_id', '')
+    print(f"Recording completed for conversation ID {conversation_id} with text:", text)
+    
+    # Process the recorded text as needed (e.g., send to Jarvis or other services)
+    asyncio.run(jarvis.run(text, socketio))  # Assuming jarvis.run is asynchronous
+
+    return jsonify({"status": "success"}), 200
+
+
 @socketio.on('get_chat_history')
 def get_chat_history():
     session_id = request.sid
@@ -144,3 +196,4 @@ if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=PORT, allow_unsafe_werkzeug=True)
 
 # hello
+# TODO say hello back to whoever wrote this
