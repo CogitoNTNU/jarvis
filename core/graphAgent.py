@@ -16,12 +16,14 @@ from models import Model
 #from graphtools import graphtool
 #import asyncio
 #import functools
+from langgraph.checkpoint.memory import MemorySaver
+memory = MemorySaver() # Used to save state using checkpointing. See 'config' and astream execution furhter down.
 
+from dotenv import load_dotenv
+load_dotenv(dotenv_path='../.env', override=True)
 
 class Graph:
     def __init__(self):
-        LANGCHAIN_TRACING_V2: str = "true"
-        
         self.workflow = StateGraph(GraphState)
 
         self.workflow.add_node("jarvis_agent", jarvis_agent)
@@ -63,7 +65,7 @@ class Graph:
             {"use_calendar_tool": "use_calendar_tool", "return_to_jarvis": "jarvis_agent"}
         )
 
-        self.graph = self.workflow.compile()
+        self.graph = self.workflow.compile(checkpointer=memory) #Compiles the graph using memory checkpointer
         
         with open("graph_node_network.png", 'wb') as f:
             f.write(self.graph.get_graph().draw_mermaid_png())
@@ -127,20 +129,24 @@ class Graph:
                  """)
             ] + chat_history + [("human", user_prompt)]}
             socketio.emit("start_message", " ")
-            async for event in self.graph.astream_events(input, version='v2'):
+            config = {"configurable": {"thread_id": "1"}} # Thread here is hardcoded for now.
+            async for event in self.graph.astream_events(input, config, version='v2'): # The config uses the memory checkpoint to save chat state. Only in-memory, not persistent yet.
                 event_type = event.get('event')
-
                 # Focuses only on the 'on_chain_stream'-events. 
                 # There may be better events to base the response on
                 if event_type == 'on_chain_end' and event['name'] == 'LangGraph':
                     ai_message = event['data']['output']['messages'][-1]
 
                     if isinstance(ai_message, AIMessage):
+                        print(ai_message)
                         if 'tool_calls' in ai_message.additional_kwargs:
-                            tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
-                            #tool_call_id = ai_message.additional_kwargs['call_tool'][0]['tool_call_id']
-                            socketio.emit("tool_call", tool_call)
-                            continue
+                            try: 
+                                tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
+                                #tool_call_id = ai_message.additional_kwargs['call_tool'][0]['tool_call_id']
+                                socketio.emit("tool_call", tool_call)
+                                continue
+                            except Exception as e:
+                                return e
                     
                         socketio.emit("chunk", ai_message.content)
                         socketio.emit("tokens", ai_message.usage_metadata['total_tokens'])
@@ -148,7 +154,6 @@ class Graph:
                 
                 if event_type == 'on_chain_stream' and event['name'] == 'tools':
                     tool_response = event['data']['chunk']['messages'][-1]
-
                     if isinstance(tool_response, ToolMessage):
                         socketio.emit("tool_response", tool_response.content)
                         continue
@@ -156,5 +161,5 @@ class Graph:
             return "success"
         except Exception as e:
             print(e)
-            return "error"
+            return e
         

@@ -11,7 +11,7 @@ from modules.user_data_setup import check_folders
 from modules.chat import read_chat
 import logging
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+log.setLevel(logging.ERROR) #INFO, DEBUG, WARNING, ERROR, or CRITICAL - config as needed during development.
 from collections import defaultdict
 
 #
@@ -117,6 +117,7 @@ def handle_prompt(data):
         # Run the AI response
         async def run_and_store():
             response = await jarvis.run(data['prompt'], socketio)
+            ### TODO: Replace this with GraphState for chat history.
             # Update the AI response in the chat entry
             chat_entry["ai_message"] = response
             # Add completed chat entry to history

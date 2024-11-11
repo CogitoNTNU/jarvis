@@ -6,7 +6,7 @@ services:
       FLASK_ENV: ${FLASK_ENV} # Autorestarts flask when code changes are detected
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       LANGSMITH_API_KEY: ${LANGSMITH_API_KEY}
-      LANGCHAIN_TRACING_V2: true
+      LANGCHAIN_TRACING_V2: "true"
       LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
       LANGCHAIN_PROJECT: ${LANGCHAIN_PROJECT}
       PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY}
