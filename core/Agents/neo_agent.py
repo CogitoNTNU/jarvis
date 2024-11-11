@@ -1,5 +1,6 @@
 from typing import Annotated
 from typing_extensions import TypedDict
+import os
 
 from langgraph.graph.message import add_messages
 from langchain_openai import ChatOpenAI
@@ -41,12 +42,16 @@ Instantiated NeoAgent....
         ) # Using ChatGPT hardcoded (TODO: Make this dynamic)
         # Defining the checkpoint memory saver.
         memory = MemorySaver()
+        # Tools list
+        tools = [add]
 
-        # Defining the tavily web-search tool
-        tavily = TavilySearchResults(max_results=2)
-
-        # Adding tools and creating the tool node.
-        tools = [add, tavily]
+        if os.getenv("TAVILY_API_KEY"):
+            # Defining the tavily web-search tool
+            tavily = TavilySearchResults(max_results=2)
+            tools = [add, tavily]
+        else:
+            print("TAVILY_API_KEY does not exist.")
+            
         tool_node = ToolNode(tools)
         llm_with_tools = model.bind_tools(tools)
 
