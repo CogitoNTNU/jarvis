@@ -16,6 +16,8 @@ def jarvis_agent(state: GraphState):
         som times you have to use multiple tools from multiple diffrent tools that has been called to complte the users requests.
         if you calender is sent to you for a second or third time you should generate instead of using tools.
         if you get a complex task you should call a tool to help you solve the task.
+        If you have called for weather data you should generate instead of calling for weather data again.
+        If you have already done calculations you should generate instead of doing calculations again.
         Here are previous messages:
         
         Message: {messages}
