@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Streaming</title>
+</head>
+<body>
+    <div id="connection-controls" style="margin: 20px 0;">
+        <div id="status">Status: Initializing...</div>
+        <button id="retryConnection" style="display: none;" onclick="retryConnection()">
+            Retry Connection
+        </button>
+    </div>
+    
+    <form id="textForm" style="margin: 20px 0;">
+        <textarea id="textInput" rows="4" cols="50">This is a test sentence. Here is another one. How about a question? Final sentence.</textarea>
+        <br>
+        <button type="submit">Generate Audio</button>
+    </form>
+    
+    <button onclick="initAudioContext()">Start Audio</button>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="/static/js/audio.js"></script>
+    <script>
+        function retryConnection() {
+            console.log('Manually retrying connection...');
+            if (socket.disconnected) {
+                socket.connect();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded, Socket.IO version:', io.version);
+            const status = document.getElementById('status');
+            const retryBtn = document.getElementById('retryConnection');
+            
+            socket.on('connect_error', () => {
+                retryBtn.style.display = 'block';
+            });
+            
+            socket.on('connect', () => {
+                retryBtn.style.display = 'none';
+            });
+        });
+
+        document.getElementById('textForm').onsubmit = async function(e) {
+            e.preventDefault();
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: document.getElementById('textInput').value
+                    })
+                });
+                
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || 'Failed to generate audio');
+                }
+                
+                console.log('Generation request successful:', result);
+                status.textContent = `Status: Processing ${result.sentences} sentences...`;
+            } catch (error) {
+                console.error('Error generating audio:', error);
+                status.textContent = `Status: Error - ${error.message}`;
+            }
+        };
+    </script>
+</body>
+</html> 
