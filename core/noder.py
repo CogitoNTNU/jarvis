@@ -1,5 +1,5 @@
 from graphstate import GraphState
-from Agents.simpleagent import SimpleAgent, ToolsAgent
+from Agents.simpleagent import SimpleAgent, ToolsAgent, ToolsAgent2, JapperAgent
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from typing import Literal
@@ -34,11 +34,11 @@ def jarvis_agent(state: GraphState):
         if you answer with an ampty string you will not do anything and stop working.
         """,
     )
-    chain = prompt | ToolsAgent.agent | StrOutputParser()
+    chain = prompt | ToolsAgent2.agent | StrOutputParser()
     response = chain.invoke({
         "messages": state["messages"], "data": state.get("data", {})})
     response.replace("'", "")
-    response.replace('"', '')
+    response.replace('"', '')   
     return {"tool_decision": response}
 
 def tool_agent_decider(state: GraphState):
@@ -107,7 +107,7 @@ def response_generator(state: GraphState):
         Formulate a response that answer the users question and is formatted correctly
         """,
     )
-    chain = prompt | SimpleAgent.llm
+    chain = prompt | JapperAgent.llm
     response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
     return {"messages": [response]}
 
