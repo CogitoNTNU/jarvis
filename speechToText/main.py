@@ -91,4 +91,4 @@ def upload_audio():
 if __name__ == '__main__':
     if not os.path.exists('uploads'):
         os.makedirs('uploads')
-    socketio.run(app, debug=True, host='0.0.0.0', port=PORT_STT, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=3001, allow_unsafe_werkzeug=True)

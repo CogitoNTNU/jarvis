@@ -10,28 +10,20 @@ def jarvis_agent(state: GraphState):
     """Agent to determine how to answer user question"""
     prompt = PromptTemplate(
         template= """
-        Your job is to determine if you need tools to answer the
-        users question and answer with only the name of the option
-        chosen. You have access to chat history using tools, thus also some personal data can be retrieved.
-        som times you have to use multiple tools from multiple diffrent tools that has been called to complte the users requests.
-        if you calender is sent to you for a second or third time you should generate instead of using tools.
-        if you get a complex task you should call a tool to help you solve the task.
-        Here are previous messages:
+        Determine if the task at hand requires more information you don't already know.
+        Send the task at hand to 
+
+        You must respond with either 'use_tool' or 'generate'.
+        - 'use_tool': Call on tools to help solve the users problem
+        - 'generate': Generate a response if you have what you need to answer
         
+        Never ever under any condition respond with an empty string.
+
         Message: {messages}
 
         Data currently accumulated: 
 
         Data: {data}
-
-        Your options are the following:
-        - 'use_tool': Call on tools to help solve the users problem
-        - 'generate': Generate a response if you have what you need to answer
-
-        Answer with the option name and nothing else there should not be any ' or " in the answer.
-        You can never answer with an empty string.
-        please never answer with an empty string.
-        if you answer with an ampty string you will not do anything and stop working.
         """,
     )
     chain = prompt | ToolsAgent.agent | StrOutputParser()
@@ -146,7 +138,7 @@ def calendar_decision_agent(state: GraphState):
         jarvis agents question and answer with only the name of the option
         choose.
         if you cant find a calendar event you should create a calendar event.
-        you should create a claender event or read calendar events. if the user has asked for it.
+        you should create a calendar event or read calendar events. if the user has asked for it.
         if you have searched for calendar events atleast once you should probably return to jarvis.
         the same is for creatting a event, you only need to create that event once. and return to jarvis.
 

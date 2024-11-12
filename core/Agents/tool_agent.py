@@ -26,7 +26,7 @@ Simply put in steps:
 ReAct is a simple multi-step agent architecture.
 Smaller graphs are often better understood by the LLMs.
 """
-class NeoAgent:
+class ToolAgent:
     def __init__(self):
         print("""
 ------------------------------
@@ -60,7 +60,7 @@ Instantiated NeoAgent....
 
         graph_builder = StateGraph(State)
 
-        #Executive node that thinks about the problem or query at hand
+        #Executive node that thinks about the problem or query at hand.
         def executive_node(state: State):
             if not state["messages"]:
                 state["messages"] = [("system", system_prompt)]

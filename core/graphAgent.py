@@ -114,7 +114,8 @@ Instantiated Graph Agent....
                             except Exception as e:
                                 return e
                     
-                        socketio.emit("chunk", ai_message.content)
+                        socketio.emit("chunk", ai_message.content) # Emits the entire message over the websocket event "chunk"
+                        # TODO: POST REQUEST TO TTS
                         socketio.emit("tokens", ai_message.usage_metadata['total_tokens'])
                         continue
                 

@@ -73,5 +73,5 @@ def summarize_chat(chat_history):
         response_format={
             "type": "text"
         }
-        )
+    )
     return response.choices[0].message.content
