@@ -45,7 +45,7 @@ Instantiated Graph Agent....
         self.workflow.add_edge("calendar_tool", "calendar_decider")
         self.workflow.add_edge("other_agent", "tools")
         self.workflow.add_edge("tools", "jarvis_agent")
-        self.workflow.add_edge("jarvis_agent", "generate")
+        #self.workflow.add_edge("jarvis_agent", "generate")
         self.workflow.add_edge("generate", END)
 
         # Defining conditional edges
