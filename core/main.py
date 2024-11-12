@@ -192,7 +192,7 @@ def get_chat_history():
     return {"chat_history": []}
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host='0.0.0.0', port=PORT, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=3000, allow_unsafe_werkzeug=True) # Hardcoded port, same as docker compose and dockerfile
 
 # hello
 # TODO say hello back to whoever wrote this
