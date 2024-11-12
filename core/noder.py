@@ -121,6 +121,8 @@ def perplexity_agent(state: GraphState):
         Your job is to create tool_calls to tools using the perplexity API or 
         to tools that do a RAG-search on the chat history. The tool or tools you decide
         to call should help answer the users question.
+        if you get asked about weather you should us the weather tool.
+        
 
         Here are previous messages:
         
