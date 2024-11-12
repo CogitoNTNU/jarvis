@@ -340,3 +340,15 @@ a{
     width: 20px;
     margin-left: 6px;
   }
+
+
+#jarvis { color: #d9d9d9; }
+  span {
+  color: #050505;
+  transition: color 1s, font-size 1s;
+  font-size: 0px;
+}
+#jarvis:hover span {
+  color: #d9d9d9;
+  font-size: 1em;
+}
