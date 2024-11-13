@@ -11,6 +11,21 @@ class SimpleAgent:
         temperature=0,
         max_tokens=1024,
         )
-    
+
+class SlighltlySmarterAgent:
+    llm = ChatOpenAI(
+        model = Model.gpt_4oo,
+        temperature=0,
+        max_tokens=1024,
+        )
+class JapperAgent:
+    llm = ChatOpenAI(
+        model = Model.gpt_4o,
+        temperature=0.7,
+        max_tokens=1024,
+        )
 class ToolsAgent:
     agent = SimpleAgent.llm.bind_tools(get_tools())
+
+class ToolsAgent2:
+    agent = SlighltlySmarterAgent.llm.bind_tools(get_tools())

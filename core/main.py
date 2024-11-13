@@ -33,10 +33,10 @@ socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
 # Agent instantiation
 # Graph() contains all complex tools
 # NeoAgent() is a simple ReAct agent that only has websearch and the add tool. For testing purposes.
-#jarvis = Graph() # API key is configured in agent.py
-jarvis = NeoAgent()
+jarvis = Graph() # API key is configured in agent.py
+#jarvis = NeoAgent()
 
-# Initialize active_chats with the correct format
+# Initialize active_chatss with the correct format
 active_chats = defaultdict(lambda: {"chat_history": []})
 
 #
