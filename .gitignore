@@ -150,3 +150,7 @@ dmypy.json
 *.webm
 #calender json
 /core/tools/calendarjson
+
+
+#Redis data
+redis_data
