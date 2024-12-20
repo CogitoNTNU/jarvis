@@ -1,6 +1,7 @@
 // TODO:  Remove random debugging stuff
 // Check if socket already exists, if not create it
-const ttsSocket = (() => {
+
+let ttsSocket = (() => {
     const config = {
         websocketServer: 'http://localhost:5000'
     };
@@ -39,6 +40,8 @@ ttsSocket.on('connect', () => {
 
 ttsSocket.on('connect_error', (error) => {
     console.error('Connection error:', error);
+    console.log("DISABLING TTS FOR NOW - NO NARAKEET API KEY OR SOMETHING ELSE IS BROKEN IN TE BACKEND")
+    ttsSocket = {}
     console.log('Failed connecting to:', ttsSocket.io.uri);
     console.log('Transport type:', ttsSocket.io.engine.transport.name);
 });
