@@ -4,6 +4,7 @@
     https://github.com/jdepoix/youtube-transcript-api
     Used for now because of simplicity of getting transcripts without an api-key, but instead using the browser cookie.
     TODO: Port to youtube's official api using an api-key. Less flexible, but more stable.
+    Official youtube data api for captions: https://developers.google.com/youtube/v3/docs/captions
 '''
 
 from langchain_core.tools import tool
