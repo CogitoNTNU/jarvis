@@ -32,7 +32,8 @@ Instantiated NeoAgent Ollama....
         """)
         system_prompt = "You are Jarvis, an AI assistant here to help the human accomplish tasks. Respond in a conversational, natural style that sounds good when spoken aloud. Keep responses short and to the point, using clear, engaging language. When explaining your thought process, be concise and only describe essential steps to maintain a conversational flow."
         
-        model = ChatOllama(model="mistral-small", temperature=0, base_url="http://localhost:11434")
+        # Mistral-small can do up to 32768 context tokens but uses 5GB more VRAM. Thus using CPU and going from 40s to 4m 30s on a long-prompt or yt summary on 16GB card.
+        model = ChatOllama(model="mistral-small", temperature=0, base_url="http://localhost:11434", num_ctx=2048)
         memory = MemorySaver()
         
         tools = [add, youtube_transcript]
