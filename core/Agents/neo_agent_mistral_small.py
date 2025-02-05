@@ -23,7 +23,7 @@ from langchain_ollama import ChatOllama
 # Updated Ollama implementation
 #from langchain_community.chat_models.ollama import ChatOllama
 
-class NeoAgent:
+class NeoAgentLlama:
     def __init__(self):
         print("""
 ------------------------------
