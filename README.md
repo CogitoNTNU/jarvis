@@ -28,6 +28,8 @@
 
 
 ## About 
+Open-source agentic system developed by Cogito-NTNU to autonomously do LLM-powered tasks in the background.
+
 Just A Rather Very Intelligent System (J.A.R.V.I.S). We’re building an AI assistant inspired by Iron Man's Jarvis, capable of managing and solving complex tasks autonomously. Users should be able to converse with Jarvis naturally. Similar to Jarvis in the movies, or the ChatGPT4o demo. 
 
 J.A.R.V.I.S is a voice-controlled AI assistant that can help you with various tasks. It is designed to be a personal assistant that can help you with everyday tasks, such as setting reminders, answering questions, and providing information. The goal of J.A.R.V.I.S is to make your life easier by providing you with the information you need when you need it.
@@ -39,7 +41,7 @@ J.A.R.V.I.S is a voice-controlled AI assistant that can help you with various ta
 - Simple function execution
 - Long term memory using RAG & Vector DBs
 - Reliability (Validate input & output)
-- Sub-processes (Do stuff while talking to the user, like browsing the web)
+- Asynchronous Sub-processes (Do stuff while talking to the user, like browsing the web)
 
 ## Reminder - Not suited for production
 Traffic on this application is NOT encrypted.
