@@ -16,6 +16,7 @@ from models import Model #Models for chatGPT
 from langchain_community.tools.tavily_search import TavilySearchResults
 # Custom tool imports
 from tools.add_tool import add # Adds 2 numbers together
+from tools.youtube_transcript import youtube_transcript
 
 """
 Neoagent uses the ReAct agent framework.
@@ -43,12 +44,12 @@ Instantiated NeoAgent....
         # Defining the checkpoint memory saver.
         memory = MemorySaver()
         # Tools list
-        tools = [add]
+        tools = [add, youtube_transcript]
 
         if os.getenv("TAVILY_API_KEY"):
             # Defining the tavily web-search tool
             tavily = TavilySearchResults(max_results=2)
-            tools = [add, tavily]
+            tools.append(tavily)
         else:
             print("TAVILY_API_KEY does not exist.")
             

@@ -24,6 +24,7 @@ services:
     stop_signal: SIGINT
     ports:
       - "3000:3000"
+      - "11434:11434"
     deploy:
       resources:
         limits:
