@@ -1,11 +1,11 @@
 #from typing import Literal
 # from langchain_openai import ChatOpenAI
-from core.graph.graphstate import GraphState
+from graph.graphstate import GraphState
 from tools.tools import get_tools
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
-from core.graph.node import *
+from graph.node import *
 from time import sleep
 #from config import OPENAI_API_KEY
 #from models import Model
@@ -27,16 +27,16 @@ Instantiated Graph Agent....
             """)
         self.workflow = StateGraph(GraphState)
 
-        self.workflow.add_node("jarvis_agent", jarvis_agent)
-        self.workflow.add_node("agent_decider", tool_agent_decider)
-        self.workflow.add_node("generate", response_generator)
+        self.workflow.add_node("jarvis_agent", Node.jarvis_agent(self.workflow))
+        self.workflow.add_node("agent_decider", Node.tool_agent_decider(self.workflow))
+        self.workflow.add_node("generate", Node.response_generator(self.workflow))
         self.workflow.add_node("tools", ToolNode(get_tools()))
         
-        self.workflow.add_node("perplexity_agent", perplexity_agent)
+        self.workflow.add_node("perplexity_agent", Node.perplexity_agent(self.workflow))
         self.workflow.add_node("calendar_tool", ToolNode(get_tools()))
-        self.workflow.add_node("use_calendar_tool", calendar_tool_decider)
-        self.workflow.add_node("calendar_decider", calendar_decision_agent)
-        self.workflow.add_node("other_agent", other_agent)
+        self.workflow.add_node("use_calendar_tool", Node.calendar_tool_decider(self.workflow))
+        self.workflow.add_node("calendar_decider", Node.calendar_decision_agent(self.workflow))
+        self.workflow.add_node("other_agent", Node.other_agent(self.workflow))
         
 
         self.workflow.add_edge(START, "jarvis_agent")
@@ -51,19 +51,19 @@ Instantiated Graph Agent....
         # Defining conditional edges
         self.workflow.add_conditional_edges(
             "jarvis_agent",
-            router,
+            Node.router,
             {"generate": "generate", "use_tool": "agent_decider"}
         )
         
         self.workflow.add_conditional_edges(
             "agent_decider",
-            agent_router,
+            Node.agent_router,
             {"perplexity": "perplexity_agent", "calendar": "calendar_decider", "other": "other_agent"}
         )
 
         self.workflow.add_conditional_edges(
             "calendar_decider",
-            calendar_router,
+            Node.calendar_router,
             {"use_calendar_tool": "use_calendar_tool", "return_to_jarvis": "jarvis_agent"}
         )
 
