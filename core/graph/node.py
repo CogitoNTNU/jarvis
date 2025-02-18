@@ -1,7 +1,7 @@
-from core.graph.graphstate import GraphState
-from agents.simpleagent import SimpleAgent, ToolsAgent
-from core.agents.agent import Agent
-from core.agents.model import Model, LLMType
+from graph.graphstate import GraphState
+from Agents.model import Model
+from Agents.agent import Agent
+from Agents.model import Model, LLMType
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from typing import Literal
