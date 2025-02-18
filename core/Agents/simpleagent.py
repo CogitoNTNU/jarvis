@@ -7,20 +7,20 @@ from tools.tools import get_tools
 
 class SimpleAgent:
     llm = ChatOpenAI(
-        model = Model.gpt_4o,
+        model = Model.gpt_4o_mini,
         temperature=0,
         max_tokens=1024,
         )
 
 class SlighltlySmarterAgent:
     llm = ChatOpenAI(
-        model = Model.gpt_4oo,
+        model = Model.gpt_4o,
         temperature=0,
         max_tokens=1024,
         )
 class JapperAgent:
     llm = ChatOpenAI(
-        model = Model.gpt_4o,
+        model = Model.gpt_4o_mini,
         temperature=0.7,
         max_tokens=1024,
         )
