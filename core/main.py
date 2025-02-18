@@ -1,8 +1,8 @@
 from flask import Flask, request, url_for, jsonify
-from graphAgent import Graph
+from core.graph.graphAgent import Graph
 from Agents.neo_agent_mistral_small import NeoAgentLlama
 from Agents.neo_agent_openai import NeoAgent
-from models import Model
+from core.agents.model import Model
 from summarize_chat import summarize_chat
 from rag import embed_and_store
 from flask_socketio import SocketIO, send, emit
