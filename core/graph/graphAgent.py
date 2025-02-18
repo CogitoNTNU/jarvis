@@ -1,11 +1,11 @@
 #from typing import Literal
 # from langchain_openai import ChatOpenAI
-from graphstate import GraphState
+from core.graph.graphstate import GraphState
 from tools.tools import get_tools
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
-from noder import *
+from core.graph.node import *
 from time import sleep
 #from config import OPENAI_API_KEY
 #from models import Model
