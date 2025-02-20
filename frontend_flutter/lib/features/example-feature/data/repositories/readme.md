@@ -1,0 +1,1 @@
+Repositories act as an abstraction between the domain layer and data sources. They provide a consistent API for fetching and modifying data, regardless of whether it comes from local storage or a remote server. Implementations of repositories interact with data sources to retrieve or save data.

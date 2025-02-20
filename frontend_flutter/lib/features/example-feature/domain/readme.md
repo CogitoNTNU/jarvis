@@ -1,0 +1,1 @@
+This folder contains the core business logic of the feature, independent of UI or data storage. It includes entities, which define the structure of core objects, and use cases, which encapsulate specific operations or rules. The domain layer should not depend on any external frameworks or databases.

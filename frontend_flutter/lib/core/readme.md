@@ -1,0 +1,1 @@
+The core folder contains global utilities and configurations that are used across the entire app. It includes functionalities such as error handling, networking, and storage that should not be tied to any specific feature. The core layer helps maintain separation of concerns and keeps shared logic centralized.

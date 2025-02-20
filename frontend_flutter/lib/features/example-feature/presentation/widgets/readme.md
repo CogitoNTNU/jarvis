@@ -1,0 +1,1 @@
+Widgets are reusable UI components used within screens. They should be independent and configurable to ensure they can be reused across multiple screens. Widgets should not directly interact with business logic but should receive data via parameters or providers.
