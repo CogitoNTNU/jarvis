@@ -26,17 +26,18 @@ Instantiated Graph Agent....
 ------------------------------  
             """)
         self.workflow = StateGraph(GraphState)
+        self.node = Node()
 
-        self.workflow.add_node("jarvis_agent", Node.jarvis_agent(self.workflow))
-        self.workflow.add_node("agent_decider", Node.tool_agent_decider(self.workflow))
-        self.workflow.add_node("generate", Node.response_generator(self.workflow))
+        self.workflow.add_node("jarvis_agent", self.node.jarvis_agent)
+        self.workflow.add_node("agent_decider", self.node.tool_agent_decider)
+        self.workflow.add_node("generate", self.node.response_generator)
         self.workflow.add_node("tools", ToolNode(get_tools()))
         
-        self.workflow.add_node("perplexity_agent", Node.perplexity_agent(self.workflow))
+        self.workflow.add_node("perplexity_agent", self.node.perplexity_agent)
         self.workflow.add_node("calendar_tool", ToolNode(get_tools()))
-        self.workflow.add_node("use_calendar_tool", Node.calendar_tool_decider(self.workflow))
-        self.workflow.add_node("calendar_decider", Node.calendar_decision_agent(self.workflow))
-        self.workflow.add_node("other_agent", Node.other_agent(self.workflow))
+        self.workflow.add_node("use_calendar_tool", self.node.calendar_tool_decider)
+        self.workflow.add_node("calendar_decider", self.node.calendar_decision_agent)
+        self.workflow.add_node("other_agent", self.node.other_agent)
         
 
         self.workflow.add_edge(START, "jarvis_agent")
@@ -51,19 +52,19 @@ Instantiated Graph Agent....
         # Defining conditional edges
         self.workflow.add_conditional_edges(
             "jarvis_agent",
-            Node.router,
+            self.node.router,
             {"generate": "generate", "use_tool": "agent_decider"}
         )
         
         self.workflow.add_conditional_edges(
             "agent_decider",
-            Node.agent_router,
+            self.node.agent_router,
             {"perplexity": "perplexity_agent", "calendar": "calendar_decider", "other": "other_agent"}
         )
 
         self.workflow.add_conditional_edges(
             "calendar_decider",
-            Node.calendar_router,
+            self.node.calendar_router,
             {"use_calendar_tool": "use_calendar_tool", "return_to_jarvis": "jarvis_agent"}
         )
 
