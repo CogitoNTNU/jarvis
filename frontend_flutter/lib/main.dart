@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'features/chat/presentation/screens/chat_screen.dart';
+import 'features/chat/presentation/providers/chat_provider.dart';
+import 'features/chat/data/repositories/chat_repository.dart';
+import 'features/chat/data/data_sources/chat_remote_data_source.dart';
+import 'core/network/api_client.dart';  // Ensure this import is correct
+
 
 void main() {
   runApp(const MyApp());
@@ -8,15 +15,31 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Jarvis',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        Provider<ApiClient>(create: (_) => ApiClient()), // Provide API Client
+        Provider<ChatRemoteDataSource>(
+            create: (context) => ChatRemoteDataSource(context.read<ApiClient>())),
+        Provider<ChatRepository>(
+            create: (context) => ChatRepository(context.read<ChatRemoteDataSource>())),
+        ChangeNotifierProvider(
+            create: (context) => ChatProvider(context.read<ChatRepository>())), // Fix: Pass ChatRepository
+      ],
+      child: MaterialApp(
+        title: 'Jarvis',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const MyHomePage(title: 'Jarvis'),
+          '/chat': (context) => ChatScreen(),
+        },
       ),
-      home: const MyHomePage(title: 'Jarvis'),
     );
   }
 }
@@ -52,6 +75,9 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +123,12 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/chat'); // Navigate to the chat screen
+                },
+                child: const Text("Go to Chat"),
+              ),
           ],
         ),
       ),
