@@ -108,7 +108,7 @@ def disconnect():
 
 
 
-client = pymongo.MongoClient("mongodb://absolute-mongo:27017/") #jeg tror denne lenken er kaputt #("mongodb://localhost:27017/") #
+client = pymongo.MongoClient("mongodb://absolute-mongo:27017/")
 db = client["chat_database"]
 collection = db["chats"] 
 
@@ -117,13 +117,8 @@ collection = db["chats"]
 def handle_prompt(data):
     try:
         session_id = request.sid
-        conversation_id = data['conversation_id'] # unused for now
+        conversation_id = data['conversation_id']
         
-        # Create new chat entry with human message
-        # chat_entry = {
-        #     "human_message": data['prompt'],
-        #     "ai_message": ""  # Will be filled when AI responds
-        # }
         chat_entry = {
             "session_id": session_id,
             "conversation_id": conversation_id,
@@ -148,13 +143,8 @@ def handle_prompt(data):
 
             print(f"Updated MongoDB entry {inserted_id} with AI response")
 
-            # Optional: Store in memory (if used elsewhere)
             if session_id in active_chats:
                 active_chats[session_id]["chat_history"].append(chat_entry)
-            # Update the AI response in the chat entry
-            # chat_entry["ai_message"] = response
-            # # Add completed chat entry to history
-            # active_chats[session_id]["chat_history"].append(chat_entry)
             
         asyncio.run(run_and_store(), debug=True)
         
@@ -225,3 +215,4 @@ if __name__ == '__main__':
 
 # hello
 # TODO say hello back to whoever wrote this
+# Goodbye
