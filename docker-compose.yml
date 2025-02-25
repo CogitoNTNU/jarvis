@@ -1,6 +1,18 @@
 version: '2.1'
 
 services:
+  mongodb:
+    image: mongo
+    container_name: absolute-mongo
+    restart: always
+    networks:
+      - backend
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    command: ["mongod", "--bind_ip", "0.0.0.0"]
+
   llm-service:
     build: ./core
     restart: unless-stopped
@@ -79,6 +91,8 @@ services:
 
 
 
+volumes:
+  mongo_data:
 
   
 
