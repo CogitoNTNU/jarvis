@@ -9,7 +9,6 @@ let recordingTimeout;
 let audioContext, analyser, source;
 let conversationId = null;
 
-const socket = io.connect(window.location.origin);
 
 function startRecording() {
     document.getElementById('voice_button').style.backgroundColor = "#673636";
