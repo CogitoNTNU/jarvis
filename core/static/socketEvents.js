@@ -33,8 +33,8 @@ socket.on("chunk", async (chunk) => {
 socket.on("recording", async (recording)=>{
     if(!state.activeAIMessage){
         console.log("RECIVED MESSAGE")
-        document.getElementById('voice_button').style.backgroundColor = ""; // Change button color to indicate recording
-        document.getElementById('voice_button').enabled = true; // Disable button while recording
+        document.getElementById('voice_button').style.backgroundColor = "";
+        document.getElementById('voice_button').enabled = true;
         uuid = generateUUID();
         await addStreamedRecording(uuid, "");
         ai_message = document.getElementById(uuid)

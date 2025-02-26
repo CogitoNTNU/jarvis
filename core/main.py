@@ -135,40 +135,6 @@ def handle_prompt(data):
         print(f'Something very bad happened: {e}')
         return jsonify({"status": "error"})
 
-# Custom event. Fired when the user click the button with the cute little microphone icon.
-@app.route('/start_recording', methods=['POST'])
-def start_recording_route():
-    data = request.json
-    conversation_id = data.get('conversation_id')
-
-    print("Starting recording...")
-
-    # Send POST request to the recorder to start recording
-    headers = {'Content-Type': 'application/json'}
-    response = requests.post(f'http://speech-to-text:3001/start_recording/{conversation_id}', headers=headers, json=data)
-        
-    if response.status_code != 200:
-        return jsonify({"status": "error", "text": "Failed to start recording"}), 500
-
-    return jsonify({"status": "recording_started"}), 200
-
-
-@socketio.on('start_recording')
-def start_recording_socket(data):
-    # This function handles the socket event to start recording
-    conversation_id = data.get('conversation_id')
-
-    print("Starting recording via socket...")
-
-    # Send POST request to the recorder to start recording
-    headers = {'Content-Type': 'application/json'}
-    response = requests.post(f'http://speech-to-text:3001/start_recording/{conversation_id}', headers=headers, json=data)
-
-    if response.status_code != 200:
-        socketio.emit('recording_failed', {"status": "error", "text": "Failed to start recording"})
-        return
-
-    socketio.emit('recording_started', {"status": "recording_started"})
 
 @app.route('/recording_completed', methods=['POST'])
 def recording_completed():

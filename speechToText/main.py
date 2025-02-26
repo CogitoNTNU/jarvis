@@ -38,9 +38,10 @@ def start_recording(conversation_id):
         return jsonify({"status": "error", "message": "Failed to start recording"}), 500
 
 
-@app.route('/upload_audio', methods=['POST'])
+@app.route('/upload_audio/<conversation_id>', methods=['POST'])
 
-def upload_audio():
+def upload_audio(conversation_id):
+    print(f"Started processing for conversation ID: {conversation_id}")
     audio_file = request.files['audio']
     print(f"Received audio file: {audio_file.filename}")
     file_path = os.path.join("uploads", f"{audio_file.filename}")
@@ -70,8 +71,6 @@ def upload_audio():
         print(f"Error during speech-to-text processing: {e}")
         return jsonify({"status": "error", "message": "Failed to process audio"}), 500
 
-    # Send a POST request to notify main service about recording completion
-    conversation_id = request.form.get("conversation_id")
     try:
         response = requests.post(f'http://llm-service:3000/recording_completed', json={
             "text": text_result,
