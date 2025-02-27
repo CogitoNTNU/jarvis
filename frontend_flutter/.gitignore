@@ -56,3 +56,5 @@ windows/flutter/generated_plugins.cmake
 android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
 ios/Runner/GeneratedPluginRegistrant.h
 ios/Runner/GeneratedPluginRegistrant.m
+frontend_flutter\android\local.properties
+frontend_flutter\.dart_tool\package_config.json
