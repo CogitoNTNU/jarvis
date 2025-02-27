@@ -10,7 +10,7 @@ from langgraph.graph import MessagesState, StateGraph, START, END
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
 
-from models import Model #Models for chatGPT
+from agents.model import Model #Models for chatGPT
 
 # Premade tool imports
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -37,7 +37,7 @@ Instantiated NeoAgent....
         system_prompt = "You are Jarvis, an AI assistant here to help the human accomplish tasks. Respond in a conversational, natural style that sounds good when spoken aloud. Keep responses short and to the point, using clear, engaging language. When explaining your thought process, be concise and only describe essential steps to maintain a conversational flow."
         # Defining the model TODO: Make this configurable with Llama, Grok, Gemini, Claude
         model = ChatOpenAI(
-            model = Model.gpt_4o,
+            model = Model.gpt_4o_mini,
             temperature=0,
             max_tokens=16384, # Max tokens for mini. For gpt4o it's 128k
         ) # Using ChatGPT hardcoded (TODO: Make this dynamic)

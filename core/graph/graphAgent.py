@@ -1,19 +1,10 @@
-#from typing import Literal
-# from langchain_openai import ChatOpenAI
-from graphstate import GraphState
+from graph.graphstate import GraphState
 from tools.tools import get_tools
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
-from noder import *
+from graph.node import *
 from time import sleep
-#from config import OPENAI_API_KEY
-#from models import Model
-#import json
-#from Agents.simpleagent import SimpleAgent
-#from graphtools import graphtool
-#import asyncio
-#import functools
 from langgraph.checkpoint.memory import MemorySaver
 memory = MemorySaver() # Used to save state using checkpointing. See 'config' and astream execution furhter down.
 
@@ -26,17 +17,18 @@ Instantiated Graph Agent....
 ------------------------------  
             """)
         self.workflow = StateGraph(GraphState)
+        self.node = Node()
 
-        self.workflow.add_node("jarvis_agent", jarvis_agent)
-        self.workflow.add_node("agent_decider", tool_agent_decider)
-        self.workflow.add_node("generate", response_generator)
+        self.workflow.add_node("jarvis_agent", self.node.jarvis_agent)
+        self.workflow.add_node("agent_decider", self.node.tool_agent_decider)
+        self.workflow.add_node("generate", self.node.response_generator)
         self.workflow.add_node("tools", ToolNode(get_tools()))
         
-        self.workflow.add_node("perplexity_agent", perplexity_agent)
+        self.workflow.add_node("perplexity_agent", self.node.perplexity_agent)
         self.workflow.add_node("calendar_tool", ToolNode(get_tools()))
-        self.workflow.add_node("use_calendar_tool", calendar_tool_decider)
-        self.workflow.add_node("calendar_decider", calendar_decision_agent)
-        self.workflow.add_node("other_agent", other_agent)
+        self.workflow.add_node("use_calendar_tool", self.node.calendar_tool_decider)
+        self.workflow.add_node("calendar_decider", self.node.calendar_decision_agent)
+        self.workflow.add_node("other_agent", self.node.other_agent)
         
 
         self.workflow.add_edge(START, "jarvis_agent")
@@ -51,19 +43,19 @@ Instantiated Graph Agent....
         # Defining conditional edges
         self.workflow.add_conditional_edges(
             "jarvis_agent",
-            router,
+            self.node.router,
             {"generate": "generate", "use_tool": "agent_decider"}
         )
         
         self.workflow.add_conditional_edges(
             "agent_decider",
-            agent_router,
+            self.node.agent_router,
             {"perplexity": "perplexity_agent", "calendar": "calendar_decider", "other": "other_agent"}
         )
 
         self.workflow.add_conditional_edges(
             "calendar_decider",
-            calendar_router,
+            self.node.calendar_router,
             {"use_calendar_tool": "use_calendar_tool", "return_to_jarvis": "jarvis_agent"}
         )
 

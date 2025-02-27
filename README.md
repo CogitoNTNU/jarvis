@@ -17,6 +17,7 @@
 
 - [J.A.R.V.I.S](#jarvis)
   - [About](#about)
+  - [Reminder - Not suited for production](#reminder---not-suited-for-production)
   - [Prerequisites](#prerequisites)
   - [Usage](#usage)
   - [Testing](#testing)
@@ -121,6 +122,12 @@ This project would not have been possible without the hard work and dedication o
             <a href="https://github.com/WilliamMRS">
               <img src="https://github.com/WilliamMRS.png?size=100" width="100px;" alt="William M Schmidt"/><br />
               <sub><b>William M Schmidt</b></sub>
+            </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/IvanMordovets">
+              <img src="https://github.com/IvanMordovets.png?size=100" width="100px;" alt="Ivan Mordovets"/><br />
+              <sub><b>Ivan Mordovets</b></sub>
             </a>
         </td>
     </tr>
