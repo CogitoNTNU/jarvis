@@ -1,0 +1,1 @@
+This folder contains reusable components and utilities that are shared across multiple features. It helps reduce duplication and maintain consistency throughout the app. Shared components should not depend on feature-specific logic.

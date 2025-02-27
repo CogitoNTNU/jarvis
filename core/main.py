@@ -27,7 +27,7 @@ check_folders() # Check directories are made for user data
 #
 #   Server config
 #
-app = Flask(__name__, static_url_path='/static')
+app = Flask(__name__, static_folder='/static')
 app.config['SECRET_KEY'] = 'secret_key_xdddd'  # TODO: Make a better key
 CORS(app, resources={r"/*": {"origins": "*"}})  # TODO: Make the CORS actually not accept everything
 socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
@@ -52,7 +52,7 @@ def hello_world():
     return app.send_static_file('index.html')
 
 # Route to get metadata like name, id, descriptions of all user chats
-@app.route("/chats/metadata")
+@app.route("/ping_server")
 def get_chats():
     return "lmao" # Why does this return lmao?
 

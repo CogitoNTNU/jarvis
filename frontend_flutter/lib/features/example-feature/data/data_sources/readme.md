@@ -1,0 +1,1 @@
+Data sources handle direct interactions with databases, APIs, or local storage. They provide low-level methods for reading and writing data but do not contain business logic. Local and remote data sources are typically separated to allow flexibility in data retrieval.

@@ -1,0 +1,1 @@
+Screens represent full UI views that users interact with. They handle user input, display data from providers, and call use cases when actions are needed. Screens should remain as simple as possible, delegating logic to providers or controllers.

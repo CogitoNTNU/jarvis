@@ -1,0 +1,1 @@
+This folder contains network-related utilities, such as API clients, HTTP request handlers, and connectivity checkers. It ensures that all network operations follow a consistent structure and can be easily maintained or replaced. This layer should not contain business logic but only handle raw network communication.
