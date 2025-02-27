@@ -3,7 +3,7 @@ version: '2.1'
 services:
   mongodb:
     image: mongo
-    container_name: absolute-mongo
+    container_name: mongodb
     restart: always
     networks:
       - backend
