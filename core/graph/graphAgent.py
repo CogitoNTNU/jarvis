@@ -10,7 +10,7 @@ from time import sleep
 #from config import OPENAI_API_KEY
 #from models import Model
 #import json
-#from Agents.simpleagent import SimpleAgent
+#from agents.simpleagent import SimpleAgent
 #from graphtools import graphtool
 #import asyncio
 #import functools

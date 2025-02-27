@@ -1,7 +1,7 @@
 from graph.graphstate import GraphState
-from Agents.model import Model
-from Agents.agent import Agent
-from Agents.model import Model, LLMType
+from agents.model import Model
+from agents.agent import Agent
+from agents.model import Model, LLMType
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from typing import Literal
