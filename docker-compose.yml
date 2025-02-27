@@ -31,51 +31,51 @@ services:
           cpus: '0.5'
           memory: 2048M # Memory limit for the compose
 
-  # speech-to-text:
-  #   build: ./speechToText
-  #   restart: unless-stopped
-  #   environment:
-  #     FLASK_ENV: ${FLASK_ENV} # Autorestarts flask when code changes are detected
-  #     OPENAI_API_KEY: ${OPENAI_API_KEY}
-  #     PORT_STT: ${PORT_STT}
-  #   volumes:
-  #     - ./speechToText:/app  # Mount the application code to detect live changes
-  #   networks:
-  #     - backend
-  #   stop_signal: SIGINT
-  #   ports:
-  #     - "3001:3001"
-  # redis:
-  #   image: redis:latest
-  #   container_name: redis_audio
-  #   ports:
-  #     - "6379:6379"
-  #   networks:
-  #     - backend
-  #   command: >
-  #     redis-server 
-  #     --appendonly yes 
-  #     --save 60 1 
-  #     --save 300 100 
-  #     --save 900 1000
-  #     --maxmemory 1000mb
-  #   volumes:
-  #     - ./redis_data:/data
-  # tts:
-  #   build:
-  #     context: ./textToSpeech
-  #     dockerfile: Dockerfile
-  #   networks:
-  #     - backend
-  #   env_file:
-  #     - .env
-  #   ports:
-  #     - "5000:5000"
-  #   environment:
-  #     - REDIS_URL=redis://redis:6379
-  #     - NARKEE_API_KEY=${NARKEE_API_KEY}
-  #   depends_on:
-  #     - redis 
+  speech-to-text:
+    build: ./speechToText
+    restart: unless-stopped
+    environment:
+      FLASK_ENV: ${FLASK_ENV} # Autorestarts flask when code changes are detected
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      PORT_STT: ${PORT_STT}
+    volumes:
+      - ./speechToText:/app  # Mount the application code to detect live changes
+    networks:
+      - backend
+    stop_signal: SIGINT
+    ports:
+      - "3001:3001"
+  redis:
+    image: redis:latest
+    container_name: redis_audio
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+    command: >
+      redis-server 
+      --appendonly yes 
+      --save 60 1 
+      --save 300 100 
+      --save 900 1000
+      --maxmemory 1000mb
+    volumes:
+      - ./redis_data:/data
+  tts:
+    build:
+      context: ./textToSpeech
+      dockerfile: Dockerfile
+    networks:
+      - backend
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - NARKEE_API_KEY=${NARKEE_API_KEY}
+    depends_on:
+      - redis 
 
 
 
