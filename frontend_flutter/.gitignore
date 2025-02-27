@@ -58,6 +58,7 @@ ios/Runner/GeneratedPluginRegistrant.h
 ios/Runner/GeneratedPluginRegistrant.m
 frontend_flutter\android\local.properties
 frontend_flutter\.dart_tool\package_config.json
+frontend_flutter\.dart_tool\version
 
 ### Flutter Generated
 
