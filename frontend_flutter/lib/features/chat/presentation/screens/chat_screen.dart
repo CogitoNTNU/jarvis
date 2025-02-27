@@ -1,9 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
+import 'package:http/http.dart' as http;
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
+  @override
+  _ChatScreenState createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPingMessage(); // Fetch ping message when the chat opens
+  }
+
+  Future<void> _fetchPingMessage() async {
+    Uri url = Uri.http('localhost:3000', '/ping_server');
+    var response = await http.get(url);
+
+    try{
+          final message = response.body;
+          Provider.of<ChatProvider>(context, listen: false).addMessage("bot",message);
+          print(url);
+    }catch(e){
+      print("$e - $response.statusCode");
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {

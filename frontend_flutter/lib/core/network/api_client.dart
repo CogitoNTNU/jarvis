@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiClient {
-  final String baseUrl = "http://localhost:3000";  // Adjust for Docker networking
+  final String baseUrl = "http://localhost:3000";  
 
   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
     final response = await http.post(

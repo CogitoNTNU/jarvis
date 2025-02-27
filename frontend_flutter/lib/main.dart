@@ -4,7 +4,7 @@ import 'features/chat/presentation/screens/chat_screen.dart';
 import 'features/chat/presentation/providers/chat_provider.dart';
 import 'features/chat/data/repositories/chat_repository.dart';
 import 'features/chat/data/data_sources/chat_remote_data_source.dart';
-import 'core/network/api_client.dart';  // Ensure this import is correct
+import 'core/network/api_client.dart';  
 
 
 void main() {

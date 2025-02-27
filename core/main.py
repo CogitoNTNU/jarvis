@@ -50,7 +50,7 @@ def hello_world():
     return app.send_static_file('index.html')
 
 # Route to get metadata like name, id, descriptions of all user chats
-@app.route("/chats/metadata")
+@app.route("/ping_server")
 def get_chats():
     return "lmao" # Why does this return lmao?
 
