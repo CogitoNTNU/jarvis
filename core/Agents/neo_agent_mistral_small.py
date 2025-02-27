@@ -102,7 +102,7 @@ Instantiated NeoAgent Ollama....
                     if isinstance(tool_response, ToolMessage):
                         socketio.emit("tool_response", tool_response.content)
                         continue
-            return "success"
+            return ai_message.content #send this to MongoDB
         except Exception as e:
             print(e)
             return e
