@@ -26,7 +26,7 @@ check_folders() # Check directories are made for user data
 #
 #   Server config
 #
-app = Flask(__name__, static_url_path='/static')
+app = Flask(__name__, static_folder='/static')
 app.config['SECRET_KEY'] = 'secret_key_xdddd'  # TODO: Make a better key
 CORS(app, resources={r"/*": {"origins": "*"}})  # TODO: Make the CORS actually not accept everything
 socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
