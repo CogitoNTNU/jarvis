@@ -17,12 +17,14 @@ log.setLevel(logging.ERROR)
 from collections import defaultdict
 
 import pymongo
+import chroma # Embedding database
 
 #
 #   Setup
 #
 print("Jarvis is booting up....")
 check_folders() # Check directories are made for user data
+# chroma_client = chroma.init_chroma # initializes embedding database TODO: 
 
 #
 #   Server config
@@ -108,7 +110,7 @@ def disconnect():
 
 
 
-client = pymongo.MongoClient("mongodb://absolute-mongo:27017/")
+client = pymongo.MongoClient("mongodb://mongodb:27017/") # Bruker "service ip-en" inni docker
 db = client["chat_database"]
 collection = db["chats"] 
 
