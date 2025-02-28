@@ -27,7 +27,7 @@ check_folders() # Check directories are made for user data
 #
 #   Server config
 #
-app = Flask(__name__, static_folder='/static')
+app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'secret_key_xdddd'  # TODO: Make a better key
 CORS(app, resources={r"/*": {"origins": "*"}})  # TODO: Make the CORS actually not accept everything
 socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
@@ -112,6 +112,26 @@ client = pymongo.MongoClient("mongodb://absolute-mongo:27017/")
 db = client["chat_database"]
 collection = db["chats"] 
 
+def saveChat (session_id, conversation_id, message, ai_message):
+    chat_entry = {
+        "session_id": session_id,
+        "conversation_id": conversation_id,
+        "human_message": message,
+        "ai_message": ai_message,  # Will be updated later
+    }
+    # Insert chat entry into MongoDB
+    inserted_id = collection.insert_one(chat_entry).inserted_id
+    print(f"Chat entry inserted with ID: {inserted_id}")
+
+def updateChat(chat_id):
+### TODO: Replace this with GraphState for chat history.
+    collection.update_one(
+        {"_id": inserted_id},
+        {"$set": {"ai_message": response}}
+    )
+
+    print(f"Updated MongoDB entry {inserted_id} with AI response")
+
 # Custom event. Fired when the user sends a prompt.
 @socketio.on('user_prompt')
 def handle_prompt(data):
@@ -119,29 +139,19 @@ def handle_prompt(data):
         session_id = request.sid
         conversation_id = data['conversation_id']
         
-        chat_entry = {
-            "session_id": session_id,
-            "conversation_id": conversation_id,
-            "human_message": data['prompt'],
-            "ai_message": "",  # Will be updated later
-        }
-        # Insert chat entry into MongoDB
-        inserted_id = collection.insert_one(chat_entry).inserted_id
-        print(f"Chat entry inserted with ID: {inserted_id}")
+        # TODO: Disabled for now
+        # try:
+        #     saveChat(session_id, conversation_id, data['prompt'], "")
+        # except(e):
+        #     print(e + " MongoDB not working correctly.")
 
-
-        socketio.emit("start_message")
-        
+        socketio.emit("start_message") # Tells the UI a message is incoming
         # Run the AI response
         async def run_and_store():
             response = await jarvis.run(data['prompt'], socketio)
-            ### TODO: Replace this with GraphState for chat history.
-            collection.update_one(
-                {"_id": inserted_id},
-                {"$set": {"ai_message": response}}
-            )
 
-            print(f"Updated MongoDB entry {inserted_id} with AI response")
+            #TODO: Disabled for now 
+            # updateChat()
 
             if session_id in active_chats:
                 active_chats[session_id]["chat_history"].append(chat_entry)
