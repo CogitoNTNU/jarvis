@@ -1,8 +1,7 @@
 from flask import Flask, request, url_for, jsonify
-from graphAgent import Graph
-from Agents.neo_agent_mistral_small import NeoAgentLlama
-from Agents.neo_agent_openai import NeoAgent
-from models import Model
+from graph.graphAgent import Graph
+from agents.neo_agent_mistral_small import NeoAgentLlama
+from agents.neo_agent_openai import NeoAgent
 from summarize_chat import summarize_chat
 from rag import embed_and_store
 from flask_socketio import SocketIO, send, emit
@@ -17,6 +16,8 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 from collections import defaultdict
 
+import pymongo
+
 #
 #   Setup
 #
@@ -26,7 +27,7 @@ check_folders() # Check directories are made for user data
 #
 #   Server config
 #
-app = Flask(__name__, static_url_path='/static')
+app = Flask(__name__, static_folder='/static')
 app.config['SECRET_KEY'] = 'secret_key_xdddd'  # TODO: Make a better key
 CORS(app, resources={r"/*": {"origins": "*"}})  # TODO: Make the CORS actually not accept everything
 socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
@@ -35,7 +36,8 @@ socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
 # Graph() contains all complex tools
 # NeoAgent() is a simple ReAct agent that only has websearch and the add tool. For testing purposes.
 #jarvis = Graph() # API key is configured in agent.py
-jarvis = NeoAgent()
+
+jarvis = NeoAgent() #NeoAgentLlama() #
 
 # Initialize active_chatss with the correct format
 active_chats = defaultdict(lambda: {"chat_history": []})
@@ -50,7 +52,7 @@ def hello_world():
     return app.send_static_file('index.html')
 
 # Route to get metadata like name, id, descriptions of all user chats
-@app.route("/chats/metadata")
+@app.route("/ping_server")
 def get_chats():
     return "lmao" # Why does this return lmao?
 
@@ -104,18 +106,29 @@ def disconnect():
     print('UI disconnected')
     print(f'Session ID: {session_id}')
 
+
+
+client = pymongo.MongoClient("mongodb://absolute-mongo:27017/")
+db = client["chat_database"]
+collection = db["chats"] 
+
 # Custom event. Fired when the user sends a prompt.
 @socketio.on('user_prompt')
 def handle_prompt(data):
     try:
         session_id = request.sid
-        conversation_id = data['conversation_id'] # unused for now
+        conversation_id = data['conversation_id']
         
-        # Create new chat entry with human message
         chat_entry = {
+            "session_id": session_id,
+            "conversation_id": conversation_id,
             "human_message": data['prompt'],
-            "ai_message": ""  # Will be filled when AI responds
+            "ai_message": "",  # Will be updated later
         }
+        # Insert chat entry into MongoDB
+        inserted_id = collection.insert_one(chat_entry).inserted_id
+        print(f"Chat entry inserted with ID: {inserted_id}")
+
 
         socketio.emit("start_message")
         
@@ -123,10 +136,15 @@ def handle_prompt(data):
         async def run_and_store():
             response = await jarvis.run(data['prompt'], socketio)
             ### TODO: Replace this with GraphState for chat history.
-            # Update the AI response in the chat entry
-            chat_entry["ai_message"] = response
-            # Add completed chat entry to history
-            active_chats[session_id]["chat_history"].append(chat_entry)
+            collection.update_one(
+                {"_id": inserted_id},
+                {"$set": {"ai_message": response}}
+            )
+
+            print(f"Updated MongoDB entry {inserted_id} with AI response")
+
+            if session_id in active_chats:
+                active_chats[session_id]["chat_history"].append(chat_entry)
             
         asyncio.run(run_and_store(), debug=True)
         
@@ -197,3 +215,4 @@ if __name__ == '__main__':
 
 # hello
 # TODO say hello back to whoever wrote this
+# Goodbye

@@ -1,0 +1,1 @@
+Models define how data is structured when stored in a database or received from an API. They often include methods for converting between database formats and domain entities. Models should only contain data-related logic, not business rules.

@@ -1,0 +1,1 @@
+Entities are pure Dart classes that represent the core objects of the feature, such as a workout or an exercise. They are independent of how data is stored or retrieved and should not contain formatting or conversion logic. Entities ensure that business logic remains separate from infrastructure details.

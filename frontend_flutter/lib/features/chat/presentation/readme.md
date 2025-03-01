@@ -1,0 +1,1 @@
+This folder contains everything related to the user interface, including screens, widgets, and state management. It interacts with the domain layer through use cases and repositories to fetch and display data. The presentation layer should not contain business logic beyond UI-related concerns.

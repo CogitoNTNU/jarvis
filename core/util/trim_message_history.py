@@ -1,5 +1,5 @@
 import tiktoken # To count tokens
-from models import Model
+from agents.model import Model
 
 """
 Functions to filter and trim the message history if it goes above the token limit.
@@ -7,7 +7,7 @@ TODO: Also functions to generally trim the message history to reduce token usage
 """
 
 # Counts tokens using the tiktoken native library from langchain. By default counts gpt4o tokens.
-def count_tokens(messages, model=Model.gpt_4o):
+def count_tokens(messages, model=Model.gpt_4o_mini):
     encoding = tiktoken.encoding_for_model(model)
     # Tokenize each message in the history and sum up the token count
     total_tokens = 0

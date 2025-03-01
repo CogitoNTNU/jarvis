@@ -1,0 +1,1 @@
+Providers handle state management and serve as a bridge between the UI and use cases. They listen for changes in data and notify the UI when updates occur. Providers should only handle state-related logic and delegate business operations to the domain layer.

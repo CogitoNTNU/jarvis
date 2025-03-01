@@ -9,8 +9,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import MessagesState, StateGraph, START, END
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
-
-from .agents.model import Model #Models for chatGPT
+from agents.model import Model #Models for chatGPT
 
 # Premade tool imports
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -26,7 +25,7 @@ Simply put in steps:
 ReAct is a simple multi-step agent architecture.
 Smaller graphs are often better understood by the LLMs.
 """
-class ToolAgent:
+class NeoAgent:
     def __init__(self):
         print("""
 ------------------------------
@@ -60,7 +59,7 @@ Instantiated NeoAgent....
 
         graph_builder = StateGraph(State)
 
-        #Executive node that thinks about the problem or query at hand.
+        #Executive node that thinks about the problem or query at hand
         def executive_node(state: State):
             if not state["messages"]:
                 state["messages"] = [("system", system_prompt)]
