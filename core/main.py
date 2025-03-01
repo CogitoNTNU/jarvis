@@ -9,6 +9,7 @@ import pymongo
 import requests
 import logging
 from collections import defaultdict
+import json
 
 from graph.graphAgent import Graph
 from agents.neo_agent_mistral_small import NeoAgentLlama
@@ -62,9 +63,21 @@ jarvis = NeoAgent()
 active_chats: Dict[str, Dict[str, List[Dict[str, str]]]] = defaultdict(lambda: {"chat_history": []})
 
 # MongoDB Connection
-client = pymongo.MongoClient("mongodb://mongodb:27017/")
-db = client["chat_database"]
-collection = db["chats"]
+client = None
+collection = None  # Default to None if MongoDB isn't available
+
+try:
+    client = pymongo.MongoClient("mongodb://localhost:27017/", serverSelectionTimeoutMS=5000)
+    client.server_info()  # Try to connect
+    print("✅ Connected to MongoDB!")
+    
+    db = client["chat_database"]
+    collection = db["chats"]
+except pymongo.errors.ServerSelectionTimeoutError:
+    print("❌ MongoDB is not available. Running without database features.")
+    client = None  # Ensure client is None to prevent errors
+    collection = None  # Prevent further crashes
+
 
 # WebSocket manager
 class WebSocketManager:
@@ -143,10 +156,18 @@ async def recording_completed(data: dict):
 # WebSocket Endpoints
 #
 
+# User prompting request models
+class UserPromptData(BaseModel):
+    prompt: str
+    conversation_id: str
+
 class UserPromptRequest(BaseModel):
     event: str
-    conversation_id: str
-    prompt: str
+    data: UserPromptData
+
+# Generic event request
+class BaseEventRequest(BaseModel):
+    event: str
 
 @app.websocket("/ws/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, session_id: str):
@@ -155,42 +176,43 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
     try:
         while True:
             data = await websocket.receive_json()
-            validated_data = UserPromptRequest(**data) # Unpacks data into UserPromptRequest
             event_type = data.get("event")
 
             ### User prompt
-            if event_type == "user_prompt": 
-                conversation_id = data.get("conversation_id")
-                prompt = data.get("prompt")
-
-                chat_entry = {
-                    "session_id": session_id,
-                    "conversation_id": conversation_id,
-                    "human_message": prompt,
-                    "ai_message": "",  # Will be updated later
-                }
-
-                inserted_id = collection.insert_one(chat_entry).inserted_id
-                print(f"Chat entry inserted with ID: {inserted_id}")
-
+            if event_type == "user_prompt":
                 await ws_manager.send_message(session_id, "start_message")
-
                 async def run_and_store():
-                    response = await jarvis.run(prompt)
-                    collection.update_one(
-                        {"_id": inserted_id},
-                        {"$set": {"ai_message": response}}
-                    )
-                    print(f"Updated MongoDB entry {inserted_id} with AI response")
+                    print(data)
+                    # if collection is None:  # Prevent MongoDB crash
+                    #     print("MongoDB is not available. Skipping DB insert.")
+                    # else:
+                    #     chat_entry = {
+                    #         "session_id": session_id,
+                    #         "conversation_id": message.get("conversation_id", ""),
+                    #         "human_message": message.get("prompt", ""),
+                    #         "ai_message": "",
+                    #     }
+                    #     inserted_id = collection.insert_one(chat_entry).inserted_id
+                    #     print(f"Chat entry inserted with ID: {inserted_id}")
+                    user_prompt = UserPromptRequest(**data) # Unpacks message into UserPromptRequest
+                    response = await jarvis.run(user_prompt, websocket) # Run Jarvis response
+                    await ws_manager.send_message(session_id, response) # Send response to frontend
+                    print(f"Jarvis response sent to session {session_id}")
+                    # local chat history storage/cache
+                    # TODO: Make this purely mongoDB
+                    # if session_id in active_chats:
+                    #     active_chats[session_id]["chat_history"].append(chat_entry)
 
-                    if session_id in active_chats:
-                        active_chats[session_id]["chat_history"].append(chat_entry)
+                    # try:
+                    #     collection.update_one(
+                    #         {"_id": inserted_id},
+                    #         {"$set": {"ai_message": response}}
+                    #     )
+                    #     print(f"Updated MongoDB entry {inserted_id} with AI response")
+                    # except Exception as e:
+                    #     print(f"Jarvis encountered an error updating MongoDB entry: {e}")
 
-                    await ws_manager.send_message(session_id, response)
-                try:
-                    asyncio.create_task(run_and_store()) ### Non blocking call to run_and_store
-                except Exception as e:
-                    print(f"Jarvis encountered an error responding to user prompt: {e}")
+                asyncio.create_task(run_and_store()) ### Non blocking call to run_and_store
 
             ### Start recording
             elif event_type == "start_recording":
@@ -206,7 +228,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
             ### Get chat history
             elif event_type == "get_chat_history":
                 history = active_chats.get(session_id, {"chat_history": []})
-                await ws_manager.send_message(session_id, str(history))
+                await ws_manager.send_message(session_id, json.dumps(history))
 
     except WebSocketDisconnect:
         ws_manager.disconnect(session_id)

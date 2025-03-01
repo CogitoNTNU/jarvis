@@ -14,11 +14,8 @@ sendMessage = () => {
 
     // Send the message via the open socket
     try{
-        console.log("User promt is: " + userInput);
-        const payload = {prompt: userInput, conversation_id: state.activeConversationId}
-        console.log("Payload is: ", payload);
-        let res = socket.emit('user_prompt', payload)
-        console.log("Prompt sent to backend");
+        const payload = {prompt: userInput, conversation_id: String(state.activeConversationId)}
+        let res = socket.send(JSON.stringify({ event: "user_prompt", data: payload }));
         // Stream to the current active AI chat box
     }catch(e){
         console.log("Something went wrong", e)
