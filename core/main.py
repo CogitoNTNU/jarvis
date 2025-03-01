@@ -1,5 +1,6 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 from pydantic import BaseModel
 from typing import Dict, List
@@ -50,6 +51,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static folder for UI
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # Agent instantiation
 jarvis = NeoAgent()  
 #jarvis = NeoAgentLlama()
@@ -85,6 +89,10 @@ ws_manager = WebSocketManager()
 #
 # HTTP Endpoints
 #
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse("static/favicon.ico")
+
 @app.get("/")
 async def hello_world():
     return FileResponse("static/index.html")

@@ -58,7 +58,7 @@ let setLoading = (newLoadingVal) => {
 async function addMessage(message, uuid) {
   let html = /*html*/ `
     <li class = "chat_element">
-        <img class="profile_picture" src="./static/rickroll-roll.gif">
+        <img class="profile_picture" src="./static/resources/rickroll-roll.gif">
         <div class="chat_message_container">
             <div id=${uuid} class="chat_message"> ${message} </div>
     </li>`;
@@ -95,7 +95,7 @@ async function addStreamedMessage(uuid, messagePart) {
 async function addToolResponseToProcessContainer(toolResponse) {
   let html = /*html*/ `
     <div class="processElement">
-        <img class="process_icon" src="./static/tool_icon.png" alt="Tool Icon">
+        <img class="process_icon" src="./static/resources/tool_icon.png" alt="Tool Icon">
         <div class="process_message">${toolResponse}</div>
     </div>
     <hr style="border: 1px solid rgba(255, 255, 255, 0.1);">`;
