@@ -49,15 +49,14 @@ services:
       - ./core:/app  # Mount application for live changes
     networks:
       - backend
-    stop_signal: SIGINT
     ports:
       - "3000:3000"
       - "11434:11434"
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 2048M  # Memory limit
+          cpus: '1' # CPU limit
+          memory: 2gb  # Memory limit
 
   speech-to-text:
     build: ./speechToText
@@ -70,7 +69,6 @@ services:
       - ./speechToText:/app
     networks:
       - backend
-    stop_signal: SIGINT
     ports:
       - "3001:3001"
 
