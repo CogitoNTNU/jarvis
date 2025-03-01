@@ -21,6 +21,16 @@ from modules.chat import read_chat
 log = logging.getLogger("uvicorn")
 log.setLevel(logging.ERROR)
 
+'''
+    FOR API DOCUMENTATION, VISIT: http://localhost:3000/docs
+    
+    Websockets are not automatically documented.
+
+    Running using uvicorn outside of docker: 
+    1. Enter a venv
+    2. python -m uvicorn main:app --host 0.0.0.0 --port 3000 --reload
+'''
+
 #
 # Setup
 #
