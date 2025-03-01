@@ -56,8 +56,17 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Agent instantiation
-jarvis = NeoAgent()  
+jarvis = NeoAgent()
 #jarvis = NeoAgentLlama()
+
+welcome_text = '''
+     ____.  _____ ______________   ____.___  _________ 
+    |    | /  _  \\______   \   \ /   /|   |/   _____/ 
+    |    |/  /_\  \|       _/\   Y   / |   |\_____  \  
+/\__|    /    |    \    |   \ \     /  |   |/        \ 
+\________\____|__  /____|_  /  \___/   |___/_______  / 
+                 \/       \/                       \/  '''
+print(welcome_text)
 
 # Initialize active_chats with standard llm format
 active_chats: Dict[str, Dict[str, List[Dict[str, str]]]] = defaultdict(lambda: {"chat_history": []})
