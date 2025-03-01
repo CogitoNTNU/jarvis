@@ -27,9 +27,8 @@ addRecordedMessage = (message) => {
     let chat_history = document.getElementById("chat_history")
     if (message != "") {
     addUserMessage(marked.parse(message))
-    chat_history.scrollTop = chat_history.scrollHeight;
+        chat_history.scrollTop = chat_history.scrollHeight;
     }
-
 }
 
 

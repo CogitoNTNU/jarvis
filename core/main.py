@@ -177,12 +177,10 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
         while True:
             data = await websocket.receive_json()
             event_type = data.get("event")
-
+            print(f"Received event: {event_type}")
             ### User prompt
             if event_type == "user_prompt":
-                await ws_manager.send_message(session_id, "start_message")
                 async def run_and_store():
-                    print(data)
                     # if collection is None:  # Prevent MongoDB crash
                     #     print("MongoDB is not available. Skipping DB insert.")
                     # else:
@@ -194,10 +192,10 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                     #     }
                     #     inserted_id = collection.insert_one(chat_entry).inserted_id
                     #     print(f"Chat entry inserted with ID: {inserted_id}")
-                    user_prompt = UserPromptRequest(**data) # Unpacks message into UserPromptRequest
-                    response = await jarvis.run(user_prompt, websocket) # Run Jarvis response
-                    await ws_manager.send_message(session_id, response) # Send response to frontend
-                    print(f"Jarvis response sent to session {session_id}")
+                    req = UserPromptRequest(**data) # Unpacks message into UserPromptRequest
+                    await jarvis.run(req.data.prompt, websocket) # Run Jarvis response
+                    #await ws_manager.send_message(session_id, response) # Send response to frontend
+                    #print(f"Jarvis response sent to session {session_id}")
                     # local chat history storage/cache
                     # TODO: Make this purely mongoDB
                     # if session_id in active_chats:

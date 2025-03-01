@@ -110,29 +110,37 @@ Instantiated NeoAgent....
                     ai_message = event['data']['output']['messages'][-1]
 
                     if isinstance(ai_message, AIMessage):
-                        print(ai_message)
-
+                        print(f"AI Message: {ai_message.content}")
                         # Handle tool calls
-                        if 'tool_calls' in ai_message.additional_kwargs:
-                            try:
-                                tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
-                                await websocket.send_json({"event": "tool_call", "data": tool_call})
-                                continue
-                            except Exception as e:
-                                print(f"Error processing tool call: {e}")
-                                return str(e)
+                        # if 'tool_calls' in ai_message.additional_kwargs:
+                        #     try:
+                        #         tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
+                        #         await websocket.send_json({"event": "tool_call", "data": tool_call})
+                        #         continue
+                        #     except Exception as e:
+                        #         print(f"Error processing tool call: {e}")
+                        #         return str(e)
 
-                        # Send AI message chunk
-                        await websocket.send_json({"event": "chunk", "data": ai_message.content})
+                        try:
+                            # Send AI message
+                            await websocket.send_json({"event": "ai_message", "data": ai_message.content})
+                        except Exception as e:
+                            print(f"Error sending AI message: {e}")
 
-                        # Send token usage data
-                        await websocket.send_json({"event": "tokens", "data": ai_message.usage_metadata['total_tokens']})
-                        continue
+                        # try:
+                        #     # Send token usage data
+                        # except Exception as e:
+                        #     print(f"Error sending token usage data: {e}")
+                        # continue
 
                 if event_type == 'on_chain_stream' and event['name'] == 'tools':
                     tool_response = event['data']['chunk']['messages'][-1]
+                    print(f"Tool Response: {tool_response}")
                     if isinstance(tool_response, ToolMessage):
-                        await websocket.send_json({"event": "tool_response", "data": tool_response.content})
+                        try:
+                            await websocket.send_json({"event": "tool_message", "data": tool_response.content})
+                        except Exception as e:
+                            print(f"Error sending tool message: {e}")
                         continue
 
             return ai_message.content  # Send this to MongoDB

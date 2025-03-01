@@ -63,7 +63,7 @@ async function addMessage(message, uuid) {
             <div id=${uuid} class="chat_message"> ${message} </div>
     </li>`;
   document.getElementById("chat_history").innerHTML += html;
-  const messages = getAllChatMessages();
+  const messages = await getAllChatMessages();
   console.log(messages);
 }
 

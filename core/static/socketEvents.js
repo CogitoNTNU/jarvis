@@ -1,5 +1,5 @@
 // TODO: add this port to .env later
-var socket = new WebSocket("ws://localhost:3000/ws/your_session_id"); // ✅ FastAPI WebSockets
+var socket = new WebSocket("ws://localhost:3000/ws/placeholder_id"); // TODO: Replace placeholder_id with actual conversation ID
 
 socket.onopen = function () {
   console.log("Connected to WebSocket server!");
@@ -15,22 +15,20 @@ socket.onerror = function (error) {
 };
 
 // Function to handle incoming WebSocket messages
-socket.onmessage = async function (event) {
-  console.log(event.data);
-  let message = JSON.parse(event.data);
+socket.onmessage = async function (ws_event) {
+  let message = JSON.parse(ws_event.data);
+  console.log(message.event);
 
-  if (message.event === "chunk") {
-      await handleChunk(message.data);
+  if (message.event === "ai_message") {
+      await handleAiMessage(message.data);
   } else if (message.event === "recording") {
       await handleRecording(message.data);
   } else if (message.event === "tokens") {
       await handleTokens(message.data);
   } else if (message.event === "start_message") {
       console.log("Start message event received.");
-  } else if (message.event === "tool_call") {
-      await handleToolCall(message.data);
-  } else if (message.event === "tool_response") {
-      await handleToolResponse(message.data);
+  } else if (message.event === "tool_message") {
+      await handleToolMessage(message.data);
   } else if (message.event === "chat_history") {
       await handleChatHistory(message.data);
   }
@@ -38,15 +36,15 @@ socket.onmessage = async function (event) {
 
 
 // Function to handle incoming "chunk" messages
-async function handleChunk(chunk) {
+async function handleAiMessage(message) {
+  console.log(state.activeAIMessage)
   if (!state.activeAIMessage) {
       console.log("STARTED MESSAGE");
       uuid = generateUUID();
       await addStreamedMessage(uuid, "");
       ai_message = document.getElementById(uuid);
-      state.activeAIMessage = ai_message;
   }
-  await addStreamedMessage(uuid, chunk);
+  await addStreamedMessage(uuid, message);
 }
 
 // Function to handle incoming "recording" messages
@@ -70,16 +68,11 @@ async function handleTokens(tokens) {
   endStreamedAIMessage();
 }
 
-// Function to handle incoming "tool_call" messages
-async function handleToolCall(tool_call) {
-  console.log("Tool called: ", tool_call);
-}
-
 // Function to handle incoming "tool_response" messages
-async function handleToolResponse(tool_response) {
-  console.log("Response from tool: ", tool_response);
-  if (tool_response.length > 0) {
-      await addToolResponseToProcessContainer(tool_response);
+async function handleToolMessage(tool_message) {
+  console.log("Response from tool: ", tool_message);
+  if (tool_message.length > 0) {
+      await addToolResponseToProcessContainer(tool_message);
   }
 }
 
