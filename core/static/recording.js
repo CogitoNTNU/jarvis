@@ -1,6 +1,6 @@
 const silenceThreshold = 0.01;
 const maxSilenceDuration = 3;
-const maxRecordingDuration = 10000;
+const maxRecordingDuration = 50000;
 let silenceStartTime = null;
 let mediaRecorder = null;
 let audioChunks = [];
