@@ -1,0 +1,1 @@
+Use cases encapsulate specific business logic and define how data should be processed. They act as intermediaries between repositories and the presentation layer, ensuring a clear separation of concerns. Each use case should perform a single action, such as logging a workout or retrieving workout history.

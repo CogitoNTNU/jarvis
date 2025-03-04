@@ -1,0 +1,1 @@
+Utilities contain helper functions, constants, and extensions that provide common functionality across the app. These may include date formatting, number conversions, or API-related utilities. Utility functions should remain pure and not depend on specific app states or UI components.

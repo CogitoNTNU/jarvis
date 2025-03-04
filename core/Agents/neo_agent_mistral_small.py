@@ -10,7 +10,7 @@ from langgraph.graph import MessagesState, StateGraph, START, END
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
 
-from Agents.model import Model  # Models for chatGPT
+from agents.model import Model  # Models for chatGPT
 
 # Premade tool imports
 #from langchain_community.tools.tavily_search import TavilySearchResults
@@ -102,7 +102,7 @@ Instantiated NeoAgent Ollama....
                     if isinstance(tool_response, ToolMessage):
                         socketio.emit("tool_response", tool_response.content)
                         continue
-            return "success"
+            return ai_message.content #send this to MongoDB
         except Exception as e:
             print(e)
             return e

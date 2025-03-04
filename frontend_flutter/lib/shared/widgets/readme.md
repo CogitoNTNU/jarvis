@@ -1,0 +1,1 @@
+This folder contains reusable UI components that can be used across different screens and features. Widgets here should be self-contained, configurable, and not tied to any specific business logic. They should receive data via parameters or providers and avoid direct dependencies on feature-specific code.
