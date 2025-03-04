@@ -98,7 +98,7 @@ services:
       - 9090:9090  # [Optional] PROMETHEUS PORT IF ENABLED
     environment:
       - PHOENIX_SQL_DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
-      - PHOENIX_WORKING_DIR=/phoenix/phoenix_data
+      - PHOENIX_WORKING_DIR=/phoenix
     networks:
       - backend
 
@@ -112,15 +112,15 @@ services:
     ports:
       - 5432
     volumes:
-    - database_data:/var/lib/postgresql/data
+    - pheonix_data:/pheonix/data
     networks:
       - backend
       
 volumes:
-  database_data:
-    driver: local
-volumes:
   mongo_data:
+  pheonix_data:
+
+  
 
 
 
