@@ -27,11 +27,7 @@ Smaller graphs are often better understood by the LLMs.
 """
 class NeoAgent:
     def __init__(self):
-        print("""
-------------------------------
-Instantiated NeoAgent....
-------------------------------
-            """)
+        print("Instantiated NeoAgent....")
         system_prompt = "You are Jarvis, an AI assistant here to help the human accomplish tasks. Respond in a conversational, natural style that sounds good when spoken aloud. Keep responses short and to the point, using clear, engaging language. When explaining your thought process, be concise and only describe essential steps to maintain a conversational flow."
         # Defining the model TODO: Make this configurable with Llama, Grok, Gemini, Claude
         model = ChatOpenAI(

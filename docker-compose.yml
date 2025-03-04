@@ -1,23 +1,39 @@
 version: '2.1'
 
 services:
+  chroma:
+    image: chromadb/chroma
+    container_name: chromadb
+    restart: always
+    networks:
+      - backend
+    expose:     # Only available inside Docker
+      - "8000"  # Ensure correct binding
+    volumes:
+      - chroma_data:/chroma
+
   mongodb:
     image: mongo
     container_name: mongodb
     restart: always
     networks:
       - backend
-    ports:
-      - "27017:27017"
+    expose:
+      - "27017"
     volumes:
       - mongo_data:/data/db
-    command: ["mongod", "--bind_ip", "0.0.0.0"]
+    command: ["mongod", "--quiet", "--bind_ip", "0.0.0.0"] # Minimizes log output by using --quiet
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   llm-service:
     build: ./core
     restart: unless-stopped
     environment:
-      FLASK_ENV: ${FLASK_ENV} # Autorestarts flask when code changes are detected
+      FLASK_ENV: ${FLASK_ENV}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       LANGSMITH_API_KEY: ${LANGSMITH_API_KEY}
       LANGCHAIN_TRACING_V2: ${LANGCHAIN_TRACING_V2}
@@ -30,38 +46,38 @@ services:
       TAVILY_API_KEY: ${TAVILY_API_KEY}
       Port_STT: ${PORT_STT}
     volumes:
-      - ./core:/app  # Mount the application code to detect live changes
+      - ./core:/app  # Mount application for live changes
     networks:
       - backend
-    stop_signal: SIGINT
     ports:
       - "3000:3000"
       - "11434:11434"
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 2048M # Memory limit for the compose
+          cpus: '1' # CPU limit
+          memory: 2gb  # Memory limit
 
   speech-to-text:
     build: ./speechToText
     restart: unless-stopped
     environment:
-      FLASK_ENV: ${FLASK_ENV} # Autorestarts flask when code changes are detected
+      FLASK_ENV: ${FLASK_ENV}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       PORT_STT: ${PORT_STT}
     volumes:
-      - ./speechToText:/app  # Mount the application code to detect live changes
+      - ./speechToText:/app
     networks:
       - backend
-    stop_signal: SIGINT
     ports:
       - "3001:3001"
+
   redis:
     image: redis:latest
     container_name: redis_audio
-    ports:
-      - "6379:6379"
+    restart: always
+    expose:
+      - "6379"
     networks:
       - backend
     command: >
@@ -70,9 +86,10 @@ services:
       --save 60 1 
       --save 300 100 
       --save 900 1000
-      --maxmemory 1000mb
+      --maxmemory 1gb
     volumes:
-      - ./redis_data:/data
+      - redis_data:/data
+
   tts:
     build:
       context: ./textToSpeech
@@ -87,6 +104,8 @@ services:
       - REDIS_URL=redis://redis:6379
       - NARKEE_API_KEY=${NARKEE_API_KEY}
     depends_on:
+      - redis
+
       - redis 
   phoenix:
     image: arizephoenix/phoenix:version-8.3.0 # Must be greater than 4.0 version to work
@@ -117,12 +136,10 @@ services:
       - backend
       
 volumes:
-  mongo_data:
-  pheonix_data:
-
-  
-
-
+  chroma_data:  # Persistent storage for ChromaDB
+  mongo_data:   # Persistent storage for MongoDB  pheonix_data:
+  redis_data:   # Persistent storage for Redis
+  pheonix_data: # Persistent storage for Phoenix
 
 networks:
   backend:
