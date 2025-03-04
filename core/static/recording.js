@@ -9,14 +9,19 @@ let recordingTimeout;
 let audioContext, analyser, source;
 let conversationId = null;
 
+let voice_button = document.getElementById('voice_button');
+
 function startRecording() {
+    if (voice_button == null) {
+        voice_button = document.getElementById('voice_button');
+    }
     if (isRecording) {
         mediaRecorder.stop();
         isRecording = false;
-        document.getElementById('voice_button').style.backgroundColor = "";
+        voice_button.style.backgroundColor = "";
         return;
     }
-    document.getElementById('voice_button').style.backgroundColor = "#673636";
+    voice_button.style.backgroundColor = "#673636";
     conversationId = state.activeConversationId;
     commenceRecording(conversationId);
 }
@@ -40,11 +45,11 @@ async function commenceRecording(conversation_id) {
 
 
     mediaRecorder.ondataavailable = (event) => {
-        audioChunks.push(event.data);
+        audioChunks.push(event.data);      
     };
 
     mediaRecorder.onstop = async () => {
-        document.getElementById('voice_button').style.backgroundColor = "";
+        voice_button.style.backgroundColor = "";
         const combinedBlob = new Blob(audioChunks, { type: 'audio/webm' });
 
         const formData = new FormData();
