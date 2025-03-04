@@ -1,165 +1,236 @@
-from flask import Flask, request, url_for, jsonify
-from graphAgent import Graph
-from Agents.neo_agent_mistral_small import NeoAgentLlama
-from Agents.neo_agent_openai import NeoAgent
-from models import Model
-from summarize_chat import summarize_chat
-from rag import embed_and_store
-from flask_socketio import SocketIO, send, emit
-from flask_cors import CORS
-from config import PORT
-import asyncio  
-from modules.user_data_setup import check_folders
-from modules.chat import read_chat
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import FileResponse
+from pydantic import BaseModel
+from typing import Dict, List
+import asyncio
+import pymongo
 import requests
 import logging
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
 from collections import defaultdict
+import json
+
+from graph.graphAgent import Graph
+from agents.neo_agent_mistral_small import NeoAgentLlama
+from agents.neo_agent_openai import NeoAgent
+from summarize_chat import summarize_chat
+from rag import embed_and_store
+from config import PORT
+from modules.user_data_setup import check_folders
+from modules.chat import read_chat
+
+log = logging.getLogger("uvicorn")
+log.setLevel(logging.ERROR)
+
+'''
+    FOR API DOCUMENTATION, VISIT: http://localhost:3000/docs
+    
+    Websockets are not automatically documented.
+
+    Running using uvicorn outside of docker: 
+    1. Enter a venv
+    2. python -m uvicorn main:app --host 0.0.0.0 --port 3000 --reload
+'''
 
 #
-#   Setup
+# Setup
 #
-print("Jarvis is booting up....")
-check_folders() # Check directories are made for user data
+print("Booting....")
+check_folders()  # Check directories are made for user data
 
 #
-#   Server config
+# Server config
 #
-app = Flask(__name__, static_url_path='/static')
-app.config['SECRET_KEY'] = 'secret_key_xdddd'  # TODO: Make a better key
-CORS(app, resources={r"/*": {"origins": "*"}})  # TODO: Make the CORS actually not accept everything
-socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for WebSocket
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # TODO: Make CORS more restrictive
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount static folder for UI
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Agent instantiation
-# Graph() contains all complex tools
-# NeoAgent() is a simple ReAct agent that only has websearch and the add tool. For testing purposes.
-#jarvis = Graph() # API key is configured in agent.py
 jarvis = NeoAgent()
+#jarvis = NeoAgentLlama()
 
-# Initialize active_chatss with the correct format
-active_chats = defaultdict(lambda: {"chat_history": []})
+welcome_text = '''
+     ____   _____  _____________   ____ ___  _________ 
+    |    | /  _  \ \______  \   \ /   /|   |/   _____/ 
+    |    |/  /_\  \|       _/\   Y   / |   |\_____  \  
+/\__|    /    |    \    |   \ \     /  |   |/        \ 
+\________\____|__  /____|_  /  \___/   |___/_______  / 
+                 \/       \/                       \/  '''
+print(welcome_text)
+
+# Initialize active_chats with standard llm format
+active_chats: Dict[str, Dict[str, List[Dict[str, str]]]] = defaultdict(lambda: {"chat_history": []})
+
+# MongoDB Connection
+client = None
+collection = None  # Default to None if MongoDB isn't available
+
+try:
+    client = pymongo.MongoClient("mongodb://localhost:27017/", serverSelectionTimeoutMS=5000)
+    client.server_info()  # Try to connect
+    print("✅ Connected to MongoDB!")
+    
+    db = client["chat_database"]
+    collection = db["chats"]
+except pymongo.errors.ServerSelectionTimeoutError:
+    print("❌ MongoDB is not available. Running without database features.")
+    client = None  # Ensure client is None to prevent errors
+    collection = None  # Prevent further crashes
+
+
+# WebSocket manager
+class WebSocketManager:
+    def __init__(self):
+        self.active_connections: Dict[str, WebSocket] = {}
+
+    async def connect(self, websocket: WebSocket, session_id: str):
+        await websocket.accept()
+        self.active_connections[session_id] = websocket
+        print(f"Session {session_id} connected.")
+
+    def disconnect(self, session_id: str):
+        self.active_connections.pop(session_id, None)
+        print(f"Session {session_id} disconnected.")
+
+    async def send_message(self, session_id: str, message: str):
+        if session_id in self.active_connections:
+            await self.active_connections[session_id].send_text(message)
+
+ws_manager = WebSocketManager()
 
 #
+# HTTP Endpoints
 #
-#   HTTP(S) routes below
-#
-#
-@app.route("/")
-def hello_world():
-    return app.send_static_file('index.html')
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse("static/favicon.ico")
 
-# Route to get metadata like name, id, descriptions of all user chats
-@app.route("/chats/metadata")
-def get_chats():
-    return "lmao" # Why does this return lmao?
+@app.get("/")
+async def hello_world():
+    return FileResponse("static/index.html")
 
-@app.route('/vectorize_chat', methods=['POST'])
-def summarize_store():
-    data = request.json
-    chat_history = data.get('chat_history')
-    user_id = data.get('user_id')
+@app.get("/ping_server")
+async def ping_server():
+    return "Hello from Jarvis API!"
 
-    if not chat_history or not user_id:
-        return {"error": "chat_history and user_id are required"}, 400
+# Pydantic models for request/response bodies
+class ChatSummaryRequest(BaseModel):
+    chat_history: List[Dict[str, str]]
+    user_id: str
 
-    summary = summarize_chat(chat_history)
-    embed_and_store(summary, user_id)
+@app.post("/vectorize_chat")
+async def summarize_store(data: ChatSummaryRequest):
+    if not data.chat_history or not data.user_id:
+        raise HTTPException(status_code=400, detail="chat_history and user_id are required")
+
+    summary = summarize_chat(data.chat_history)
+    embed_and_store(summary, data.user_id)
 
     return {"status": "success", "summary": summary}
 
-#
-#
-#   Socket.IO events below
-#
-#
-# Base event that's fired when a user connects
-@socketio.on('connect') 
-def connect(data):
-    session_id = request.sid
-    emit("You're connected to Jarvis streaming server...")
-    print('UI connected to backend')
-    print(f'Session ID: {session_id}')
 
-# Base event that's fired when user gracefully disconnects
-@socketio.on('disconnect')
-def disconnect():
-    session_id = request.sid
-    if session_id in active_chats:
-        # Get the chat history before deleting it
-        chat_history = active_chats[session_id]
-        
-        try:
-            # Call summarize_chat directly instead of the route handler
-            summary = summarize_chat(chat_history)
-            # Then call embed_and_store directly
-            embed_and_store(summary, "1")  # Using dummy user_id "1"
-            print(f'Chat history summarized and stored')
-        except Exception as e:
-            print(f'Error summarizing chat history: {e}')
-        
-        # Clean up the chat history
-        del active_chats[session_id]
-    
-    print('UI disconnected')
-    print(f'Session ID: {session_id}')
+@app.post("/recording_completed")
+async def recording_completed(data: dict):
+    text = data.get("text", "")
+    conversation_id = data.get("conversation_id", "")
+    print(f"Recording completed for conversation ID {conversation_id} with text: {text}")
 
-# Custom event. Fired when the user sends a prompt.
-@socketio.on('user_prompt')
-def handle_prompt(data):
+    asyncio.create_task(jarvis.run(text))  # Run Jarvis response asynchronously
+
+    return {"status": "success"}
+
+#
+# WebSocket Endpoints
+#
+
+# User prompting request models
+class UserPromptData(BaseModel):
+    prompt: str
+    conversation_id: str
+
+class UserPromptRequest(BaseModel):
+    event: str
+    data: UserPromptData
+
+# Generic event request
+class BaseEventRequest(BaseModel):
+    event: str
+
+@app.websocket("/ws/{session_id}")
+async def websocket_endpoint(websocket: WebSocket, session_id: str):
+    await ws_manager.connect(websocket, session_id)
+
     try:
-        session_id = request.sid
-        conversation_id = data['conversation_id'] # unused for now
-        
-        # Create new chat entry with human message
-        chat_entry = {
-            "human_message": data['prompt'],
-            "ai_message": ""  # Will be filled when AI responds
-        }
+        while True:
+            data = await websocket.receive_json()
+            event_type = data.get("event")
+            print(f"Received event: {event_type}")
+            ### User prompt
+            if event_type == "user_prompt":
+                async def run_and_store():
+                    # if collection is None:  # Prevent MongoDB crash
+                    #     print("MongoDB is not available. Skipping DB insert.")
+                    # else:
+                    #     chat_entry = {
+                    #         "session_id": session_id,
+                    #         "conversation_id": message.get("conversation_id", ""),
+                    #         "human_message": message.get("prompt", ""),
+                    #         "ai_message": "",
+                    #     }
+                    #     inserted_id = collection.insert_one(chat_entry).inserted_id
+                    #     print(f"Chat entry inserted with ID: {inserted_id}")
+                    req = UserPromptRequest(**data) # Unpacks message into UserPromptRequest
+                    await jarvis.run(req.data.prompt, websocket) # Run Jarvis response
+                    #await ws_manager.send_message(session_id, response) # Send response to frontend
+                    #print(f"Jarvis response sent to session {session_id}")
+                    # local chat history storage/cache
+                    # TODO: Make this purely mongoDB
+                    # if session_id in active_chats:
+                    #     active_chats[session_id]["chat_history"].append(chat_entry)
 
-        socketio.emit("start_message")
-        
-        # Run the AI response
-        async def run_and_store():
-            response = await jarvis.run(data['prompt'], socketio)
-            ### TODO: Replace this with GraphState for chat history.
-            # Update the AI response in the chat entry
-            chat_entry["ai_message"] = response
-            # Add completed chat entry to history
-            active_chats[session_id]["chat_history"].append(chat_entry)
-            
-        asyncio.run(run_and_store(), debug=True)
-        
-        return jsonify({"status": "success"})
-    except Exception as e:
-        print(f'Something very bad happened: {e}')
-        return jsonify({"status": "error"})
+                    # try:
+                    #     collection.update_one(
+                    #         {"_id": inserted_id},
+                    #         {"$set": {"ai_message": response}}
+                    #     )
+                    #     print(f"Updated MongoDB entry {inserted_id} with AI response")
+                    # except Exception as e:
+                    #     print(f"Jarvis encountered an error updating MongoDB entry: {e}")
 
+                asyncio.create_task(run_and_store()) ### Non blocking call to run_and_store
 
-@app.route('/recording_completed', methods=['POST'])
-def recording_completed():
-    data = request.json
-    text = data.get('text', '')
-    socketio.emit("recording", text)
+            ### Start recording
+            elif event_type == "start_recording":
+                print("Starting recording via socket...")
+                response = requests.post(f"http://speech-to-text:3001/start_recording/{conversation_id}")
 
-    conversation_id = data.get('conversation_id', '')
-    print(f"Recording completed for conversation ID {conversation_id} with text:", text)
-    
-    # Process the recorded text as needed (e.g., send to Jarvis or other services)
-    asyncio.run(jarvis.run(text, socketio))  # Assuming jarvis.run is asynchronous
+                if response.status_code != 200:
+                    await ws_manager.send_message(session_id, '{"status": "error", "text": "Failed to start recording"}')
+                    return
 
-    return jsonify({"status": "success"}), 200
+                await ws_manager.send_message(session_id, '{"status": "recording_started"}')
 
+            ### Get chat history
+            elif event_type == "get_chat_history":
+                history = active_chats.get(session_id, {"chat_history": []})
+                await ws_manager.send_message(session_id, json.dumps(history))
 
-@socketio.on('get_chat_history')
-def get_chat_history():
-    session_id = request.sid
-    if session_id in active_chats:
-        return active_chats[session_id]
-    return {"chat_history": []}
+    except WebSocketDisconnect:
+        ws_manager.disconnect(session_id)
 
-if __name__ == '__main__':
-    socketio.run(app, debug=True, host='0.0.0.0', port=3000, allow_unsafe_werkzeug=True) # Hardcoded port, same as docker compose and dockerfile
-
-# hello
-# TODO say hello back to whoever wrote this
+#
+# Server Startup
+#
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=3000)
