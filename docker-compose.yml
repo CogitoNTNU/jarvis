@@ -107,7 +107,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - NARKEE_API_KEY=${NARKEE_API_KEY}
     depends_on:
-      - redis 
+      - redis
   phoenix:
     image: arizephoenix/phoenix:version-8.3.0 # Must be greater than 4.0 version to work
     depends_on:
