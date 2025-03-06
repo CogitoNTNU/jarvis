@@ -16,6 +16,7 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 # Custom tool imports
 from tools.add_tool import add # Adds 2 numbers together
 
+from jarvis.core.chroma import init_chroma, create_collection, add_document, upsert_document
 """
 Neoagent uses the ReAct agent framework.
 Simply put in steps:
@@ -90,6 +91,13 @@ class NeoAgent:
         Run the agent with a user prompt and emit the response and total tokens via socket
         """
 
+    #Initialize chroma client and creates a collection when jarvis start
+    async def initialize_jarvis(self):
+        self.chroma_client = await init_chroma()
+        self.collection = await create_collection("my_collection", self.chroma_client)
+
+    
+    
         # TODO: Make the chats saved and restored, using this ID as the guiding values.
         # Sets the thread_id for the conversation
         config = {"configurable": {"thread_id": "1"}}
