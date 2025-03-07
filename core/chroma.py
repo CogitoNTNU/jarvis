@@ -6,7 +6,7 @@ import embedding # Embedding functions
 # Chroma handles embeddings by default, but we're customizing the model it uses.
 
 async def init_chroma():
-    chroma_client = await chromadb.AsyncHttpClient(host="chroma_db", port=8000)
+    chroma_client = await chromadb.AsyncHttpClient(host="chroma", port=8000)
     return chroma_client
 
 async def create_collection(collection_name: str, chroma_client):
