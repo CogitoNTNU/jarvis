@@ -45,7 +45,12 @@ Instantiated Graph Agent....
         self.workflow.add_conditional_edges(
             "jarvis_agent",
             self.node.router,
-            {"generate": "generate", "use_tool": "agent_decider"}
+            {
+                "generate": "generate",
+                "use_tool": "agent_decider",
+                # Added fallback to avoid empty route
+                "": "generate"
+            }
         )
         
         self.workflow.add_conditional_edges(
@@ -188,4 +193,4 @@ Instantiated Graph Agent....
     #     except Exception as e:
     #         print(e)
     #         return e
-        
+
