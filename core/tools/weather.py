@@ -34,7 +34,7 @@ def weather_forecast(user_query: str) -> str:
 
     # chat completion without streaming
     response = client.chat.completions.create(
-        model="llama-3.1-sonar-huge-128k-online",
+        model="sonar",
         messages=messages,
         temperature=0.0,
     )
