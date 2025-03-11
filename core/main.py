@@ -56,7 +56,7 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Agent instantiation
-jarvis = NeoAgent()
+jarvis = Graph()
 #jarvis = NeoAgentLlama()
 
 welcome_text = '''
