@@ -153,13 +153,12 @@ async def start_recording_route(data: RecordingRequest):
 
 @app.post("/recording_completed")
 async def recording_completed(data: dict):
-    jarvis.run("prompt")
     session_id = data.get("session_id", "")
     text = data.get("text", "")
     conversation_id = data.get("conversation_id", "")
     print(f"Recording completed for conversation ID {conversation_id} with text: {text}")
 
-    asyncio.create_task(jarvis.run(text, active_websockets[session_id]))  # Run Jarvis response asynchronously. passing session_id
+    asyncio.create_task(jarvis.run(text, session_id))  # Run Jarvis response asynchronously. passing session_id
 
     return {"status": "success"}
 
