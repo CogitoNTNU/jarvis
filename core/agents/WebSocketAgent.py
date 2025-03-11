@@ -3,17 +3,20 @@ from fastapi.websockets import WebSocket
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
-
+import main
 """
 Baseclass for all agents using websocket and requires the simple .run function
 """
 class WebSocketAgent:
-    async def run(self, user_prompt: str, websocket: WebSocket):
+    async def run(self, user_prompt: str, session_id: str):
         """
         Run the agent with a user prompt and send the response via FastAPI WebSockets.
         """
         config = {"configurable": {"thread_id": "1"}}
-
+        websocket = main.active_websockets[session_id] # Gets correct websocket
+        print("Getting websocket...")
+        print(main.active_websockets)
+        print(websocket)
         try:
             input_data = {"messages": [("human", user_prompt)]}
             await websocket.send_json({"event": "start_message", "data": " "})

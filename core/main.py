@@ -159,7 +159,7 @@ async def recording_completed(data: dict):
     conversation_id = data.get("conversation_id", "")
     print(f"Recording completed for conversation ID {conversation_id} with text: {text}")
 
-    asyncio.create_task(jarvis.run(text), active_websockets[session_id])  # Run Jarvis response asynchronously
+    asyncio.create_task(jarvis.run(text, active_websockets[session_id]))  # Run Jarvis response asynchronously. passing session_id
 
     return {"status": "success"}
 
@@ -200,7 +200,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
             ### User prompt
             if event_type == "user_prompt":
                 req = UserPromptRequest(**data) # Unpacks message into UserPromptRequest
-                ai_response = await jarvis.run(req.data.prompt) # Run Jarvis response
+                ai_response = await jarvis.run(req.data.prompt, session_id=session_id) # Run Jarvis response
 
             ### Get chat history
             elif event_type == "get_chat_history":
