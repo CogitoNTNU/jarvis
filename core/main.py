@@ -12,8 +12,8 @@ from collections import defaultdict
 import json
 
 from graph.graphAgent import Graph
-from agents.neo_agent_mistral_small import NeoAgentLlama
-from agents.neo_agent_openai import NeoAgent
+import agents.neo_agent_llama
+from agents.neo_think_agent import NeoThinkAgent
 from summarize_chat import summarize_chat
 from rag import embed_and_store
 from config import PORT
@@ -56,7 +56,7 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Agent instantiation
-jarvis = NeoAgent()
+jarvis = NeoThinkAgent()
 #jarvis = NeoAgentLlama()
 
 welcome_text = '''
@@ -141,6 +141,7 @@ async def summarize_store(data: ChatSummaryRequest):
 
 @app.post("/recording_completed")
 async def recording_completed(data: dict):
+    jarvis.run("prompt")
     text = data.get("text", "")
     conversation_id = data.get("conversation_id", "")
     print(f"Recording completed for conversation ID {conversation_id} with text: {text}")
@@ -177,7 +178,25 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
             print(f"Received event: {event_type}")
             ### User prompt
             if event_type == "user_prompt":
-                async def run_and_store():
+                req = UserPromptRequest(**data) # Unpacks message into UserPromptRequest
+                ai_response = await jarvis.run(req.data.prompt, websocket) # Run Jarvis response
+
+            ### Get chat history
+            elif event_type == "get_chat_history":
+                history = active_chats.get(session_id, {"chat_history": []})
+                await ws_manager.send_message(session_id, json.dumps(history))
+
+    except WebSocketDisconnect:
+        ws_manager.disconnect(session_id)
+
+# 
+# Server Startup
+#
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=3000)
+
+
                     # if collection is None:  # Prevent MongoDB crash
                     #     print("MongoDB is not available. Skipping DB insert.")
                     # else:
@@ -189,8 +208,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                     #     }
                     #     inserted_id = collection.insert_one(chat_entry).inserted_id
                     #     print(f"Chat entry inserted with ID: {inserted_id}")
-                    req = UserPromptRequest(**data) # Unpacks message into UserPromptRequest
-                    await jarvis.run(req.data.prompt, websocket) # Run Jarvis response
+
                     #await ws_manager.send_message(session_id, response) # Send response to frontend
                     #print(f"Jarvis response sent to session {session_id}")
                     # local chat history storage/cache
@@ -206,31 +224,3 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                     #     print(f"Updated MongoDB entry {inserted_id} with AI response")
                     # except Exception as e:
                     #     print(f"Jarvis encountered an error updating MongoDB entry: {e}")
-
-                asyncio.create_task(run_and_store()) ### Non blocking call to run_and_store
-
-            ### Start recording
-            elif event_type == "start_recording":
-                print("Starting recording via socket...")
-                response = requests.post(f"http://speech-to-text:3001/start_recording/{conversation_id}")
-
-                if response.status_code != 200:
-                    await ws_manager.send_message(session_id, '{"status": "error", "text": "Failed to start recording"}')
-                    return
-
-                await ws_manager.send_message(session_id, '{"status": "recording_started"}')
-
-            ### Get chat history
-            elif event_type == "get_chat_history":
-                history = active_chats.get(session_id, {"chat_history": []})
-                await ws_manager.send_message(session_id, json.dumps(history))
-
-    except WebSocketDisconnect:
-        ws_manager.disconnect(session_id)
-
-#
-# Server Startup
-#
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=3000)

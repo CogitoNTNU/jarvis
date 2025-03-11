@@ -44,6 +44,7 @@ async function handleAiMessage(message) {
       await addStreamedMessage(uuid, "");
       ai_message = document.getElementById(uuid);
   }
+  message = marked.parse(message)
   await addStreamedMessage(uuid, message);
 }
 
