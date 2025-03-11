@@ -76,7 +76,7 @@ client = None
 collection = None  # Default to None if MongoDB isn't available
 
 try:
-    client = pymongo.MongoClient("mongodb://localhost:27017/", serverSelectionTimeoutMS=5000)
+    client = pymongo.MongoClient("mongodb://mongodb:27017/", serverSelectionTimeoutMS=5000)
     client.server_info()  # Try to connect
     print("✅ Connected to MongoDB!")
     
@@ -138,15 +138,28 @@ async def summarize_store(data: ChatSummaryRequest):
 
     return {"status": "success", "summary": summary}
 
+class RecordingRequest(BaseModel):
+    conversation_id: str
+
+@app.post("/start_recording")
+async def start_recording_route(data: RecordingRequest):
+    print("Starting recording...")
+    response = requests.post(f"http://speech-to-text:3001/start_recording/{data.conversation_id}")
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Failed to start recording")
+
+    return {"status": "recording_started"}
 
 @app.post("/recording_completed")
 async def recording_completed(data: dict):
     jarvis.run("prompt")
+    session_id = data.get("session_id", "")
     text = data.get("text", "")
     conversation_id = data.get("conversation_id", "")
     print(f"Recording completed for conversation ID {conversation_id} with text: {text}")
 
-    asyncio.create_task(jarvis.run(text))  # Run Jarvis response asynchronously
+    asyncio.create_task(jarvis.run(text), active_websockets[session_id])  # Run Jarvis response asynchronously
 
     return {"status": "success"}
 
@@ -167,9 +180,17 @@ class UserPromptRequest(BaseModel):
 class BaseEventRequest(BaseModel):
     event: str
 
+def print_status(active_websocket):
+    print("WebSocketAgent loaded...")
+    print(active_websocket)
+
+active_websockets = {}
+
 @app.websocket("/ws/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, session_id: str):
     await ws_manager.connect(websocket, session_id)
+    global active_websockets
+    active_websockets[session_id] = websocket
 
     try:
         while True:
@@ -179,7 +200,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
             ### User prompt
             if event_type == "user_prompt":
                 req = UserPromptRequest(**data) # Unpacks message into UserPromptRequest
-                ai_response = await jarvis.run(req.data.prompt, websocket) # Run Jarvis response
+                ai_response = await jarvis.run(req.data.prompt) # Run Jarvis response
 
             ### Get chat history
             elif event_type == "get_chat_history":
@@ -189,7 +210,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
     except WebSocketDisconnect:
         ws_manager.disconnect(session_id)
 
-# 
+#
 # Server Startup
 #
 if __name__ == "__main__":

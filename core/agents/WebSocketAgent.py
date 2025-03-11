@@ -5,8 +5,7 @@ from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, A
 from langgraph.prebuilt import ToolNode, tools_condition
 
 """
-Simple agent that implements the .run() function for websocket streaming to the UI.
-run() returns the agent response.
+Baseclass for all agents using websocket and requires the simple .run function
 """
 class WebSocketAgent:
     async def run(self, user_prompt: str, websocket: WebSocket):
