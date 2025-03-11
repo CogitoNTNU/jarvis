@@ -66,6 +66,7 @@ async function commenceRecording(conversation_id) {
             }
 
             const data = await response.json();
+            addUserMessage(marked.parse(data.message))
             console.log('Audio uploaded successfully');
         } catch (error) {
             console.error('Error uploading audio:', error);
