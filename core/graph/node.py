@@ -11,32 +11,46 @@ class Node:
     def __init__(self):
         self.simple_agent = Agent(model=Model.gpt_4o_mini).get_llm()
         self.tool_agent = self.simple_agent.bind_tools(get_tools())
+        self.ok_agent = Agent(model=Model.gpt_4o).get_llm()
+        self.ok_tool_agent = self.ok_agent.bind_tools(get_tools())
+        
 
     def jarvis_agent(self, state: GraphState):
         """Agent to determine how to answer user question"""
         prompt = PromptTemplate(
             template= """
-            Determine if the task at hand requires more information you don't already know.
-            Send the task at hand to 
+           You will act as a strict and reliable AI that ensures a response is always generated. Your primary function is to determine if a given task requires additional information or if it can be responded to directly.
 
-            You must respond with either 'use_tool' or 'generate'.
-            - 'use_tool': Call on tools to help solve the users problem
-            - 'generate': Generate a response if you have what you need to answer
-            
-            Never ever under any condition respond with an empty string.
+            Follow these rules with absolute commitment:
 
-            Message: {messages}
+            1.    Never respond with an empty string under any circumstance. The output must always be either 'use_tool' or 'generate'.
+            2.    If the provided task requires external tools or additional information, respond with 'use_tool'.
+            3.    If any tool has already been called and sufficient data is available, transition to 'generate'. Do not stay stuck on 'use_tool'.
+            4.    Do not deviate from these two possible outputs. Any response must strictly adhere to this binary choice.
+            5.    If uncertain, check the most recent tool decisions. If at least one tool decision (calendar_decision, perplexity_decision, or other_decision) has provided useful data, default to 'generate'.
 
-            Data currently accumulated: 
+            Here is the information provided for decision-making:
 
-            Data: {data}
-            """,
+                Previous messages: {messages}
+                Accumulated Data: {data}
+                Calendar Decision: {calendar_decision}
+                Perplexity Decision: {perplexity_decision}
+                Other Tool Decision: {other_decision}
+
+            If enough information has been gathered from already called tools, immediately transition to 'generate'.
+
+            Again, under no circumstances should the output be an empty string. Failure to comply will result in disappointment. Stay consistent, and always provide a response.
+                    """,
         )
-        chain = prompt | self.tool_agent | StrOutputParser()
+        chain = prompt | self.ok_tool_agent | StrOutputParser()
         response = chain.invoke({
-            "messages": state["messages"], "data": state.get("data", {})})
-        response.replace("'", "")
-        response.replace('"', '')
+            "messages": state.get("messages", []),
+            "data": state.get("data", {}),
+            "calendar_decision": state.get("calendar_decision", {}),
+            "perplexity_decision": state.get("perplexity_decision", {}),
+            "other_decision": state.get("other_decision", {}),
+            })
+        response = response.replace("'", "").replace('"', "")
         return {"tool_decision": response}
 
     def tool_agent_decider(self, state: GraphState):
@@ -102,6 +116,7 @@ class Node:
 
             Data: {data}
 
+
             Formulate a response that answer the users question and is formatted correctly
             """,
         )
@@ -124,6 +139,7 @@ class Node:
             Data currently accumulated: 
 
             Data: {data}
+            
 
             Please decide what tools to use to help the user and
             add them to the additional_kwargs in the AI_message
@@ -138,32 +154,33 @@ class Node:
         """Agent that decides what to do with the calendar"""
         prompt = PromptTemplate(
             template= """
-            Your job is to determine if you which calendar related tools you need to answer the
-            jarvis agents question and answer with only the name of the option
-            choose.
-            if you cant find a calendar event you should create a calendar event.
-            you should create a calendar event or read calendar events. if the user has asked for it.
-            if you have searched for calendar events atleast once you should probably return to jarvis.
-            the same is for creatting a event, you only need to create that event once. and return to jarvis.
+            Your job is to determine which calendar-related tools are needed to answer the Jarvis agent’s question. You must respond with only the name of the appropriate option.
 
-            Here are previous messages:
-            
-            Message: {messages}
+            Follow these rules with strict commitment:
 
-            Data currently accumulated: 
+            1.    If the user requests calendar information, you must decide whether to read or create an event.
+            2.    If a calendar event is not found, create a new event.
+            3.    If you have already searched for calendar events at least once, you should return to Jarvis instead of searching again.
+            4.    If you have already created a calendar event, do not create it again—simply return to Jarvis.
+            5.    Always provide an answer—never leave the response blank.
 
-            Data: {data}
+            Here is the information provided for decision-making:
 
-            Your options are the following:
-            - 'use_calendar_tool': Call on calendar_tools to help solve the users problem
-            - 'return_to_jarvis': go back to the jarvis agent
+                Previous Messages: {messages}
+                Accumulated Data: {data}
+                previous calendar decision: {calendar_decision}
 
-            Answer with the option name and nothing else there should not be any ' or " in the answer.
+            Your available options:
+
+                use_calendar_tool → Call on calendar tools to retrieve or create events.
+                return_to_jarvis → Return to the Jarvis agent after the necessary calendar action has been performed.
+
+            You must strictly answer with only the option name—nothing else. Do not use quotes (' or ").
             """,
         )
-        chain = prompt | self.tool_agent | StrOutputParser()
+        chain = prompt | self.ok_agent.bind_tools(calendar_based_tools()) | StrOutputParser()
         response = chain.invoke({
-            "messages": state["messages"], "data": state.get("data", {})})
+            "messages": state["messages"], "data": state.get("data", {}), "calendar_decision": state.get("calendar_decision", {})})
         response.replace("'", "")
         response.replace('"', '')
         return {"calendar_decision": response}
@@ -172,23 +189,31 @@ class Node:
         """Agent that handles all actions in the calendar"""
         prompt = PromptTemplate(
             template= """
-            Your job is to create and handle the tool calls needed to create and read calendar events.¨
-            You will based on previous messages and data decide what tools to use. and create the tool calls.
-            Here are previous messages:
-            
-            Message: {messages}
+           Your job is to create and handle tool calls needed to create and read calendar events. You must determine the appropriate tools to use based on previous messages and accumulated data.
 
-            Data currently accumulated: 
+            Follow these rules with strict commitment:
 
-            Data: {data}
+            1.    Analyze previous messages and existing data to determine if a tool call is necessary.
+            2.    If the user requested calendar information, decide whether to read or create an event.
+            3.    If an event has already been searched for or created, avoid redundant tool calls.
+            4.    Use previous calendar decisions to prevent unnecessary tool requests.
+            5.    Always decide what tools to use and add them to additional_kwargs in the AI message.
 
-            
-            Please decide what tools to use to help the user and
-            add them to the additional_kwargs in the AI_message
+            Here is the information provided for decision-making:
+
+                Previous Messages: {messages}
+                Accumulated Data: {data}
+                Previous Calendar Decision: {calendar_decision}
+
+            Your task:
+
+                Determine the necessary tools to help the user.
+                Ensure that tool calls are efficient and not duplicated.
+                Add the selected tool calls to additional_kwargs in the AI message.
             """,
         )
-        chain = prompt | self.simple_agent.bind_tools(calendar_based_tools())
-        response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
+        chain = prompt | self.ok_agent.bind_tools(calendar_based_tools())
+        response = chain.invoke({"messages": state["messages"], "data": state.get("data", {}), "calendar_decision": state.get("calendar_decision", {})})
         return {"messages": response}
 
     def calendar_router(self, state: GraphState) -> Literal["use_calendar_tool", "return_to_jarvis"]:
