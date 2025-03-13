@@ -6,7 +6,14 @@ class ChatRemoteDataSource {
   ChatRemoteDataSource(this.apiClient);
 
   Future<String> sendMessage(String message) async {
-    final response = await apiClient.post('/chat', {'message': message});
-    return response['reply']; // Assuming backend returns {"reply": "response_text"}
+    try{
+      final response = await apiClient.post('/chat', {'message': message});
+      if(response == null){
+        return "no response received";
+      }
+      return response['reply']; // Assuming backend returns {"reply": "response_text"}
+    }catch(e){
+      return "no response received. Error: $e";
+    }
   }
 }
