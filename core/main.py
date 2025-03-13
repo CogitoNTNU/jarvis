@@ -126,8 +126,14 @@ async def ping_server():
 ### POST
 @app.post("/chat")
 async def chat_answer(data: dict):
-    reply = await asyncio.create_task(jarvis.run(data.message, data.session_id))
-    return {"status": "success", "reply": reply}
+    try:
+        print(data)
+        reply = await jarvis.run(data['message'], data['session_id'])
+        return {"status": "success", "reply": reply}
+    except Exception as e:
+        print("Exception was: ")
+        print(e)
+        return {"status": "failed", "reply": "AI failed to generate response."}
 
 # Pydantic models for request/response bodies
 class ChatSummaryRequest(BaseModel):
