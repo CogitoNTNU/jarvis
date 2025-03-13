@@ -47,8 +47,7 @@ class Cache():
                 self.redis.delete(oldest_item)
                 self.redis.zrem("cache_access_order", oldest_item)
             else:
-                print(f"Oldest item is not a bytes object: {
-                      oldest_item}. Something is wrong!")
+                print(f"Oldest item is not a bytes object: {oldest_item}. Something is wrong!")
 
             cache_size = self.__get_cache_size()
 
@@ -127,8 +126,7 @@ class Narakeet(TTS):
         self.cache = cache
 
     def _generate_tts(self, text: str) -> bytes:
-        url = f'https://api.narakeet.com/text-to-speech/mp3?voice={
-            self.voice}&voice-speed={self.speed}&language={self.language}'
+        url = f'https://api.narakeet.com/text-to-speech/mp3?voice={self.voice}&voice-speed={self.speed}&language={self.language}'
 
         options = {
             'headers': {
@@ -143,8 +141,7 @@ class Narakeet(TTS):
         if response.status_code != 200:
             print(f"Failed to generate TTS: {options}")
             print(f"URL: {url}")
-            raise ValueError(f"Failed to geernate TTs: {
-                             response.status_code} {response.text}")
+            raise ValueError(f"Failed to geernate TTs: {response.status_code} {response.text}")
         end_time = time.time()
         print(f"TTS generated in {end_time - start_time} seconds")
         return response.content

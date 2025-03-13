@@ -90,7 +90,7 @@ def streamer_thread(input_queue: Queue) -> None:
 
 
 app: Flask = Flask(__name__)
-app.config['SECRET_KEY'] = 'lklsa01lkJASD9012o3khj123l'
+app.config['SECRET_KEY'] = 'lklsa01lkJASD9012o3khj123l' # TODO: Add to global .env
 socketio: SocketIO = SocketIO(
     app,
     cors_allowed_origins="*",
@@ -133,8 +133,7 @@ def generate():
                 queue_item = (sentence_counter, sentence)
                 queue_items.append(queue_item)
                 input_queue.put(queue_item)
-                print(f"Queuing sentence {sentence_counter}: {
-                      sentence[:30]}...")  # Debug print
+                print(f"Queuing sentence {sentence_counter}: {sentence[:30]}...")  # Debug print
 
         return jsonify({
             'message': 'Text queued successfully',
