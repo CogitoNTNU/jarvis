@@ -126,8 +126,8 @@ async def ping_server():
 ### POST
 @app.post("/chat")
 async def chat_answer(data: dict):
-    print(data)
-    return {"status": "success", "reply": "hello from jarvis server"}
+    reply = await asyncio.create_task(jarvis.run(data.message, data.session_id))
+    return {"status": "success", "reply": reply}
 
 # Pydantic models for request/response bodies
 class ChatSummaryRequest(BaseModel):

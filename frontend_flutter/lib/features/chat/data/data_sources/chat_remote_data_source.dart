@@ -7,7 +7,7 @@ class ChatRemoteDataSource {
 
   Future<String> sendMessage(String message) async {
     try{
-      final response = await apiClient.post('/chat', {'message': message});
+      final response = await apiClient.post('/chat', {'message': message, 'session_id': "placeholder_id"});
       print("response was $response");
       return response['reply']; // Assuming backend returns {"reply": "response_text"}
     }catch(e){
