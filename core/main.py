@@ -127,8 +127,7 @@ async def ping_server():
 @app.post("/chat")
 async def chat_answer(data: dict):
     try:
-        print(data)
-        reply = await jarvis.run(data['message'], data['session_id'])
+        reply = await jarvis.simple_run(data['message'])
         return {"status": "success", "reply": reply}
     except Exception as e:
         print("Exception was: ")

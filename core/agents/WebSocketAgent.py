@@ -8,6 +8,23 @@ import main
 Baseclass for all agents using websocket and requires the simple .run function
 """
 class WebSocketAgent:
+    async def simple_run(self, user_prompt: str):
+        try:
+            input_data = {"messages": [("human", user_prompt)]}
+
+            async for event in self.graph.astream_events(input_data, config, version='v2'):
+                event_type = event.get('event')
+                
+                ### AI message end
+                if event_type == 'on_chain_end' and event['name'] == 'LangGraph':
+                    ai_message = event['data']['output']['messages'][-1]
+                    return ai_message.content
+
+        except Exception as e:
+            print(f"Error in AI processing: {e}")
+            return str(e)
+
+
     async def run(self, user_prompt: str, session_id: str):
         """
         Run the agent with a user prompt and send the response via FastAPI WebSockets.
@@ -47,7 +64,7 @@ class WebSocketAgent:
                         except Exception as e:
                             print(f"Error sending AI message: {e}")
 
-            return ai_message.content
+                return ai_message.content
         except Exception as e:
             print(f"Error in AI processing: {e}")
             return str(e)
