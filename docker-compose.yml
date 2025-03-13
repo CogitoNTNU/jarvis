@@ -99,7 +99,7 @@ services:
     env_file:
       - .env
     ports:
-      - "5000:5000"
+      - "5001:5001"
     environment:
       - REDIS_URL=redis://redis:6379
       - NARKEE_API_KEY=${NARKEE_API_KEY}
