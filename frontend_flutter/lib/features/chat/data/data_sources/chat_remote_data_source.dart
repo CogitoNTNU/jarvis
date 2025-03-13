@@ -8,9 +8,7 @@ class ChatRemoteDataSource {
   Future<String> sendMessage(String message) async {
     try{
       final response = await apiClient.post('/chat', {'message': message});
-      if(response == null){
-        return "no response received";
-      }
+      print("response was $response");
       return response['reply']; // Assuming backend returns {"reply": "response_text"}
     }catch(e){
       return "no response received. Error: $e";

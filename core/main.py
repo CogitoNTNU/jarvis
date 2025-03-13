@@ -123,10 +123,11 @@ async def hello_world():
 async def ping_server():
     return "Hello from Jarvis API!"
 
+### POST
 @app.post("/chat")
-async def chat_answer(data):
-    return "William!!!!!!!!"
-
+async def chat_answer(data: dict):
+    print(data)
+    return {"status": "success", "reply": "hello from jarvis server"}
 
 # Pydantic models for request/response bodies
 class ChatSummaryRequest(BaseModel):
