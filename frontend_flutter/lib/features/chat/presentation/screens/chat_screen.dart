@@ -48,13 +48,13 @@ class _ChatScreenState extends State<ChatScreen> {
           padding: EdgeInsets.only(top: 5.0, bottom: 20.0),
           child: ShaderMask(
             shaderCallback: (Rect bounds) {
-              return LinearGradient(
+              return const LinearGradient(
                 colors: [Colors.blue, Colors.lightBlueAccent, Colors.cyan],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ).createShader(bounds);
             },
-            child: Text(
+            child: const Text(
               "Jarvis Chat",
               style: TextStyle(
                 fontSize: 80, // Gjør teksten større

@@ -11,7 +11,7 @@ class WebSocketAgent:
     async def simple_run(self, user_prompt: str):
         try:
             input_data = {"messages": [("human", user_prompt)]}
-
+            config = {"configurable": {"thread_id": "1"}}
             async for event in self.graph.astream_events(input_data, config, version='v2'):
                 event_type = event.get('event')
                 
