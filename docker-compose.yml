@@ -22,7 +22,7 @@ services:
       - "27017"
     volumes:
       - mongo_data:/data/db
-    command: ["mongod", "--quiet", "--bind_ip", "0.0.0.0"] # Minimizes log output by using --quiet
+    command: ["mongod", "--quiet", "--bind_ip", "0.0.0.0", "--logpath", "/dev/null"] # Mutes mongodb logs except errors using --logpath /dev/null
     logging:
       driver: "json-file"
       options:
@@ -30,6 +30,9 @@ services:
         max-file: "3"
 
   llm-service:
+    depends_on:
+      - chroma
+      - mongodb
     build: ./core
     restart: unless-stopped
     environment:

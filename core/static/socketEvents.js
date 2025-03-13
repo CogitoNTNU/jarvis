@@ -1,5 +1,7 @@
 // TODO: add this port to .env later
-var socket = new WebSocket("ws://localhost:3000/ws/placeholder_id"); // TODO: Replace placeholder_id with actual conversation ID
+let session_id = "placeholder_id"
+
+var socket = new WebSocket("ws://localhost:3000/ws/" + session_id); // TODO: Replace placeholder_id with actual conversation ID
 
 socket.onopen = function () {
   console.log("Connected to WebSocket server!");
@@ -44,6 +46,7 @@ async function handleAiMessage(message) {
       await addStreamedMessage(uuid, "");
       ai_message = document.getElementById(uuid);
   }
+  message = marked.parse(message)
   await addStreamedMessage(uuid, message);
 }
 
