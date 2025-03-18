@@ -5,7 +5,10 @@ import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
 
 class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ChatScreenState createState() => _ChatScreenState();
 }
 
@@ -26,6 +29,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       if (response.statusCode == 200) {
         final message = response.body;
+        // ignore: use_build_context_synchronously
         Provider.of<ChatProvider>(context, listen: false)
             .addMessage("bot", message);
       } else {
@@ -41,11 +45,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final chatProvider = Provider.of<ChatProvider>(context);
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 34, 34, 34),
+      backgroundColor: const Color.fromARGB(255, 34, 34, 34),
       appBar: AppBar(
         toolbarHeight: 100,
         title: Padding(
-          padding: EdgeInsets.only(top: 5.0, bottom: 20.0),
+          padding: const EdgeInsets.only(top: 5.0, bottom: 20.0),
           child: ShaderMask(
             shaderCallback: (Rect bounds) {
               return const LinearGradient(
@@ -75,7 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
         centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 34, 34, 34),
+        backgroundColor: const Color.fromARGB(255, 34, 34, 34),
       ),
       body: Column(
         children: [
@@ -95,8 +99,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         : Alignment
                             .centerLeft, // ✅ Fixed center alignment for user
                     child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                      padding: EdgeInsets.all(10),
+                      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: isUser
                             ? Colors.white
@@ -105,7 +109,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       child: Text(
                         message['text'] ?? "",
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: Colors.black), // ✅ Ensures text is readable
                       ),
                     ),
@@ -118,21 +122,25 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.all(20.0),
             child: Row(
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                SizedBox(
+                  height: 50,
+                  width: 300,
+                  child: Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
                     ),
                   ),
                 ),
-                SizedBox(width: 10), // Litt luft mellom tekstfelt og knapp
+                const SizedBox(width: 10), // Litt luft mellom tekstfelt og knapp
                 IconButton(
-                  icon: Icon(Icons.send,
-                      color: const Color.fromARGB(255, 255, 255, 255)),
+                  icon: const Icon(Icons.send,
+                      color: Color.fromARGB(255, 255, 255, 255)),
                   onPressed: () {
                     if (_controller.text.trim().isNotEmpty) {
                       chatProvider.sendMessage(_controller.text.trim());
