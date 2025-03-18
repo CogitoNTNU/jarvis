@@ -61,53 +61,53 @@ services:
           cpus: '1' # CPU limit
           memory: 2gb  # Memory limit
 
-  speech-to-text:
-    build: ./speechToText
-    restart: unless-stopped
-    environment:
-      FLASK_ENV: ${FLASK_ENV}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      PORT_STT: ${PORT_STT}
-    volumes:
-      - ./speechToText:/app
-    networks:
-      - backend
-    ports:
-      - "3001:3001"
+  # speech-to-text:
+  #   build: ./speechToText
+  #   restart: unless-stopped
+  #   environment:
+  #     FLASK_ENV: ${FLASK_ENV}
+  #     OPENAI_API_KEY: ${OPENAI_API_KEY}
+  #     PORT_STT: ${PORT_STT}
+  #   volumes:
+  #     - ./speechToText:/app
+  #   networks:
+  #     - backend
+  #   ports:
+  #     - "3001:3001"
 
-  redis:
-    image: redis:latest
-    container_name: redis_audio
-    restart: always
-    expose:
-      - "6379"
-    networks:
-      - backend
-    command: >
-      redis-server 
-      --appendonly yes 
-      --save 60 1 
-      --save 300 100 
-      --save 900 1000
-      --maxmemory 1gb
-    volumes:
-      - redis_data:/data
+  # redis:
+  #   image: redis:latest
+  #   container_name: redis_audio
+  #   restart: always
+  #   expose:
+  #     - "6379"
+  #   networks:
+  #     - backend
+  #   command: >
+  #     redis-server 
+  #     --appendonly yes 
+  #     --save 60 1 
+  #     --save 300 100 
+  #     --save 900 1000
+  #     --maxmemory 1gb
+  #   volumes:
+  #     - redis_data:/data
 
-  tts:
-    build:
-      context: ./textToSpeech
-      dockerfile: Dockerfile
-    networks:
-      - backend
-    env_file:
-      - .env
-    ports:
-      - "5001:5001"
-    environment:
-      - REDIS_URL=redis://redis:6379
-      - NARKEE_API_KEY=${NARKEE_API_KEY}
-    depends_on:
-      - redis
+  # tts:
+  #   build:
+  #     context: ./textToSpeech
+  #     dockerfile: Dockerfile
+  #   networks:
+  #     - backend
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - "5001:5001"
+  #   environment:
+  #     - REDIS_URL=redis://redis:6379
+  #     - NARKEE_API_KEY=${NARKEE_API_KEY}
+  #   depends_on:
+  #     - redis
 
 volumes:
   chroma_data:  # Persistent storage for ChromaDB
