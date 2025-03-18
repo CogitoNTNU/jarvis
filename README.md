@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/8c6895bb-abc1-448b-8d56-2e52c134c9f1)# J.A.R.V.I.S
+# J.A.R.V.I.S
 
 <div align="center">
   <img src="docs/images/jarvis.webp" width="50%" alt="Cogito Image" style="display: block; margin-left: auto; margin-right: auto;">
@@ -130,7 +130,6 @@ This project would not have been possible without the hard work and dedication o
               <sub><b>Ivan Mordovets</b></sub>
             </a>
         </td>
-
        <td align="center">
             <a href="https://github.com/Nilsthehacker">
               <img src="https://github.com/Nilsthehacker.png?size=100" width="100px;" alt="Ivan Mordovets"/><br />
