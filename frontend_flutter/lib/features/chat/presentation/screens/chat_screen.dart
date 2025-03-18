@@ -44,7 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final chatProvider = Provider.of<ChatProvider>(context);
 
-    sendtext() {
+    onSubmit() {
       if (_controller.text.trim().isNotEmpty) {
         chatProvider.sendMessage(_controller.text.trim());
         _controller.clear();
@@ -126,25 +126,33 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
+          // ...existing code...
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Row(
               children: [
-                SizedBox(
-                  height: 80,
-                  width: 1190,
-                  child: Expanded(
-                    child: TextField(
+                Expanded(
+                  child: Container(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.4,
+                    ),
+                    child: SingleChildScrollView(
+                      child: TextField(
                         controller: _controller,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.grey[200],
                           border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8)),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
+                        maxLines: null, // Allows text to wrap
+                        minLines: 1, // Initial height
                         onSubmitted: (String value) {
-                          sendtext();
-                        }),
+                          onSubmit();
+                        },
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(
@@ -152,7 +160,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 IconButton(
                   icon: const Icon(Icons.send,
                       color: Color.fromARGB(255, 255, 255, 255)),
-                  onPressed: sendtext,
+                  onPressed: onSubmit,
                 ),
               ],
             ),
