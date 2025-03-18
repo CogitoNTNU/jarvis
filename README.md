@@ -132,10 +132,16 @@ This project would not have been possible without the hard work and dedication o
         </td>
        <td align="center">
             <a href="https://github.com/Nilsthehacker">
-              <img src="https://github.com/Nilsthehacker.png?size=100" width="100px;" alt="Ivan Mordovets"/><br />
-              <sub><b>Ivan Mordovets</b></sub>
+              <img src="https://github.com/Nilsthehacker.png?size=100" width="100px;" alt="Nils Henrik Hoelfeldt Lund"/><br />
+              <sub><b>Nils Henrik Hoelfeldt Lund</b></sub>
             </a>
         </td>
+        <td align="center">
+              <a href="https://github.com/erlendska">
+                <img src="https://github.com/erlendska.png?size=100" width="100px;" alt="Erlend Ulvund Skaarberg"/><br />
+                <sub><b>Erlend Skaarberg</b></sub>
+              </a>
+          </td>
     </tr>
 </table>
 
