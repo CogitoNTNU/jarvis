@@ -130,6 +130,12 @@ This project would not have been possible without the hard work and dedication o
               <sub><b>Ivan Mordovets</b></sub>
             </a>
         </td>
+       <td align="center">
+            <a href="https://github.com/Nilsthehacker">
+              <img src="https://github.com/Nilsthehacker.png?size=100" width="100px;" alt="Ivan Mordovets"/><br />
+              <sub><b>Ivan Mordovets</b></sub>
+            </a>
+        </td>
     </tr>
 </table>
 
