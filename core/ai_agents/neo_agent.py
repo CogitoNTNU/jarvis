@@ -9,7 +9,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import MessagesState, StateGraph, START, END
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
-from agents.model import Model #Models for chatGPT
+from ai_agents.model import Model #Models for chatGPT
 
 # Premade tool imports
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -18,7 +18,7 @@ from tools.add_tool import add # Adds 2 numbers together
 
 from jarvis.core.chroma import init_chroma, create_collection, add_document, upsert_document
 
-from agents.WebSocketAgent import WebSocketAgent
+from ai_agents.WebSocketAgent import WebSocketAgent
 """
 Neoagent uses the ReAct agent framework.
 Simply put in steps:

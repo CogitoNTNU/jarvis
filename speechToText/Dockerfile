@@ -3,20 +3,15 @@ FROM python:3.10-bookworm
 
 # Set the working directory in the container
 WORKDIR /app
-RUN apt-get update && apt-get install -y \
-    portaudio19-dev \
-    libasound2-dev \
-    libpulse-dev \
-    sox \
-    libsox-dev \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     portaudio19-dev \
+#     libasound2-dev \
+#     libpulse-dev \
+#     sox \
+#     libsox-dev \
+#     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y ffmpeg
-
-
-
-
-
+# RUN apt-get update && apt-get install -y ffmpeg
     
 # Copy only requrirements to keep cache.
 COPY requirements.txt requirements.txt

@@ -12,7 +12,7 @@ from langgraph.graph import MessagesState, StateGraph, START, END
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
 
-from agents.model import Model #Models for chatGPT
+from ai_agents.model import Model #Models for chatGPT
 
 # Premade tool imports
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -20,7 +20,7 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from tools.add_tool import add # Adds 2 numbers together
 from tools.youtube_transcript import youtube_transcript
 
-from agents.WebSocketAgent import WebSocketAgent # Superclass
+from ai_agents.WebSocketAgent import WebSocketAgent # Superclass
 
 class NeoThinkAgent(WebSocketAgent):
     def __init__(self):
