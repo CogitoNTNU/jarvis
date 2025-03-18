@@ -44,6 +44,13 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final chatProvider = Provider.of<ChatProvider>(context);
 
+    sendtext() {
+      if (_controller.text.trim().isNotEmpty) {
+        chatProvider.sendMessage(_controller.text.trim());
+        _controller.clear();
+      }
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 34, 34, 34),
       appBar: AppBar(
@@ -128,14 +135,16 @@ class _ChatScreenState extends State<ChatScreen> {
                   width: 1190,
                   child: Expanded(
                     child: TextField(
-                      controller: _controller,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                    ),
+                        controller: _controller,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                        ),
+                        onSubmitted: (String value) {
+                          sendtext();
+                        }),
                   ),
                 ),
                 const SizedBox(
@@ -143,12 +152,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 IconButton(
                   icon: const Icon(Icons.send,
                       color: Color.fromARGB(255, 255, 255, 255)),
-                  onPressed: () {
-                    if (_controller.text.trim().isNotEmpty) {
-                      chatProvider.sendMessage(_controller.text.trim());
-                      _controller.clear();
-                    }
-                  },
+                  onPressed: sendtext,
                 ),
               ],
             ),
