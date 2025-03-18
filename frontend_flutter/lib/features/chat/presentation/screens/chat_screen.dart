@@ -99,7 +99,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         : Alignment
                             .centerLeft, // ✅ Fixed center alignment for user
                     child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 8),
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: isUser
@@ -123,8 +124,8 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Row(
               children: [
                 SizedBox(
-                  height: 50,
-                  width: 300,
+                  height: 80,
+                  width: 1190,
                   child: Expanded(
                     child: TextField(
                       controller: _controller,
@@ -137,7 +138,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 10), // Litt luft mellom tekstfelt og knapp
+                const SizedBox(
+                    width: 10), // Litt luft mellom tekstfelt og knapp
                 IconButton(
                   icon: const Icon(Icons.send,
                       color: Color.fromARGB(255, 255, 255, 255)),
