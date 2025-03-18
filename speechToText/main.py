@@ -74,7 +74,8 @@ def upload_audio(conversation_id):
     try:
         response = requests.post(f'http://llm-service:3000/recording_completed', json={
             "text": text_result,
-            "conversation_id": conversation_id
+            "conversation_id": conversation_id,
+            "session_id": "placeholder_id", # Also defined in frontend under socketEvents.js. core/main.py requires this for websockets.
         })
         response.raise_for_status()  # Ensure the request was successful
     except requests.exceptions.RequestException as e:

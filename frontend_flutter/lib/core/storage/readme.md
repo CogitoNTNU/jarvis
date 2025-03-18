@@ -1,0 +1,1 @@
+The storage folder handles persistent data management, including database configurations, caching mechanisms, and local file storage. It provides a centralized way to access and manage stored data, ensuring consistency across the app. Storage logic should be generic and adaptable to different storage solutions like SharedPreferences, SQLite, or Realm.

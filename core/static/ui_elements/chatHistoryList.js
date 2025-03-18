@@ -10,6 +10,10 @@ let chatHistoryList = () => {
     // Example chats. TODO: Do a GET request later on.
     let chats = [
         {
+            name: "BRUH",
+            description: "This is all manually added lol"
+        },
+        {
             name: "How to bake a cake",
             description: "Baking a cake: 1. Gather ingredients. 2. gather equipment. 3. Get..."
         },

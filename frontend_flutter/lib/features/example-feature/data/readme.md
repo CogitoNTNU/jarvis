@@ -1,0 +1,1 @@
+This folder contains all data-related implementations, including models, repositories, and data sources. It handles how data is fetched, stored, and converted for use in the app. The domain layer interacts with this layer through repositories.

@@ -1,6 +1,6 @@
 const silenceThreshold = 0.01;
 const maxSilenceDuration = 3;
-const maxRecordingDuration = 10000;
+const maxRecordingDuration = 50000;
 let silenceStartTime = null;
 let mediaRecorder = null;
 let audioChunks = [];
@@ -9,10 +9,19 @@ let recordingTimeout;
 let audioContext, analyser, source;
 let conversationId = null;
 
+let voice_button = document.getElementById('voice_button');
 
 function startRecording() {
-    document.getElementById('voice_button').style.backgroundColor = "#673636";
-    document.getElementById('voice_button').disabled = true;
+    if (voice_button == null) {
+        voice_button = document.getElementById('voice_button');
+    }
+    if (isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        voice_button.style.backgroundColor = "";
+        return;
+    }
+    voice_button.style.backgroundColor = "#673636";
     conversationId = state.activeConversationId;
     commenceRecording(conversationId);
 }
@@ -36,10 +45,11 @@ async function commenceRecording(conversation_id) {
 
 
     mediaRecorder.ondataavailable = (event) => {
-        audioChunks.push(event.data);
+        audioChunks.push(event.data);      
     };
 
     mediaRecorder.onstop = async () => {
+        voice_button.style.backgroundColor = "";
         const combinedBlob = new Blob(audioChunks, { type: 'audio/webm' });
 
         const formData = new FormData();
@@ -56,6 +66,7 @@ async function commenceRecording(conversation_id) {
             }
 
             const data = await response.json();
+            addUserMessage(marked.parse(data.message))
             console.log('Audio uploaded successfully');
         } catch (error) {
             console.error('Error uploading audio:', error);
