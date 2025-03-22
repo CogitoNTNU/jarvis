@@ -23,14 +23,17 @@ def vision(user_text: str, file_path: str):
         }
     ]
 
-    client = OpenAI(api_key=config.OPENAI_API_KEY)
 
+    #TODO: Add support for local images
+
+
+
+    client = OpenAI(api_key=config.OPENAI_API_KEY)
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=messages,
         # temperature=0.0,
     )
-
     message = response.choices[0].message.content
 
     return message

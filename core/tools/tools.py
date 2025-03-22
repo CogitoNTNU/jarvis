@@ -29,7 +29,6 @@ def get_tools() -> list[StructuredTool]:
     tools.append(rag_search.get_tool())
     tools.append(vision.get_tool())
 
-
     return tools
 
 def get_perplexity_based_tools() -> list[StructuredTool]:
