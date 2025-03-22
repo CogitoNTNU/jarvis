@@ -20,6 +20,7 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from tools.add_tool import add # Adds 2 numbers together
 from tools.youtube_transcript import youtube_transcript
 from tools.vision import vision
+#Add more tools here (manually I guess?)
 
 from agents.WebSocketAgent import WebSocketAgent # Superclass
 
