@@ -105,9 +105,7 @@ class Node:
         prompt = PromptTemplate(
             template= """
             You are a personal assistant and your job is to generate a response to the user. 
-            You should format the response so that it is easy for an text-to-speech model
-            to communicate to the user
-
+           
             Here are the previous messages:
             
             Message: {messages}
@@ -119,6 +117,10 @@ class Node:
 
             Formulate a response that answer the users question and is formatted correctly
             """,
+
+            #You should format the response so that it is easy for an text-to-speech model
+            #to communicate to the user. 
+
         )
         chain = prompt | self.simple_agent
         response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
