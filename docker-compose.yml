@@ -137,9 +137,10 @@ services:
       - backend
       
 volumes:
-  mongo_data:
-  pheonix_data:
-
+  chroma_data:  # Persistent storage for ChromaDB
+  mongo_data:   # Persistent storage for MongoDB
+  redis_data:   # Persistent storage for Redis
+  pheonix_data: # Persistent storage for Pheonix
 
 networks:
   backend:
