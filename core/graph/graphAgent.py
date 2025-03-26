@@ -28,7 +28,7 @@ Instantiated Graph Agent....
         
         self.workflow.add_node("perplexity_agent", self.node.perplexity_agent)
         self.workflow.add_node("calendar_tool", ToolNode(get_tools()))
-        self.workflow.add_node("use_calendar_tool", self.node.calendar_tool_decider)
+        self.workflow.add_node("use_calendar_tool", self.node.calendar_tool_decider)                            
         self.workflow.add_node("calendar_decider", self.node.calendar_decision_agent)
         self.workflow.add_node("other_agent", self.node.other_agent)
         

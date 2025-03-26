@@ -43,6 +43,7 @@ def calendar_based_tools() -> list[StructuredTool]:
     tools.append(read_calendar_event.get_tool())
     tools.append(current_time_iso_format.get_tool())
     tools.append(create_time_to_iso_format.get_tool())
+    tools.append(add_time.get_tool())
 
     return tools
 
