@@ -15,7 +15,7 @@ services:
       --maxmemory 1000mb
     volumes:
       - ./redis_data:/data
-  tts:
+  text-to-speech:
     build:
       context: .
       dockerfile: Dockerfile

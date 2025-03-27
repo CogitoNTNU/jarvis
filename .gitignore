@@ -4,6 +4,7 @@ faiss_index.bin
 id_to_metadata.json
 user_to_vector_ids.json
 
+venv2
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
