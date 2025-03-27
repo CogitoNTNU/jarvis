@@ -11,6 +11,10 @@ import requests
 
 url = "http://127.0.0.1:7860/sdapi/v1/txt2img"
 
+#check http://127.0.0.1:7860/docs for more information on API
+
+
+
 payload = {
     "prompt": "a futuristic city skyline at sunset",
     "negative_prompt": "blurry, low quality",

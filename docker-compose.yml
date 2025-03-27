@@ -9,6 +9,8 @@ services:
       context: ./imgGenerator  # Specify the directory for Dockerfile
     ports:
       - "7860:7860"
+    volumes:
+      - ./imgGenerator/models/Stable-diffusion:/imgGenerator/models/Stable-diffusion
     deploy:
       resources:
         reservations:
