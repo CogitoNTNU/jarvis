@@ -2,6 +2,21 @@ version: '3.8'
 
 # Services to be built in order.
 services:
+  stable-diffusion:
+    image: imggen
+    container_name: img-generator
+    build:
+      context: ./imgGenerator  # Specify the directory for Dockerfile
+    ports:
+      - "7860:7860"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+              
   chroma:
     image: chromadb/chroma
     container_name: chromadb
