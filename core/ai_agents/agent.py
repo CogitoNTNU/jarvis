@@ -1,7 +1,6 @@
 from langchain_openai import ChatOpenAI
-from agents.model import Model, LLMType
+from ai_agents.model import Model, LLMType
 
-#Why did this get deleted? smh
 class Agent:
     temperature = 0
     max_tokens = 2048

@@ -1,5 +1,5 @@
 import tiktoken # To count tokens
-from agents.model import Model
+from ai_agents.model import Model
 
 """
 Functions to filter and trim the message history if it goes above the token limit.

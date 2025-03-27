@@ -1,5 +1,8 @@
+<<<<<<< HEAD:core/agents/model.py
 
 #Why did this get deleted? smh
+=======
+>>>>>>> a28294469920a06c6c6116404732d2fe56578e22:core/ai_agents/model.py
 class LLMType:
     chat_open_ai = "ChatOpenAI"
 

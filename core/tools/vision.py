@@ -10,6 +10,7 @@ from langchain_core.tools.structured import StructuredTool
 def vision(user_text: str, file_path: str):
     """
     Use this tool to generate a response based on an image url and user text.
+    Return a message that uses BOTH the user text and the image url.
     """
 
     #Only for URL / online images
@@ -25,8 +26,7 @@ def vision(user_text: str, file_path: str):
 
 
     #TODO: Add support for local images
-
-
+    
 
     client = OpenAI(api_key=config.OPENAI_API_KEY)
     response = client.chat.completions.create(
