@@ -13,12 +13,14 @@ from ai_agents.model import Model #Models for chatGPT
 
 # Premade tool imports
 from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.document_loaders import PyPDFLoader
 # Custom tool imports
 from tools.add_tool import add # Adds 2 numbers together
 
 from core.chroma import init_chroma, create_collection, add_document, upsert_document
 
-from ai_agents.WebSocketAgent import WebSocketAgent
+from ai_agents.WebSocketAgent import WebSocketAgentdo
 """
 Neoagent uses the ReAct agent framework.
 Simply put in steps:
@@ -46,7 +48,7 @@ class NeoAgent(WebSocketAgent):
         if os.getenv("TAVILY_API_KEY"):
             # Defining the tavily web-search tool
             tavily = TavilySearchResults(max_results=2)
-            tools = [add, tavily]
+            tools = [add, tavily, embed_pdf]
         else:
             print("TAVILY_API_KEY does not exist.")
             
@@ -92,19 +94,6 @@ class NeoAgent(WebSocketAgent):
     async def initialize_jarvis(self):
         self.chroma_client = await init_chroma()
         self.collection = await create_collection("my_collection", self.chroma_client)
-
-    #Tool to embed a PDF file and save it ti ChromaDB
-    @tool (name = "Embed PDF", description = "Embed a PDF file and save it to memory.")
-    async def embed_pdf_tool(self, file_path: str): 
-        loader =PyPDFLoader(file_path)
-        documents = loader.load()
-        text_splitter =  text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-        texts = text_splitter.split_documents(documents)
-
-        for i, text in enumerate(texts):
-            await add_document(text.page_content, f"pdf_chunk_{i}", self.collection)
-        return f"PDF '{file_path}' has been embedded and saved to memory."
-
 
     #Tool to save user-provided text to ChromaDB.
     @tool(name="Save Memory", description="Save user-provided text to memory.")

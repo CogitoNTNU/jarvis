@@ -19,6 +19,7 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 # Custom tool imports
 from tools.add_tool import add # Adds 2 numbers together
 from tools.youtube_transcript import youtube_transcript
+from tools.embed_pdf import embed_pdf
 
 from ai_agents.WebSocketAgent import WebSocketAgent # Superclass
 
@@ -35,7 +36,7 @@ class NeoThinkAgent(WebSocketAgent):
         # Defining the checkpoint memory saver.
         memory = MemorySaver()
         # Tools list
-        tools = [add, youtube_transcript]
+        tools = [add, youtube_transcript,embed_pdf]
 
         if os.getenv("TAVILY_API_KEY"):
             # Defining the tavily web-search tool
