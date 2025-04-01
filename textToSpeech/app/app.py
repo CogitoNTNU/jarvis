@@ -8,6 +8,7 @@ import os
 from typing import List, Tuple
 import logging
 
+
 # Global counter for sentence IDs
 sentence_counter: int = 0
 counter_lock = Lock()
@@ -49,24 +50,23 @@ def streamer_thread(input_queue: Queue) -> None:
             break
 
         sentence_id, audio_data = item
-        # print(f"Got audio chunk {sentence_id}")
 
         # Reset expected_id if we're starting a new text generation
         if sentence_id == 1:
             expected_id = 1
             buffer.clear()  # Clear any old buffered chunks
-            print("New text generation - resetting counters")
+            logger.info("New text generation - resetting counters")
 
         # If this is the chunk we're waiting for, emit it
         if sentence_id == expected_id:
             try:
                 audio_list = list(audio_data)
-                # print(f"Emitting chunk {sentence_id} to clients")
+                # logger.info(f"Emitting chunk {sentence_id} to clients")
                 socketio.emit('audio_stream', {
                     'audio_data': audio_list,
                     'sentence_id': sentence_id
                 }, namespace='/')
-                # print(f"Emitted chunk {sentence_id}")
+                # logger.info(f"Emitted chunk {sentence_id}")
                 expected_id += 1
 
                 # Process buffered chunks
@@ -79,7 +79,7 @@ def streamer_thread(input_queue: Queue) -> None:
                     expected_id += 1
 
             except Exception as e:
-                print(f"Error emitting audio: {str(e)}")
+                logger.info(f"Error emitting audio: {str(e)}")
                 import traceback
                 traceback.print_exc()
 
@@ -87,7 +87,7 @@ def streamer_thread(input_queue: Queue) -> None:
         elif sentence_id > expected_id:
             buffer[sentence_id] = list(audio_data)
         else:
-            print(f"Dropping late chunk for sentence {sentence_id}")
+            logger.info(f"Dropping late chunk for sentence {sentence_id}")
 
 
 app: Flask = Flask(__name__)
@@ -134,7 +134,7 @@ def generate():
                 queue_item = (sentence_counter, sentence)
                 queue_items.append(queue_item)
                 input_queue.put(queue_item)
-                print(f"Queuing sentence {sentence_counter}: {
+                logger.info(f"Queuing sentence {sentence_counter}: {
                       sentence[:30]}...")  # Debug print
 
         return jsonify({
@@ -144,7 +144,7 @@ def generate():
         }), 200
 
     except Exception as e:
-        print(f"Error in generate endpoint: {str(e)}")
+        logger.info(f"Error in generate endpoint: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -158,7 +158,7 @@ def handle_audio_data(data: bytes) -> None:
 @socketio.on('connect')
 def handle_connect():
     client_id = request.sid
-    print(f"New client connected: {client_id}")  # More detailed connection log
+    logger.info(f"New client connected: {client_id}")  # More detailed connection log
     socketio.emit('test', {'data': 'Test message'})
 
 
@@ -177,7 +177,7 @@ if __name__ == '__main__':
     logging.getLogger('engineio').setLevel(logging.INFO)
     logging.getLogger('socketio').setLevel(logging.INFO)
 
-    print("Starting server...")
+    logger.info("Starting server...")
 
 
     if os.getenv("REDIS_URL"):
@@ -209,6 +209,6 @@ if __name__ == '__main__':
     streamer_thread.daemon = True  # Make thread daemon
     streamer_thread.start()
 
-    print("All threads started, running server...")
+    logger.info("All threads started, running server...")
     socketio.run(app, debug=debug, host='0.0.0.0',
                  port=5000, allow_unsafe_werkzeug=True)

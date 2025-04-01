@@ -2,6 +2,7 @@ import os
 from langchain_core.tools import tool
 from langchain_core.tools.structured import StructuredTool
 from PyPDF2 import PdfReader
+from modules.logging_utils import logger
 
 # oh no, a pdf file, hide the children
 @tool 

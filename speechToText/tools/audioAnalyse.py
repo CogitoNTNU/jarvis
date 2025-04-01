@@ -5,6 +5,8 @@ import seaborn as sns
 import librosa
 import librosa.display
 
+from logging_utils import logger
+
 def analyze_audio(audio_path):
     # Load the WAV file
     sr, audio_data = wavfile.read(audio_path)
@@ -31,7 +33,7 @@ def analyze_audio(audio_path):
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 2:
-        print("Usage: python audio_analysis.py <audio_file>")
+        logger.info("Usage: python audio_analysis.py <audio_file>")
         sys.exit(1)
 
     audio_path = sys.argv[1]

@@ -1,6 +1,7 @@
 from openai import OpenAI
 import dotenv
 import config
+from modules.logging_utils import logger
 
 dotenv.load_dotenv()
 
@@ -28,7 +29,7 @@ def get_perplexity_response(user_query):
 
     return message
 
-print(get_perplexity_response(user_query))
+logger.info(get_perplexity_response(user_query))
 
 # chat completion with streaming
 """
@@ -39,6 +40,6 @@ response_stream = client.chat.completions.create(
 )
 for response in response_stream:
     if response.choices[0].delta.content is not None:
-        print(response.choices[0].delta.content, end='')
-print()  # Add a newline at the end
+        logger.info(response.choices[0].delta.content, end='')
+logger.info()  # Add a newline at the end
 """

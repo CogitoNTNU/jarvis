@@ -155,3 +155,13 @@ dmypy.json
 
 #Redis data
 redis_data
+
+#audio files
+*.wav
+*.webm
+*.mp3
+*.m4a
+*.ogg
+*.flac
+*.aac
+*.wma

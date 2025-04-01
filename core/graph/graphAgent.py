@@ -8,10 +8,12 @@ from time import sleep
 from langgraph.checkpoint.memory import MemorySaver
 memory = MemorySaver() # Used to save state using checkpointing. See 'config' and astream execution furhter down.
 
+from modules.logging_utils import logger
+
 class Graph:
     def __init__(self):
         LANGCHAIN_TRACING_V2: str = "true"
-        print("""
+        logger.info("""
 ------------------------------
 Instantiated Graph Agent....
 ------------------------------  
@@ -76,9 +78,9 @@ Instantiated Graph Agent....
         """
         Run the agent, returning a token stream.
         """
-        print('Running stream...')
-        print(user_prompt)
-        print(type(user_prompt))
+        logger.info('Running stream...')
+        logger.info(user_prompt)
+        logger.info(type(user_prompt))
         for chunk in self.llm.stream(user_prompt):
             yield chunk.content
 
@@ -98,7 +100,7 @@ Instantiated Graph Agent....
                     ai_message = event['data']['output']['messages'][-1]
 
                     if isinstance(ai_message, AIMessage):
-                        print(ai_message)
+                        logger.info(ai_message)
                         if 'tool_calls' in ai_message.additional_kwargs:
                             try: 
                                 tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
@@ -121,6 +123,6 @@ Instantiated Graph Agent....
 
             return "success"
         except Exception as e:
-            print(e)
+            logger.info(e)
             return e
         

@@ -6,6 +6,7 @@ from googleapiclient.discovery import build
 from langchain_core.tools.structured import StructuredTool
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
+from modules.logging_utils import logger
 
 load_dotenv()
 
@@ -73,4 +74,4 @@ if __name__ == "__main__":
     end_time = "2024-11-04T15:00:00"    # Format: YYYY-MM-DDTHH:MM:SS
     
     result = create_calendar_event(summary, location, description, start_time, end_time)
-    print(result)
+    logger.info(result)

@@ -1,7 +1,7 @@
 import pyaudio
 import time
 import numpy as np
-
+from tools.logging_utils import logger
 '''
     chunk_size:
     rate:
@@ -23,10 +23,10 @@ class AudioRecorder:
 
     def start_recording(self):
         self.audio = pyaudio.PyAudio()
-        print("Available audio devices:")
+        logger.info("Available audio devices:")
         for i in range(self.audio.get_device_count()):
             device = self.audio.get_device_info_by_index(i)
-            print(f"Device {i}: {device['name']}")
+            logger.info(f"Device {i}: {device['name']}")
         self.stream = self.audio.open(
             format=pyaudio.paInt16, 
             channels=self.channels, 
@@ -35,12 +35,12 @@ class AudioRecorder:
             frames_per_buffer=self.chunk_size
             )
         self.audio_chunks = []
-        print("Recording started")
+        logger.info("Recording started")
 
     def stop_recording(self):
         self.stream.stop_stream()
         self.stream.close()
-        print("Recording stopped")
+        logger.info("Recording stopped")
 
     def silent(self, data):
         audio_data = np.frombuffer(data, dtype=np.int16)
@@ -77,14 +77,14 @@ class AudioRecorder:
                         
 
                     elif time.time() - silence_start > self.max_silence_duration:   
-                        print(f"Silence detected for more than {self.max_silence_duration} seconds, stopping recording.")
+                        logger.info(f"Silence detected for more than {self.max_silence_duration} seconds, stopping recording.")
                         break
                 else:
                     silence_start = None
                     frames_with_sound += 1
 
         except KeyboardInterrupt:
-            print("Recording stopped by user.")
+            logger.info("Recording stopped by user.")
         finally:
             self.stop_recording()
 

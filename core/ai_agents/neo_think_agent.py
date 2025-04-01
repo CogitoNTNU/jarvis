@@ -22,9 +22,12 @@ from tools.youtube_transcript import youtube_transcript
 
 from ai_agents.WebSocketAgent import WebSocketAgent # Superclass
 
+from modules.logging_utils import logger
+
+
 class NeoThinkAgent(WebSocketAgent):
     def __init__(self):
-        print("Instantiated NeoAgent....")
+        logger.info("Instantiated NeoAgent....")
         system_prompt = "You are Jarvis, an AI assistant here to help the human accomplish tasks. Respond in a conversational, natural style that sounds good when spoken aloud. Keep responses short and to the point, using clear, engaging language. When explaining your thought process, be concise and only describe essential steps to maintain a conversational flow."
         # Defining the model TODO: Make this configurable with Llama, Grok, Gemini, Claude
         model = ChatOpenAI(
@@ -42,7 +45,7 @@ class NeoThinkAgent(WebSocketAgent):
             tavily = TavilySearchResults(max_results=2)
             tools.append(tavily)
         else:
-            print("TAVILY_API_KEY does not exist.")
+            logger.info("TAVILY_API_KEY does not exist.")
             
         tool_node = ToolNode(tools)
         llm_with_tools = model.bind_tools(tools)
@@ -80,4 +83,4 @@ class NeoThinkAgent(WebSocketAgent):
         config = {"configurable": {"thread_id": "1"}} # TODO: Remove. This is just a placeholder
         for event in self.graph.stream({"messages": [("user", user_input)]}, config):
             for value in event.values():
-                print("Assistant:", value["messages"][-1].content)
+                logger.info("Assistant:", value["messages"][-1].content)

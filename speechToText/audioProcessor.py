@@ -5,6 +5,9 @@ import noisereduce as nr
 from silero_vad import load_silero_vad, get_speech_timestamps, read_audio
 import subprocess
 
+from tools.logging_utils import logger
+
+
 class AudioProcessor:
     def __init__(self, audio_path=None):
         if audio_path is not None:
@@ -33,7 +36,7 @@ class AudioProcessor:
         speech_timestamps = get_speech_timestamps(wav, model)
         speech_timestamps = get_speech_timestamps(wav, model)
         if not speech_timestamps:
-            print("No speech detected in the audio.")
+            logger.info("No speech detected in the audio.")
         else:
             speech_segments = [wav[segment['start']:segment['end']] for segment in speech_timestamps]
             combined_speech = np.concatenate(speech_segments)
@@ -71,10 +74,10 @@ def convert_webm_to_wav(input_file, output_file_path):
         ], capture_output=True, text=True)
 
         if result.returncode != 0:
-            print("FFmpeg error:", result.stderr)
-        print(f"Successfully converted {input_file} to {output_file_path}")
+            logger.info("FFmpeg error:", result.stderr)
+        logger.info(f"Successfully converted {input_file} to {output_file_path}")
     except subprocess.CalledProcessError as e:
-        print(f"Error during ffmpeg conversion: {e}")
+        logger.info(f"Error during ffmpeg conversion: {e}")
         raise e
 # for debugging
 if __name__ == "__main__":
@@ -98,7 +101,7 @@ if __name__ == "__main__":
     if not boosting and not remove_silence:
 
         if len(sys.argv) < 3:
-            print("Usage: python AudioProcessor.py <input_path> <output_path>")
+            logger.info("Usage: python AudioProcessor.py <input_path> <output_path>")
             sys.exit(1)
 
         input_path = sys.argv[1]
@@ -108,7 +111,7 @@ if __name__ == "__main__":
         processor = AudioProcessor(audio_path=input_path)
         audio_enough = processor.process()
         if audio_enough == False:
-            print("Audio too short")
+            logger.info("Audio too short")
         else:
             processor.save_audio(output_path)
 

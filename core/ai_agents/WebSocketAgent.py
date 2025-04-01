@@ -4,6 +4,8 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
 import main
+from modules.logging_utils import logger
+
 """
 Baseclass for all agents using websocket and requires the simple .run function
 """
@@ -14,9 +16,9 @@ class WebSocketAgent:
         """
         config = {"configurable": {"thread_id": "1"}}
         websocket = main.active_websockets[session_id] # Gets correct websocket
-        print("Getting websocket...")
-        print(main.active_websockets)
-        print(websocket)
+        logger.info("Getting websocket...")
+        logger.info(main.active_websockets)
+        logger.info(websocket)
         try:
             input_data = {"messages": [("human", user_prompt)]}
             await websocket.send_json({"event": "start_message", "data": " "})
@@ -28,11 +30,11 @@ class WebSocketAgent:
                 if event_type == 'on_chain_stream' and event['name'] == 'tools':
                     tool_response = event['data']['chunk']['messages'][-1]
                     if isinstance(tool_response, ToolMessage):
-                        print(f"Tool Message: {tool_response.content}")
+                        logger.info(f"Tool Message: {tool_response.content}")
                         try:
                             await websocket.send_json({"event": "tool_message", "data": tool_response.content})
                         except Exception as e:
-                            print(f"Error sending tool message: {e}")
+                            logger.info(f"Error sending tool message: {e}")
                         continue
 
                 ### AI message end
@@ -40,14 +42,14 @@ class WebSocketAgent:
                     ai_message = event['data']['output']['messages'][-1]
 
                     if isinstance(ai_message, AIMessage):
-                        print(f"AI Message: {ai_message.content}")
+                        logger.info(f"AI Message: {ai_message.content}")
                         try:
                             # Send AI message
                             await websocket.send_json({"event": "ai_message", "data": ai_message.content})
                         except Exception as e:
-                            print(f"Error sending AI message: {e}")
+                            logger.info(f"Error sending AI message: {e}")
 
             return ai_message.content
         except Exception as e:
-            print(f"Error in AI processing: {e}")
+            logger.info(f"Error in AI processing: {e}")
             return str(e)

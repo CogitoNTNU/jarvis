@@ -12,6 +12,8 @@ from langgraph.prebuilt import ToolNode, tools_condition
 
 from ai_agents.model import Model  # Models for chatGPT
 
+from modules.logging_utils import logger
+
 # Premade tool imports
 #from langchain_community.tools.tavily_search import TavilySearchResults
 # Custom tool imports
@@ -25,7 +27,7 @@ from langchain_ollama import ChatOllama
 
 class NeoAgentLlama:
     def __init__(self):
-        print("""
+        logger.info("""
 ------------------------------
 Instantiated NeoAgent Ollama....
 ------------------------------
@@ -41,9 +43,9 @@ Instantiated NeoAgent Ollama....
         if os.getenv("TAVILY_API_KEY"):
             #tavily = TavilySearchResults(max_results=2)
             #tools.append(tavily)
-            print('tavily disabled')
+            logger.info('tavily disabled')
         else:
-            print("TAVILY_API_KEY does not exist.")
+            logger.info("TAVILY_API_KEY does not exist.")
         
         tool_node = ToolNode(tools)
         
@@ -74,7 +76,7 @@ Instantiated NeoAgent Ollama....
         config = {"configurable": {"thread_id": "1"}}
         for event in self.graph.stream({"messages": [("user", user_input)]}, config):
             for value in event.values():
-                print("Assistant:", value["messages"][-1].content)
+                logger.info("Assistant:", value["messages"][-1].content)
 
     async def run(self, user_prompt: str, socketio):
         config = {"configurable": {"thread_id": "1"}}
@@ -86,7 +88,7 @@ Instantiated NeoAgent Ollama....
                 if event_type == 'on_chain_end' and event['name'] == 'LangGraph':
                     ai_message = event['data']['output']['messages'][-1]
                     if isinstance(ai_message, AIMessage):
-                        print(ai_message)
+                        logger.info(ai_message)
                         if 'tool_calls' in ai_message.additional_kwargs:
                             try:
                                 tool_call = ai_message.additional_kwargs['tool_calls'][0]['function']
@@ -104,5 +106,5 @@ Instantiated NeoAgent Ollama....
                         continue
             return ai_message.content #send this to MongoDB
         except Exception as e:
-            print(e)
+            logger.info(e)
             return e

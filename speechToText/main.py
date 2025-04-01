@@ -7,6 +7,8 @@ import speech_to_text
 import requests
 import os
 from audioProcessor import convert_webm_to_wav
+from tools.logging_utils import logger
+
 # import subprocess
 
 
@@ -25,7 +27,7 @@ def hello_world():
 
 @app.route('/start_recording/<conversation_id>', methods=['POST'])
 def start_recording(conversation_id):
-    print(f"Recording triggered for conversation ID: {conversation_id}")
+    logger.info(f"Recording triggered for conversation ID: {conversation_id}")
     
     try:
         # Emit 'start_recording' event to clients
@@ -34,16 +36,16 @@ def start_recording(conversation_id):
         return jsonify({"status": "success", "message": "Recording started on client"}), 200
 
     except Exception as e:
-        print(f'Error starting recording: {e}')
+        logger.info(f'Error starting recording: {e}')
         return jsonify({"status": "error", "message": "Failed to start recording"}), 500
 
 
 @app.route('/upload_audio/<conversation_id>', methods=['POST'])
 
 def upload_audio(conversation_id):
-    print(f"Started processing for conversation ID: {conversation_id}")
+    logger.info(f"Started processing for conversation ID: {conversation_id}")
     audio_file = request.files['audio']
-    print(f"Received audio file: {audio_file.filename}")
+    logger.info(f"Received audio file: {audio_file.filename}")
     file_path = os.path.join("uploads", f"{audio_file.filename}")
     wav_file_path = file_path.rsplit('.', 1)[0] + '.wav'
 
@@ -58,7 +60,7 @@ def upload_audio(conversation_id):
             convert_webm_to_wav(file_path, wav_file_path)
             file_path = wav_file_path  # Now the path will point to the converted .wav file
         except Exception as e:
-            print(f"Error converting webm to wav: {e}")
+            logger.info(f"Error converting webm to wav: {e}")
             return jsonify({"status": "error", "message": str(e)}), 500
     else:
         # For other file types, save directly
@@ -68,7 +70,7 @@ def upload_audio(conversation_id):
     try:
         text_result = speech_to_text.speech_to_text(filepath=wav_file_path)
     except Exception as e:
-        print(f"Error during speech-to-text processing: {e}")
+        logger.info(f"Error during speech-to-text processing: {e}")
         return jsonify({"status": "error", "message": "Failed to process audio"}), 500
 
     try:
@@ -79,7 +81,7 @@ def upload_audio(conversation_id):
         })
         response.raise_for_status()  # Ensure the request was successful
     except requests.exceptions.RequestException as e:
-        print(f"Error notifying LLM service: {e}")
+        logger.info(f"Error notifying LLM service: {e}")
         return jsonify({"status": "error", "message": "Failed to notify LLM service"}), 500
 
     # Return the result to the client

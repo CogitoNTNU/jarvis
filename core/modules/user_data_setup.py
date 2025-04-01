@@ -1,4 +1,5 @@
 import os
+from modules.logging_utils import logger
 
 def check_folders():
     main_folder = "user_data/"
@@ -12,7 +13,7 @@ def check_and_create_folder(path):
     relativedir = os.path.join(dirname, path)
     if not os.path.exists(relativedir):
         try:
-            print("Created user_data director under core folder. This is first-time setup.")
+            logger.info("Created user_data director under core folder. This is first-time setup.")
             os.makedirs(path)
         except Exception as e:
-            print(e)
+            logger.info(e)

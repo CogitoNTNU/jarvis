@@ -19,6 +19,9 @@ from tools.add_tool import add # Adds 2 numbers together
 from jarvis.core.chroma import init_chroma, create_collection, add_document, upsert_document
 
 from ai_agents.WebSocketAgent import WebSocketAgent
+
+from modules.logging_utils import logger
+
 """
 Neoagent uses the ReAct agent framework.
 Simply put in steps:
@@ -30,7 +33,7 @@ Smaller graphs are often better understood by the LLMs.
 """
 class NeoAgent(WebSocketAgent):
     def __init__(self):
-        print("Instantiated NeoAgent....")
+        logger.info("Instantiated NeoAgent....")
         system_prompt = "You are Jarvis, an AI assistant here to help the human accomplish tasks. Respond in a conversational, natural style that sounds good when spoken aloud. Keep responses short and to the point, using clear, engaging language. When explaining your thought process, be concise and only describe essential steps to maintain a conversational flow."
         # Defining the model TODO: Make this configurable with Llama, Grok, Gemini, Claude
         model = ChatOpenAI(
@@ -48,7 +51,7 @@ class NeoAgent(WebSocketAgent):
             tavily = TavilySearchResults(max_results=2)
             tools = [add, tavily]
         else:
-            print("TAVILY_API_KEY does not exist.")
+            logger.info("TAVILY_API_KEY does not exist.")
             
         tool_node = ToolNode(tools)
         llm_with_tools = model.bind_tools(tools)
@@ -86,7 +89,7 @@ class NeoAgent(WebSocketAgent):
         config = {"configurable": {"thread_id": "1"}} # TODO: Remove. This is just a placeholder
         for event in self.graph.stream({"messages": [("user", user_input)]}, config):
             for value in event.values():
-                print("Assistant:", value["messages"][-1].content)
+                logger.info("Assistant:", value["messages"][-1].content)
 
     #Initialize chroma client and creates a collection when jarvis start
     async def initialize_jarvis(self):

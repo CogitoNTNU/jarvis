@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from audioRecorder import AudioRecorder
 from audioProcessor import AudioProcessor
-
+from tools.logging_utils import logger
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -31,15 +31,15 @@ def path_to_audio_file(path):
 if __name__ == "__main__":
     import sys
     if len(sys.argv) ==1:
-        print("NOPE")
+        logger.info("NOPE")
     else:
         audio_file = path_to_audio_file(sys.argv[1])
         transcription = speech_to_text(audio_file)
-        print(transcription.text)
+        logger.info(transcription.text)
         audio_file.close()
 
         
     # audio_file = path_to_audio_file("nb-whisper-main/nb-whisper-main/audio/erna.mp3")
     # transcription = speech_to_text(audio_file)
-    # print(transcription.text)
+    # logger.info(transcription.text)
     # audio_file.close()

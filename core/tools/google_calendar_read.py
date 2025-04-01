@@ -6,6 +6,7 @@ from googleapiclient.discovery import build
 from langchain_core.tools.structured import StructuredTool
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
+from modules.logging_utils import logger
 
 load_dotenv()
 

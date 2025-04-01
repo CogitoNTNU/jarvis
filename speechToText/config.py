@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from tools.logging_utils import logger
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -14,9 +15,9 @@ os.environ["LANGCHAIN_ENDPOINT"] = "https://eu.api.smith.langchain.com"
 try:
     os.environ["LANGCHAIN_API_KEY"] = LANGSMITH_API_KEY
 except:
-    print("No langsmith key found")
+    logger.info("No langsmith key found")
 
 if __name__ == "__main__":
-    print(f"[INFO] OPENAI_API_KEY: {OPENAI_API_KEY}")
+    logger.info(f"[INFO] OPENAI_API_KEY: {OPENAI_API_KEY}")
     if(LANGSMITH_API_KEY):
-        print(f"[INFO] LANGSMITH_API_KEY: {LANGSMITH_API_KEY}")
+        logger.info(f"[INFO] LANGSMITH_API_KEY: {LANGSMITH_API_KEY}")

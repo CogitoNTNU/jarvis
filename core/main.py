@@ -20,6 +20,8 @@ from config import PORT
 from modules.user_data_setup import check_folders
 from modules.chat import read_chat
 
+from modules.logging_utils import logger
+
 log = logging.getLogger("uvicorn")
 log.setLevel(logging.ERROR)
 
@@ -36,7 +38,7 @@ log.setLevel(logging.ERROR)
 #
 # Setup
 #
-print("Booting....")
+logger.info("Booting....")
 check_folders()  # Check directories are made for user data
 
 #
@@ -66,7 +68,7 @@ welcome_text = '''
 /\__|    /    |    \    |   \ \     /  |   |/        \ 
 \________\____|__  /____|_  /  \___/   |___/_______  / 
                  \/       \/                       \/  '''
-print(welcome_text)
+logger.info(welcome_text)
 
 # Initialize active_chats with standard llm format
 active_chats: Dict[str, Dict[str, List[Dict[str, str]]]] = defaultdict(lambda: {"chat_history": []})
@@ -78,12 +80,12 @@ collection = None  # Default to None if MongoDB isn't available
 try:
     client = pymongo.MongoClient("mongodb://mongodb:27017/", serverSelectionTimeoutMS=5000)
     client.server_info()  # Try to connect
-    print("✅ Connected to MongoDB!")
+    logger.info("✅ Connected to MongoDB!")
     
     db = client["chat_database"]
     collection = db["chats"]
 except pymongo.errors.ServerSelectionTimeoutError:
-    print("❌ MongoDB is not available. Running without database features.")
+    logger.info("❌ MongoDB is not available. Running without database features.")
     client = None  # Ensure client is None to prevent errors
     collection = None  # Prevent further crashes
 
@@ -96,11 +98,11 @@ class WebSocketManager:
     async def connect(self, websocket: WebSocket, session_id: str):
         await websocket.accept()
         self.active_connections[session_id] = websocket
-        print(f"Session {session_id} connected.")
+        logger.info(f"Session {session_id} connected.")
 
     def disconnect(self, session_id: str):
         self.active_connections.pop(session_id, None)
-        print(f"Session {session_id} disconnected.")
+        logger.info(f"Session {session_id} disconnected.")
 
     async def send_message(self, session_id: str, message: str):
         if session_id in self.active_connections:
@@ -143,7 +145,7 @@ class RecordingRequest(BaseModel):
 
 @app.post("/start_recording")
 async def start_recording_route(data: RecordingRequest):
-    print("Starting recording...")
+    logger.info("Starting recording...")
     response = requests.post(f"http://speech-to-text:3001/start_recording/{data.conversation_id}")
 
     if response.status_code != 200:
@@ -156,7 +158,7 @@ async def recording_completed(data: dict):
     session_id = data.get("session_id", "")
     text = data.get("text", "")
     conversation_id = data.get("conversation_id", "")
-    print(f"Recording completed for conversation ID {conversation_id} with text: {text}")
+    logger.info(f"Recording completed for conversation ID {conversation_id} with text: {text}")
 
     asyncio.create_task(jarvis.run(text, session_id))  # Run Jarvis response asynchronously. passing session_id
 
@@ -180,8 +182,8 @@ class BaseEventRequest(BaseModel):
     event: str
 
 def print_status(active_websocket):
-    print("WebSocketAgent loaded...")
-    print(active_websocket)
+    logger.info("WebSocketAgent loaded...")
+    logger.info(active_websocket)
 
 active_websockets = {}
 
@@ -195,7 +197,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
         while True:
             data = await websocket.receive_json()
             event_type = data.get("event")
-            print(f"Received event: {event_type}")
+            logger.info(f"Received event: {event_type}")
             ### User prompt
             if event_type == "user_prompt":
                 req = UserPromptRequest(**data) # Unpacks message into UserPromptRequest
@@ -218,7 +220,7 @@ if __name__ == "__main__":
 
 
                     # if collection is None:  # Prevent MongoDB crash
-                    #     print("MongoDB is not available. Skipping DB insert.")
+                    #     logger.info("MongoDB is not available. Skipping DB insert.")
                     # else:
                     #     chat_entry = {
                     #         "session_id": session_id,
@@ -227,10 +229,10 @@ if __name__ == "__main__":
                     #         "ai_message": "",
                     #     }
                     #     inserted_id = collection.insert_one(chat_entry).inserted_id
-                    #     print(f"Chat entry inserted with ID: {inserted_id}")
+                    #     logger.info(f"Chat entry inserted with ID: {inserted_id}")
 
                     #await ws_manager.send_message(session_id, response) # Send response to frontend
-                    #print(f"Jarvis response sent to session {session_id}")
+                    #logger.info(f"Jarvis response sent to session {session_id}")
                     # local chat history storage/cache
                     # TODO: Make this purely mongoDB
                     # if session_id in active_chats:
@@ -241,6 +243,6 @@ if __name__ == "__main__":
                     #         {"_id": inserted_id},
                     #         {"$set": {"ai_message": response}}
                     #     )
-                    #     print(f"Updated MongoDB entry {inserted_id} with AI response")
+                    #     logger.info(f"Updated MongoDB entry {inserted_id} with AI response")
                     # except Exception as e:
-                    #     print(f"Jarvis encountered an error updating MongoDB entry: {e}")
+                    #     logger.info(f"Jarvis encountered an error updating MongoDB entry: {e}")
