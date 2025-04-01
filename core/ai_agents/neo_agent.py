@@ -16,7 +16,7 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 # Custom tool imports
 from tools.add_tool import add # Adds 2 numbers together
 
-from jarvis.core.chroma import init_chroma, create_collection, add_document, upsert_document
+from core.chroma import init_chroma, create_collection, add_document, upsert_document
 
 from ai_agents.WebSocketAgent import WebSocketAgent
 """
@@ -88,7 +88,48 @@ class NeoAgent(WebSocketAgent):
             for value in event.values():
                 print("Assistant:", value["messages"][-1].content)
 
-    #Initialize chroma client and creates a collection when jarvis start
+     #Initialize chroma client and creates a collection when jarvis start
     async def initialize_jarvis(self):
         self.chroma_client = await init_chroma()
         self.collection = await create_collection("my_collection", self.chroma_client)
+
+    #Tool to embed a PDF file and save it ti ChromaDB
+    @tool (name = "Embed PDF", description = "Embed a PDF file and save it to memory.")
+    async def embed_pdf_tool(self, file_path: str): 
+        loader =PyPDFLoader(file_path)
+        documents = loader.load()
+        text_splitter =  text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        texts = text_splitter.split_documents(documents)
+
+        for i, text in enumerate(texts):
+            await add_document(text.page_content, f"pdf_chunk_{i}", self.collection)
+        return f"PDF '{file_path}' has been embedded and saved to memory."
+
+
+    #Tool to save user-provided text to ChromaDB.
+    @tool(name="Save Memory", description="Save user-provided text to memory.")
+    async def save_memory_tool(self, text: str):
+        doc_id = f"memory_{hash(text)}"
+        await upsert_document(text, doc_id, self.collection)
+        return f"Memory has been saved with ID: {doc_id}."
+    
+    #User query analyzed and makes a decision on whether to store or not store important information.
+    async def analyze_and_save_memory(self, user_input: str):
+    # Use the LLM to determine if the input is important
+        decision_prompt = (
+        f"Analyze the following input and decide if it contains important information "
+        f"that should be saved for future reference:\n\n'{user_input}'\n\n"
+        f"Respond with 'yes' if it should be saved, otherwise respond with 'no'."
+        )
+        decision = await self.graph.invoke({"messages": [("user", decision_prompt)]})
+        decision_text = decision["messages"][-1].content.strip().lower()
+
+        # Step 2: If the LLM decides to save the input, store it in ChromaDB
+        if decision_text == "yes":
+            response = await self.save_memory_tool(user_input)
+            print(f"Assistant: {response}")  # Log the response
+        else:
+            print("Assistant: No important information detected.")
+
+
+    
