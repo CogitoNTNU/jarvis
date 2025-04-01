@@ -6,7 +6,8 @@ services:
     image: imggen
     container_name: img-generator
     build:
-      context: ./imgGenerator  # Specify the directory for Dockerfile
+      context: .  # Specify the directory for Dockerfile
+      dockerfile: stable-diffusion-dockerfile
     networks:
       - backend
     ports:
@@ -14,7 +15,7 @@ services:
     expose:
       - "7860"  # Ensure correct binding
     volumes:
-      - ./imgGenerator/models/Stable-diffusion:/imgGenerator/models/Stable-diffusion
+      - ./stable-diffusion-webui-forge/models/Stable-diffusion:/imgGenerator/models/Stable-diffusion
     deploy:
       resources:
         reservations:
