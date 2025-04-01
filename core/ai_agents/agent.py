@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from agents.model import Model, LLMType
+from ai_agents.model import Model, LLMType
 
 class Agent:
     temperature = 0
