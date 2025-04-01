@@ -6,6 +6,7 @@ import subprocess
 from typing import Optional, Callable
 import redis
 import hashlib
+import openai
 from functools import wraps
 
 
@@ -116,15 +117,20 @@ class TTS(ABC):
 
 
 class Narakeet(TTS):
-    def __init__(self, api_key: str, voice: str = "Aksel", language: str = "autodetect", speed: float = 1.0, cache: Optional[Cache] = None):
+    def __init__(self, api_key: str, voice: str = "Matt", language: str = "autodetect", speed: float = 1.0, cache: Optional[Cache] = None):
 
         if not api_key:
             raise ValueError("API key is required")
         self.api_key = api_key
-        self.voice = voice
         self.language = language
         self.speed = speed
         self.cache = cache
+        self.supported_voices = ["Matt","Linda","Betty","Jessica","Ben","Melissa","Chris","Shannon","Mike","Bill","Sarah","Jeff","Maggie","Lisa","Mary","Karen","Tom","Jack","Joanna","Dustin","Tony","Kelly","Wanda","Rodney","Britney","Steve","Jennifer","Julia","Rhonda","Martin","John","Will","Morgan","Eddie","Jodie","Debbie","Nancy","Kim","Lucy","Beverly","Amber","Ashley","Mark","Connie","Sandra","Holly","Harrison","Jackie","Kirk","Mia","Chuck","Ronald","Brad","Paul","Julie","Ivy","Bridget","Tracy","Walter","Eric","Amanda","Tina","Chad","Gary","Raymond","Cindy","Jackson","Roger","Cora","Tyrell","Wyatt","Earl","Forrest","Jeb","Latoya","Dolly","Savannah","Georgia","Travis","Colt","Jerome","Kendrick","Jada","Sal","Tyrone","Curtis","Shaniqua","Duane","Eva","Pablo","Howard","Quentin","Larry","Deshawn","Raul","Denzel","Carl","Jade","Suzie"]
+
+        if voice not in self.supported_voices:
+            self.voice = "Matt"
+        else:
+            self.voice = voice
 
     def _generate_tts(self, text: str) -> bytes:
         url = f'https://api.narakeet.com/text-to-speech/mp3?voice={
@@ -168,3 +174,46 @@ class Espeak(TTS):
         )
 
         return espeak_result.stdout
+
+
+class OpenAI(TTS):
+    def __init__(self, api_key: str, voice: str = "alloy", language: str = "en", model: str = "tts-1", speed: float = 1.0, cache: Optional[Cache] = None):
+        self.api_key = api_key
+        self.language = language
+        self.speed = speed
+        self.cache = cache
+        self.voice = voice
+        self.openai = openai.OpenAI(api_key=self.api_key)
+        supported_voices = [
+            "alloy",
+            "ash",
+            "ballad",
+            "coral",
+            "echo",
+            "fable",
+            "onyx",
+            "nova",
+            "sage",
+            "shimmer"]
+
+        if voice not in supported_voices:
+            self.voice = "alloy"
+        else:
+            self.voice = voice
+
+        supported_models = ["gpt-4o-mini-tts", "tts-1", "tts-1-hd"]
+        if model not in supported_models:
+            self.model = "tts-1"
+        else:
+            self.model = model
+
+    def _generate_tts(self, text: str) -> bytes:
+        response = self.openai.audio.speech.create(
+            model=self.model,
+            voice=self.voice,
+            input=text,
+            speed=self.speed
+        )
+        return response.content
+
+
