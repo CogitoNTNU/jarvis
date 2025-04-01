@@ -20,6 +20,7 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from tools.add_tool import add # Adds 2 numbers together
 from tools.youtube_transcript import youtube_transcript
 from tools.vision import vision
+from tools.painter import painter
 #Add more tools here (manually I guess?)
 
 from ai_agents.WebSocketAgent import WebSocketAgent # Superclass
@@ -27,7 +28,18 @@ from ai_agents.WebSocketAgent import WebSocketAgent # Superclass
 class NeoThinkAgent(WebSocketAgent):
     def __init__(self):
         print("Instantiated NeoAgent....")
-        system_prompt = "You are Jarvis, an AI assistant here to help the human accomplish tasks. Respond in a conversational, natural style that sounds good when spoken aloud. Keep responses short and to the point, using clear, engaging language. When explaining your thought process, be concise and only describe essential steps to maintain a conversational flow."
+        system_prompt = """
+        You are Jarvis, an AI assistant here to help the human accomplish tasks. 
+        Respond in a conversational, natural style that sounds good when spoken aloud. 
+        Keep responses short and to the point, using clear, engaging language. 
+        When explaining your thought process, be concise and only describe essential steps to maintain a conversational flow.
+
+        ### Image Generation Rules:
+        - If a response would be **more engaging, clear, or creative** with a visual, generate an image.
+        - You **do not need explicit permission** to generate an image.
+        - When generating an image, describe it concisely first, then trigger the painter tool.
+        - If an image is unnecessary, respond with text only.
+        """
         # Defining the model TODO: Make this configurable with Llama, Grok, Gemini, Claude
         model = ChatOpenAI(
             model = Model.gpt_4o_mini[0],
@@ -37,7 +49,7 @@ class NeoThinkAgent(WebSocketAgent):
         # Defining the checkpoint memory saver.
         memory = MemorySaver()
         # Tools list
-        tools = [add, youtube_transcript, vision]
+        tools = [add, youtube_transcript, vision, painter]
 
         if os.getenv("TAVILY_API_KEY"):
             # Defining the tavily web-search tool
