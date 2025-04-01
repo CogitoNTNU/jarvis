@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
+from logging_config import logger
 from threading import Thread, Lock
 from queue import Queue
 import tts
@@ -169,6 +170,8 @@ def health_check():
 
 
 if __name__ == '__main__':
+
+
     import logging
     logging.getLogger('werkzeug').setLevel(logging.INFO)
     logging.getLogger('engineio').setLevel(logging.INFO)

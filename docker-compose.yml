@@ -102,6 +102,7 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - NARKEE_API_KEY=${NARKEE_API_KEY}
+      - LOG_LEVEL=${LOG_LEVEL}
     depends_on:
       - redis
 
