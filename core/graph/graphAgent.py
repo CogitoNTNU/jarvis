@@ -6,7 +6,8 @@ from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, A
 from graph.node import *
 from time import sleep
 from fastapi.websockets import WebSocket
-from agents.WebSocketAgent import WebSocketAgent 
+from ai_agents.WebSocketAgent import WebSocketAgent 
+from subgraph.calenderSubGraph import CalendarSubGraph
 from langgraph.checkpoint.memory import MemorySaver
 memory = MemorySaver() # Used to save state using checkpointing. See 'config' and astream execution furhter down.
 
@@ -20,6 +21,7 @@ Instantiated Graph Agent....
             """)
         self.workflow = StateGraph(GraphState)
         self.node = Node()
+        self.calendar_subgraph = CalendarSubGraph()
 
         self.workflow.add_node("jarvis_agent", self.node.jarvis_agent)
         self.workflow.add_node("agent_decider", self.node.tool_agent_decider)
@@ -28,8 +30,7 @@ Instantiated Graph Agent....
         
         self.workflow.add_node("perplexity_agent", self.node.perplexity_agent)
         self.workflow.add_node("calendar_tool", ToolNode(get_tools()))
-        self.workflow.add_node("use_calendar_tool", self.node.calendar_tool_decider)                            
-        self.workflow.add_node("calendar_decider", self.node.calendar_decision_agent)
+        self.workflow.add_node("calendar_node", self.calendar_subgraph)                            
         self.workflow.add_node("other_agent", self.node.other_agent)
         
 
