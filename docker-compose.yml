@@ -1,4 +1,6 @@
+version: '3.8'
 
+# Services to be built in order.
 services:
   chroma:
     image: chromadb/chroma
@@ -53,12 +55,7 @@ services:
       - backend
     ports:
       - "3000:3000"
-      - "11434:11434"
-    deploy:
-      resources:
-        limits:
-          cpus: '1' # CPU limit
-          memory: 2gb  # Memory limit
+      - "11434:11434" # Gives llm-service access to local machine ollama instance
 
   speech-to-text:
     build: ./speechToText
@@ -92,7 +89,7 @@ services:
     volumes:
       - redis_data:/data
 
-  tts:
+  text-to-speech:
     build:
       context: ./textToSpeech
       dockerfile: Dockerfile
