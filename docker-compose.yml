@@ -15,7 +15,7 @@ services:
     expose:
       - "7860"  # Ensure correct binding
     volumes:
-      - ./stable-diffusion-webui-forge/models/Stable-diffusion:/imgGenerator/models/Stable-diffusion
+      - ./stable-diffusion-webui-forge/models/Stable-diffusion:/stable-diffusion-webui-forge/models/Stable-diffusion
     deploy:
       resources:
         reservations:
