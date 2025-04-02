@@ -2,6 +2,28 @@ version: '3.8'
 
 # Services to be built in order.
 services:
+  stable-diffusion:
+    image: imggen
+    container_name: img-generator
+    build:
+      context: .  # Specify the directory for Dockerfile
+      dockerfile: stable-diffusion-dockerfile
+    networks:
+      - backend
+    ports:
+      - "7860:7860"
+    expose:
+      - "7860"  # Ensure correct binding
+    volumes:
+      - ./stable-diffusion-webui-forge/models/Stable-diffusion:/stable-diffusion-webui-forge/models/Stable-diffusion
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+              
   chroma:
     image: chromadb/chroma
     container_name: chromadb
@@ -46,9 +68,7 @@ services:
       PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY}
       GOOGLE_AUTH_KEY: ${GOOGLE_AUTH_KEY}
       GOOGLE_CALENDAR_ID: ${GOOGLE_CALENDAR_ID}
-      PORT: ${PORT}
       TAVILY_API_KEY: ${TAVILY_API_KEY}
-      Port_STT: ${PORT_STT}
     volumes:
       - ./core:/app  # Mount application for live changes
     networks:
@@ -63,7 +83,6 @@ services:
     environment:
       FLASK_ENV: ${FLASK_ENV}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      PORT_STT: ${PORT_STT}
     volumes:
       - ./speechToText:/app
     networks:
