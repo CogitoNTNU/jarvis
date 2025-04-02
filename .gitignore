@@ -4,6 +4,7 @@ faiss_index.bin
 id_to_metadata.json
 user_to_vector_ids.json
 
+venv2
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -154,3 +155,6 @@ dmypy.json
 
 #Redis data
 redis_data
+
+# AI image outputs
+/core/static/ai_images

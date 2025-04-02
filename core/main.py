@@ -10,15 +10,16 @@ import requests
 import logging
 from collections import defaultdict
 import json
-
 from graph.graphAgent import Graph
-import agents.neo_agent_llama
-from agents.neo_think_agent import NeoThinkAgent
+import ai_agents.neo_agent_llama
+from ai_agents.neo_think_agent import NeoThinkAgent
 from summarize_chat import summarize_chat
 from rag import embed_and_store
-from config import PORT
 from modules.user_data_setup import check_folders
 from modules.chat import read_chat
+
+# Example of how to get variables from .env via docker-compose and .env
+#from config import PORT
 
 log = logging.getLogger("uvicorn")
 log.setLevel(logging.ERROR)

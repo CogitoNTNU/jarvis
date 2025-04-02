@@ -1,0 +1,46 @@
+FROM williammrs/cuda-python3.12
+
+WORKDIR /app
+
+# Install system dependencies (added required libraries for Pillow)
+RUN apt update && apt install -y \
+    git \
+    wget \
+    curl \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    g++ \
+    build-essential \
+    python3-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libfreetype6-dev \
+    liblcms2-dev \
+    libopenjp2-7-dev \
+    libtiff5-dev \
+    tk-dev \
+    tcl-dev \
+    && apt clean && rm -rf /var/lib/apt/lists/*
+
+# Clone the repository
+RUN git clone --depth=1 --branch main https://github.com/lllyasviel/stable-diffusion-webui-forge.git
+
+# Copy the requirements file
+COPY stable-diffusion-webui-forge/requirements_versions.txt requirements.txt
+
+# Modify the requirements file to remove specific versions
+RUN sed -i '/Pillow==9.5.0/d' requirements.txt && \
+    sed -i '/blendmodes==2022/d' requirements.txt
+
+# Optionally, you can add the desired versions back if needed
+# echo "Pillow" >> requirements.txt
+# echo "blendmodes" >> requirements.txt
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application
+COPY ./stable-diffusion-webui-forge .
+
+EXPOSE 7860
+CMD ["python", "launch.py", "--api", "--listen"]
