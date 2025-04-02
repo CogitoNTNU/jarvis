@@ -142,6 +142,12 @@ This project would not have been possible without the hard work and dedication o
                 <sub><b>Erlend Skaarberg</b></sub>
               </a>
           </td>
+        <td align="center">
+              <a href="https://github.com/DuckLeQuack">
+                <img src="https://github.com/DuckLeQuack.png?size=100" width="100px;" alt="Muhammad H. Muwaffaq"/><br />
+                <sub><b>Muhammad H. Muwaffaq</b></sub>
+              </a>
+          </td>
     </tr>
 </table>
 
