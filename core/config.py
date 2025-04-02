@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-PORT = os.getenv("PORT")
 PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 
 #add langsmith api to env as LANGSMITH_API_KEY = "your_api_key" on EU server

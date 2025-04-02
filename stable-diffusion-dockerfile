@@ -1,22 +1,3 @@
-# FROM williammrs/cuda-python3.12
-
-# WORKDIR /app
-
-# # Update package lists and install dependencies
-# RUN apt update && apt install -y \
-#     software-properties-common && \
-#     apt update && \
-#     apt install -y \
-#     python3 python3-pip git wget curl \
-#     libgl1-mesa-glx \
-#     libglib2.0-0
-
-# COPY stable-diffusion-webui-forge/requirements_versions.txt requirements.txt
-# RUN pip install --no-cache-dir -r requirements.txt
-# COPY ./stable-diffusion-webui-forge .
-# EXPOSE 7860
-# CMD ["python", "launch.py", "--api", "--listen"]
-
 FROM williammrs/cuda-python3.12
 
 WORKDIR /app

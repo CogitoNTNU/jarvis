@@ -1,7 +1,6 @@
 from flask import Flask, request, url_for, jsonify
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
-from config import PORT_STT
 # import asyncio
 import speech_to_text
 import requests
