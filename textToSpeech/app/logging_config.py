@@ -6,7 +6,7 @@ import sys
 def configure_logging():
 
     loguru.logger.remove()
-    if os.getenv("LOG_LEVEL") is None:
+    if os.getenv("LOG_LEVEL") in (None, ""):
         loguru.logger.add(sys.stdout, level="INFO")
         loguru.logger.info("No LOG_LEVEL environment variable set, using INFO level")
     else:
