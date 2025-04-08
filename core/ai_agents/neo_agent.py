@@ -102,23 +102,6 @@ class NeoAgent(WebSocketAgent):
         await upsert_document(text, doc_id, self.collection)
         return f"Memory has been saved with ID: {doc_id}."
     
-    #User query analyzed and makes a decision on whether to store or not store important information.
-    async def analyze_and_save_memory(self, user_input: str):
-    # Use the LLM to determine if the input is important
-        decision_prompt = (
-        f"Analyze the following input and decide if it contains important information "
-        f"that should be saved for future reference:\n\n'{user_input}'\n\n"
-        f"Respond with 'yes' if it should be saved, otherwise respond with 'no'."
-        )
-        decision = await self.graph.invoke({"messages": [("user", decision_prompt)]})
-        decision_text = decision["messages"][-1].content.strip().lower()
-
-        # Step 2: If the LLM decides to save the input, store it in ChromaDB
-        if decision_text == "yes":
-            response = await self.save_memory_tool(user_input)
-            print(f"Assistant: {response}")  # Log the response
-        else:
-            print("Assistant: No important information detected.")
 
 
     
