@@ -158,3 +158,4 @@ redis_data
 
 # AI image outputs
 /core/static/ai_images
+stable-diffusion-models/realisticVisionV60B1_v51HyperVAE.safetensors
