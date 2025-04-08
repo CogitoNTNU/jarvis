@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
+from logging_config import logger
 from threading import Thread, Lock
 from queue import Queue
 import tts
@@ -169,6 +170,8 @@ def health_check():
 
 
 if __name__ == '__main__':
+
+
     import logging
     logging.getLogger('werkzeug').setLevel(logging.INFO)
     logging.getLogger('engineio').setLevel(logging.INFO)
@@ -176,13 +179,21 @@ if __name__ == '__main__':
 
     print("Starting server...")
 
-    redis_url = os.getenv("REDIS_URL")
-    if not redis_url:
-        raise ValueError("REDIS_URL is not set")
 
-    cache = tts.Cache(redis_url, max_size_mb=1000)
-    tts_narakeet = tts.Narakeet(
-        api_key=os.getenv("NARAKEET_API_KEY"), cache=cache)
+    if os.getenv("REDIS_URL"):
+        cache = tts.Cache(os.getenv("REDIS_URL"), max_size_mb=1000)
+    else:
+        cache = None
+
+    if os.getenv("NARAKEET_API_KEY"):
+        tts = tts.Narakeet(
+            api_key=os.getenv("NARAKEET_API_KEY"), cache=cache)
+    elif os.getenv("OPENAI_API_KEY"):
+        tts = tts.OpenAI(
+            api_key=os.getenv("OPENAI_API_KEY"), cache=cache)
+    else:
+        tts = tts.Espeak()
+
 
     if os.getenv("DEBUG") == "True":
         debug = True
@@ -190,7 +201,7 @@ if __name__ == '__main__':
         debug = False
 
     generator_thread = Thread(target=generator_thread,
-                              args=(input_queue, output_queue, tts_narakeet))
+                              args=(input_queue, output_queue, tts))
     generator_thread.daemon = True  # Make thread daemon
     generator_thread.start()
 

@@ -1,7 +1,7 @@
 # J.A.R.V.I.S
 
 <div align="center">
-  <img src="docs/images/jarvis.webp" width="50%" alt="Cogito Image" style="display: block; margin-left: auto; margin-right: auto;">
+  <img src="favicon.ico" width="50%" alt="Cogito Image" style="display: block; margin-left: auto; margin-right: auto;">
 </div>
 
 <div align="center">
@@ -124,6 +124,8 @@ This project would not have been possible without the hard work and dedication o
               <sub><b>William M Schmidt</b></sub>
             </a>
         </td>
+    </tr>
+    <tr>
         <td align="center">
             <a href="https://github.com/IvanMordovets">
               <img src="https://github.com/IvanMordovets.png?size=100" width="100px;" alt="Ivan Mordovets"/><br />
