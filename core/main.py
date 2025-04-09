@@ -22,7 +22,7 @@ from modules.chat import read_chat
 #from config import PORT
 
 log = logging.getLogger("uvicorn")
-log.setLevel(logging.ERROR)
+log.setLevel(logging.DEBUG)
 
 '''
     FOR API DOCUMENTATION, VISIT: http://localhost:3000/docs

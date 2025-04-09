@@ -18,7 +18,7 @@ let ttsSocket = (() => {
 
 console.log('Attempting to connect to server...');
 
-let audioContext;
+let audioContext2;
 let isProcessing = false;
 let audioQueue = [];
 let expectedSentenceId = 1;
@@ -59,18 +59,18 @@ ttsSocket.on('disconnect', () => {
 });
 
 async function initAudioContext() {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    audioContext2 = new (window.AudioContext || window.webkitAudioContext)();
 }
 
 async function processAudioChunk(audioData, sentenceId) {
     try {
         console.log(`Processing audio chunk for sentence ${sentenceId}`);
         const arrayBuffer = new Uint8Array(audioData).buffer;
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        const audioBuffer = await audioContext2.decodeAudioData(arrayBuffer);
         
-        const source = audioContext.createBufferSource();
+        const source = audioContext2.createBufferSource();
         source.buffer = audioBuffer;
-        source.connect(audioContext.destination);
+        source.connect(audioContext2.destination);
         
         // Add an event listener for when the audio finishes playing
         source.onended = () => {
@@ -111,7 +111,7 @@ ttsSocket.on('audio_stream', async (data) => {
         dataLength: data.audio_data.length
     });
     
-    if (!audioContext) {
+    if (!audioContext2) {
         console.log('Initializing audio context');
         await initAudioContext();
     }
@@ -143,11 +143,11 @@ ttsSocket.on('audio_stream', async (data) => {
 
 // Initialize audio context on user interaction
 document.addEventListener('click', async () => {
-    if (!audioContext) {
+    if (!audioContext2) {
         await initAudioContext();
     }
-    if (audioContext.state === 'suspended') {
-        await audioContext.resume();
+    if (audioContext2.state === 'suspended') {
+        await audioContext2.resume();
     }
 });
 

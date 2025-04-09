@@ -177,8 +177,11 @@ if __name__ == '__main__':
     logging.getLogger('engineio').setLevel(logging.INFO)
     logging.getLogger('socketio').setLevel(logging.INFO)
 
-    print("Starting server...")
+    logger.info("Starting server...")
 
+    if os.getenv("TTS_ENABLED") != "true":
+        logger.info("ENV variable TTS_ENABLED not set or set to 'false'")
+        exit();
 
     if os.getenv("REDIS_URL"):
         cache = tts.Cache(os.getenv("REDIS_URL"), max_size_mb=1000)

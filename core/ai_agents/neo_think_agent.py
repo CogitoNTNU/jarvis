@@ -57,7 +57,7 @@ class NeoThinkAgent(WebSocketAgent):
             tools.append(tavily)
         else:
             print("TAVILY_API_KEY does not exist.")
-            
+
         tool_node = ToolNode(tools)
         llm_with_tools = model.bind_tools(tools)
 

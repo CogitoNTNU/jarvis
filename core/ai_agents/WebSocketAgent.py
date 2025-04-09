@@ -3,7 +3,9 @@ from fastapi.websockets import WebSocket
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage, AIMessageChunk, HumanMessage, AIMessage, ToolMessage
 from langgraph.prebuilt import ToolNode, tools_condition
+import requests
 import main
+
 """
 Baseclass for all agents using websocket and requires the simple .run function
 """
@@ -18,6 +20,7 @@ class WebSocketAgent:
         print(main.active_websockets)
         print(websocket)
         try:
+            print("DOING RUN FUNCTION!!!!!!!!!")
             input_data = {"messages": [("human", user_prompt)]}
             await websocket.send_json({"event": "start_message", "data": " "})
 
@@ -46,6 +49,15 @@ class WebSocketAgent:
                             await websocket.send_json({"event": "ai_message", "data": ai_message.content})
                         except Exception as e:
                             print(f"Error sending AI message: {e}")
+
+            print("End of run function...", flush=true)
+            try:
+                print("Trying to send TTS call..." + ai_message.content)
+                url = "http://text-to-speech:5000/generate"
+                result = await request.post(url, json={"text": ai_message.content})
+                print(result)
+            except Exception as e:
+                print(e)
 
             return ai_message.content
         except Exception as e:
