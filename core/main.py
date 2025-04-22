@@ -17,6 +17,7 @@ from summarize_chat import summarize_chat
 from rag import embed_and_store
 from modules.user_data_setup import check_folders
 from modules.chat import read_chat
+from ai_agents.neo_agent_llama import NeoAgentLlama
 
 # Example of how to get variables from .env via docker-compose and .env
 #from config import PORT
@@ -217,31 +218,30 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=3000)
 
+    if collection is None:  # Prevent MongoDB crash
+        print("MongoDB is not available. Skipping DB insert.")
+    # else:
+    #     chat_entry = {
+    #         "session_id": session_id,
+    #         "conversation_id": message.get("conversation_id", ""),
+    #         "human_message": message.get("prompt", ""),
+    #         "ai_message": "",
+    #     }
+    #     inserted_id = collection.insert_one(chat_entry).inserted_id
+    #     print(f"Chat entry inserted with ID: {inserted_id}")
 
-                    # if collection is None:  # Prevent MongoDB crash
-                    #     print("MongoDB is not available. Skipping DB insert.")
-                    # else:
-                    #     chat_entry = {
-                    #         "session_id": session_id,
-                    #         "conversation_id": message.get("conversation_id", ""),
-                    #         "human_message": message.get("prompt", ""),
-                    #         "ai_message": "",
-                    #     }
-                    #     inserted_id = collection.insert_one(chat_entry).inserted_id
-                    #     print(f"Chat entry inserted with ID: {inserted_id}")
+    #await ws_manager.send_message(session_id, response) # Send response to frontend
+    #print(f"Jarvis response sent to session {session_id}")
+    # local chat history storage/cache
+    # TODO: Make this purely mongoDB
+    # if session_id in active_chats:
+    #     active_chats[session_id]["chat_history"].append(chat_entry)
 
-                    #await ws_manager.send_message(session_id, response) # Send response to frontend
-                    #print(f"Jarvis response sent to session {session_id}")
-                    # local chat history storage/cache
-                    # TODO: Make this purely mongoDB
-                    # if session_id in active_chats:
-                    #     active_chats[session_id]["chat_history"].append(chat_entry)
-
-                    # try:
-                    #     collection.update_one(
-                    #         {"_id": inserted_id},
-                    #         {"$set": {"ai_message": response}}
-                    #     )
-                    #     print(f"Updated MongoDB entry {inserted_id} with AI response")
-                    # except Exception as e:
-                    #     print(f"Jarvis encountered an error updating MongoDB entry: {e}")
+    # try:
+    #     collection.update_one(
+    #         {"_id": inserted_id},
+    #         {"$set": {"ai_message": response}}
+    #     )
+    #     print(f"Updated MongoDB entry {inserted_id} with AI response")
+    # except Exception as e:
+    #     print(f"Jarvis encountered an error updating MongoDB entry: {e}")

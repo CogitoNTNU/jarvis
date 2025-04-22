@@ -34,7 +34,7 @@ class NeoAgentLlama(WebSocketAgent):
         tools = [add, youtube_transcript]
         
         # Binding tools to the model
-        model = model.bind_tools(tools=tools)
+        # model = model.bind_tools(tools=tools)
 
         class State(TypedDict):
             messages: Annotated[list, add_messages]
@@ -43,17 +43,15 @@ class NeoAgentLlama(WebSocketAgent):
 
         tool_node = ToolNode(tools)
 
-        system_prompt = "Your name is jarvis."
-
         def executive_node(state: State):
             if not state["messages"]:
                 state["messages"] = [("system", system_prompt)]
             return {"messages": [model.invoke(state["messages"])]}
         
-        graph_builder.add_node("executive_node", executive_node)
-        graph_builder.add_node("tools", tool_node)
-        graph_builder.add_conditional_edges("executive_node", tools_condition)
-        graph_builder.add_edge("tools", "executive_node")
+        graph_builder.add_node("executive_node", executive_node) 
+        #graph_builder.add_node("tools", tool_node)
+        #graph_builder.add_conditional_edges("executive_node", tools_condition)
+        #graph_builder.add_edge("tools", "executive_node")
         graph_builder.set_entry_point("executive_node")
         self.graph = graph_builder.compile(checkpointer=memory)
 
