@@ -1,3 +1,5 @@
+print("graphAgent.py imported")  # Top of file
+
 from graph.graphstate import GraphState
 from tools.tools import get_tools
 from langgraph.graph import StateGraph, START, END
@@ -7,68 +9,96 @@ from graph.node import *
 from time import sleep
 from fastapi.websockets import WebSocket
 from ai_agents.WebSocketAgent import WebSocketAgent 
-from subgraph.calenderSubGraph import CalendarSubGraph
+from .subgraph.calendarSubGraph import CalendarSubGraph
 from langgraph.checkpoint.memory import MemorySaver
 memory = MemorySaver() # Used to save state using checkpointing. See 'config' and astream execution furhter down.
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
 
 class Graph(WebSocketAgent):
     def __init__(self):
-        LANGCHAIN_TRACING_V2: str = "true"
-        print("""
+        log.info("Graph __init__ starting")
+        try:
+            
+            print("""
 ------------------------------
 Instantiated Graph Agent....
 ------------------------------  
             """)
-        self.workflow = StateGraph(GraphState)
-        self.node = Node()
-        self.calendar_subgraph = CalendarSubGraph()
+            self.workflow = StateGraph(GraphState)
+            self.node = Node()
+            
+            # Initialize to None first to avoid the AttributeError
+            self.calendarSubgraph = None
+            try:
+                self.calendarSubgraph = CalendarSubGraph()
+                print("CalendarSubGraph successfully initialized!")
+            except Exception as e:
+                print(f"Warning: Could not initialize CalendarSubGraph: {e}")
 
-        self.workflow.add_node("jarvis_agent", self.node.jarvis_agent)
-        self.workflow.add_node("agent_decider", self.node.tool_agent_decider)
-        self.workflow.add_node("generate", self.node.response_generator)
-        self.workflow.add_node("tools", ToolNode(get_tools()))
-        
-        self.workflow.add_node("perplexity_agent", self.node.perplexity_agent)
-        self.workflow.add_node("calendar_tool", ToolNode(get_tools()))
-        self.workflow.add_node("calendar_node", self.calendar_subgraph)                            
-        self.workflow.add_node("other_agent", self.node.other_agent)
-        
+            # Inform the node if calendar is available
+            self.node.calendar_available = self.calendarSubgraph is not None
+            print(f"Calendar functionality available: {self.node.calendar_available}")
 
-        self.workflow.add_edge(START, "jarvis_agent")
-        self.workflow.add_edge("perplexity_agent", "tools")
-        self.workflow.add_edge("use_calendar_tool", "calendar_tool")
-        self.workflow.add_edge("calendar_tool", "calendar_decider")
-        self.workflow.add_edge("other_agent", "tools")
-        self.workflow.add_edge("tools", "jarvis_agent")
-        #self.workflow.add_edge("jarvis_agent", "generate")
-        self.workflow.add_edge("generate", END)
+            # Basic nodes that are always available
+            self.workflow.add_node("jarvis_agent", self.node.jarvis_agent)
+            self.workflow.add_node("agent_decider", self.node.tool_agent_decider)
+            self.workflow.add_node("generate", self.node.response_generator)
+            self.workflow.add_node("tools", ToolNode(get_tools()))
+            self.workflow.add_node("perplexity_agent", self.node.perplexity_agent)
+            self.workflow.add_node("other_agent", self.node.other_agent)
+            
+            # Only add the calendar_node if the subgraph was successfully initialized
+            if self.calendarSubgraph is not None:
+                self.workflow.add_node("calendar_node", self.calendarSubgraph.calendar_subgraph)
+                # Connect it to the graph
+                self.workflow.add_edge("calendar_node", "jarvis_agent")
+            else:
+                print("Warning: Calendar functionality will not be available")
+                
+            self.workflow.add_edge(START, "jarvis_agent")
+            self.workflow.add_edge("perplexity_agent", "tools")
+            self.workflow.add_edge("other_agent", "tools")
+            self.workflow.add_edge("tools", "jarvis_agent")
+            self.workflow.add_edge("generate", END)
 
-        # Defining conditional edges
-        self.workflow.add_conditional_edges(
-            "jarvis_agent",
-            self.node.router,
-            {
-                "generate": "generate",
-                "use_tool": "agent_decider",
-            }
-        )
-        
-        self.workflow.add_conditional_edges(
-            "agent_decider",
-            self.node.agent_router,
-            {"perplexity": "perplexity_agent", "calendar": "calendar_decider", "other": "other_agent"}
-        )
-
-        self.workflow.add_conditional_edges(
-            "calendar_decider",
-            self.node.calendar_router,
-            {"use_calendar_tool": "use_calendar_tool", "return_to_jarvis": "jarvis_agent"}
-        )
-
-        self.graph = self.workflow.compile(checkpointer=memory) #Compiles the graph using memory checkpointer
-        
-        with open("graph_node_network.png", 'wb') as f:
-            f.write(self.graph.get_graph().draw_mermaid_png())
+            # Defining conditional edges
+            self.workflow.add_conditional_edges(
+                "jarvis_agent",
+                self.node.router,
+                {
+                    "generate": "generate",
+                    "use_tool": "agent_decider",
+                }
+            )
+            
+            # Conditionally include calendar in agent_router options
+            router_options = {"perplexity": "perplexity_agent", "other": "other_agent"}
+            if self.calendarSubgraph is not None:
+                router_options["calendar"] = "calendar_node"
+                print("Added 'calendar' to router options")
+                
+            self.workflow.add_conditional_edges(
+                "agent_decider",
+                self.node.agent_router,
+                router_options
+            )
+            print(f"Final router options: {router_options}")
+            
+            self.graph = self.workflow.compile(checkpointer=memory) #Compiles the graph using memory checkpointer
+            # try:
+            #     with open("graph_node_network.png", 'wb') as f:
+            #         f.write(self.graph.get_graph().draw_mermaid_png())
+            # except Exception as e:
+            #     print(f"Warning: Could not draw or save Mermaid diagram: {e}")
+            log.info("Graph __init__ completed")
+        except Exception as e:
+            print(f"Exception in Graph __init__: {e}")
+            log.info("Exception in Graph __init__")
+            raise
 
     def chatbot(self, state: GraphState):
         """
@@ -79,6 +109,15 @@ Instantiated Graph Agent....
 
     def stream_graph_updates(self, user_input: str):
         config = {"configurable": {"thread_id": "1"}} # TODO: Remove. This is just a placeholder
-        for event in self.graph.stream({"messages": [("user", user_input)]}, config):
+        for event in self.graph.stream({"messages": [HumanMessage(content=user_input)]}, config):
             for value in event.values():
                 print("Assistant:", value["messages"][-1].content)
+
+    # Keep the method for possible future use but don't add it as a node
+    def process_calendar_event(self, state: GraphState):
+        # Process calendar events that were added to state by the subgraph
+        if state.get("data", {}).get("calendar_event"):
+            calendar_event = state["data"]["calendar_event"]
+            # Do something with the calendar event if needed
+            print(f"Calendar event created: {calendar_event}")
+        return state

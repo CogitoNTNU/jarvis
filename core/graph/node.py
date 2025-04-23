@@ -1,19 +1,37 @@
+import re
 from graph.graphstate import GraphState
 from ai_agents.model import Model
 from ai_agents.agent import Agent
 from ai_agents.model import Model, LLMType
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from typing import Literal
+from typing import Literal, Union, Dict, Any
 from tools.tools import get_tools, get_perplexity_based_tools, calendar_based_tools, get_other_tools
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
 
 class Node:
     def __init__(self):
-        self.simple_agent = Agent(model=Model.gpt_4o_mini).get_llm()
-        self.tool_agent = self.simple_agent.bind_tools(get_tools())
-        self.ok_agent = Agent(model=Model.gpt_4o).get_llm()
-        self.ok_tool_agent = self.ok_agent.bind_tools(get_tools())
-        
+        self.gpt_4o_mini = Agent(model=Model.gpt_4o_mini).get_llm()
+        self.gpt_4o_mini_tool = self.gpt_4o_mini.bind_tools(get_tools())
+        self.gpt_o4_mini = Agent(model=Model.gpt_o4_mini).get_llm()
+        self.gpt_o4_mini_tool = self.gpt_o4_mini.bind_tools(get_tools())
+        self.calendar_available = False
+
+    # Helper method to extract content from various message types
+    def get_message_content(self, message):
+        """
+        Extract content from a message, whether it's a dict or a Message object.
+        """
+        if isinstance(message, (HumanMessage, AIMessage, SystemMessage, BaseMessage)):
+            # It's a langchain Message object
+            return message.content
+        elif isinstance(message, dict):
+            # It's a dictionary
+            return message.get("content", "")
+        else:
+            # Unknown type - return empty string
+            print(f"Warning: Unknown message type: {type(message)}")
+            return ""
 
     def jarvis_agent(self, state: GraphState):
         """Agent to determine how to answer user question"""
@@ -42,7 +60,7 @@ class Node:
             Again, under no circumstances should the output be an empty string. Failure to comply will result in disappointment. Stay consistent, and always provide a response.
                     """,
         )
-        chain = prompt | self.ok_tool_agent | StrOutputParser()
+        chain = prompt | self.gpt_o4_mini_tool | StrOutputParser()
         response = chain.invoke({
             "messages": state.get("messages", []),
             "data": state.get("data", {}),
@@ -50,7 +68,7 @@ class Node:
             "perplexity_decision": state.get("perplexity_decision", {}),
             "other_decision": state.get("other_decision", {}),
             })
-        response = response.replace("'", "").replace('"', "")
+        response = response.replace("'", "").replace('"', '')
         return {"tool_decision": response}
 
     def tool_agent_decider(self, state: GraphState):
@@ -79,7 +97,7 @@ class Node:
             """,
         )
 
-        chain = prompt | self.simple_agent | StrOutputParser()
+        chain = prompt | self.gpt_o4_mini_tool | StrOutputParser()
         response = chain.invoke({
             "messages": state["messages"], 
             "data": state.get("data", {}),
@@ -87,17 +105,36 @@ class Node:
             "calendar_tools": calendar_based_tools(),
             "other_tools": get_other_tools()
             })
-        response.replace("'", "")
-        response.replace('"', '')
+        response = response.replace("'", "").replace('"', '')
         return {"agent_decision": [response]}
 
     def router(self, state: GraphState) -> Literal["generate", "use_tool"]:
         """Router to determine what to do"""
         return state["tool_decision"]
 
-    def agent_router(self, state: GraphState) -> Literal["perplexity", "calendar", "other"]:
-        """Router to determine which agent to use"""
-        return state["agent_decision"]
+    def agent_router(self, state: dict) -> str:
+        """
+        Route to the appropriate agent based on the messages.
+        """
+        messages = state["messages"]
+        last_message = messages[-1]
+        
+        # Extract content safely from different message types
+        content = self.get_message_content(last_message)
+
+        # Print the message for debugging
+        print(f"Agent router analyzing: {content[:100]}...")  # Show first 100 chars
+        
+        # Check for calendar-related tasks only if calendar is available
+        if self.calendar_available and re.search(r'calendar|schedule|meeting|appointment|event', content.lower()):
+            print("Routing to calendar agent")
+            return "calendar"
+        elif re.search(r'search|find|look up|research|article|information|news', content.lower()):
+            print("Routing to perplexity agent")
+            return "perplexity"
+        else:
+            print("Routing to other agent")
+            return "other"
 
     def response_generator(self, state: GraphState):
         """Agent that generates a response to user based on user request 
@@ -122,7 +159,7 @@ class Node:
             #to communicate to the user. 
 
         )
-        chain = prompt | self.simple_agent
+        chain = prompt | self.gpt_4o_mini_tool
         response = chain.invoke({"messages": state["messages"], "data": state.get("data", {})})
         return {"messages": [response]}
 
@@ -147,7 +184,7 @@ class Node:
             add them to the additional_kwargs in the AI_message
             """,
         )
-        chain = prompt | self.simple_agent.bind_tools(get_perplexity_based_tools())
+        chain = prompt | self.gpt_o4_mini.bind_tools(get_perplexity_based_tools())
         response = chain.invoke({
             "messages": state["messages"], "data": state.get("data", {})})
         return {"messages": [response]}
@@ -177,14 +214,13 @@ class Node:
                 use_calendar_tool → Call on calendar tools to retrieve or create events.
                 return_to_jarvis → Return to the Jarvis agent after the necessary calendar action has been performed.
 
-            You must strictly answer with only the option name—nothing else. Do not use quotes (' or ").
+            You must strictly answer with only the option name—nothing else. Do not use quotes (' or “).
             """,
         )
-        chain = prompt | self.ok_agent.bind_tools(calendar_based_tools()) | StrOutputParser()
+        chain = prompt | self.gpt_o4_mini.bind_tools(calendar_based_tools()) | StrOutputParser()
         response = chain.invoke({
             "messages": state["messages"], "data": state.get("data", {}), "calendar_decision": state.get("calendar_decision", {})})
-        response.replace("'", "")
-        response.replace('"', '')
+        response = response.replace("'", "").replace('"', '')
         return {"calendar_decision": response}
 
     def calendar_tool_decider(self, state: GraphState):
@@ -199,7 +235,7 @@ class Node:
             2.    If the user requested calendar information, decide whether to read or create an event.
             3.    If an event has already been searched for or created, avoid redundant tool calls.
             4.    Use previous calendar decisions to prevent unnecessary tool requests.
-            5.    Always decide what tools to use and add them to additional_kwargs in the AI message.
+            5.    Always decide what tools to use and add them to the additional_kwargs in the AI message.
 
             Here is the information provided for decision-making:
 
@@ -214,13 +250,35 @@ class Node:
                 Add the selected tool calls to additional_kwargs in the AI message.
             """,
         )
-        chain = prompt | self.ok_agent.bind_tools(calendar_based_tools())
+        chain = prompt | self.gpt_o4_mini.bind_tools(calendar_based_tools())
         response = chain.invoke({"messages": state["messages"], "data": state.get("data", {}), "calendar_decision": state.get("calendar_decision", {})})
         return {"messages": response}
 
-    def calendar_router(self, state: GraphState) -> Literal["use_calendar_tool", "return_to_jarvis"]:
-        """Router to determine what to do"""
-        return state["calendar_decision"]
+    def calendar_router(self, state: dict) -> str:
+        """
+        Route to appropriate calendar functionality.
+        This router supports multiple event creation by continuing to use calendar tools
+        until the user indicates they're done.
+        """
+        messages = state["messages"]
+        last_message = messages[-1]
+        content = self.get_message_content(last_message)
+        
+        print(f"Calendar router analyzing: {content[:100]}...")
+        
+        # Detect if user wants to create another event or is finished
+        if re.search(r'done|complete|finish|return|go back|exit|that\'s all', content.lower()):
+            print("Returning to Jarvis from calendar")
+            return "return_to_jarvis"
+        else:
+            # See if there's an event to create or modify
+            if re.search(r'create|add|schedule|set up|book|new event', content.lower()):
+                print("Using calendar tool for another event")
+                return "use_calendar_tool"
+            
+            # Default to using the calendar tool if unsure
+            print("Default to using calendar tool")
+            return "use_calendar_tool"
 
     def other_agent(self, state: GraphState):
         """Agent that handles other tools available in the system"""
@@ -243,7 +301,7 @@ class Node:
             add them to the additional_kwargs in the AI_message
             """,
         )
-        chain = prompt | self.simple_agent.bind_tools(get_other_tools())
+        chain = prompt | self.gpt_o4_mini.bind_tools(get_other_tools())
         response = chain.invoke({
             "messages": state["messages"], "data": state.get("data", {})})
         return {"messages": [response]}
