@@ -177,6 +177,13 @@ async def recording_completed(data: dict):
 
     return {"status": "success"}
 
+@app.get("/ws/health/{session_id}")
+async def websocket_health(session_id: str):
+    """Check if a WebSocket connection is active for a given session ID"""
+    if session_id in active_websockets:
+        return {"status": "connected", "session_id": session_id}
+    return {"status": "disconnected", "session_id": session_id}
+
 #
 # WebSocket Endpoints
 #
