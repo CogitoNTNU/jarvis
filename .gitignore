@@ -144,7 +144,7 @@ dmypy.json
 
 #unnecessary to commit each time
 /core/graph_node_network.png
-
+calendar_subgraph.png
 #wav files
 *.wav
 
