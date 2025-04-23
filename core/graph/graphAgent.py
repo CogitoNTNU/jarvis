@@ -54,8 +54,11 @@ Instantiated Graph Agent....
             # Only add the calendar_node if the subgraph was successfully initialized
             if self.calendarSubgraph is not None:
                 self.workflow.add_node("calendar_node", self.calendarSubgraph.calendar_subgraph)
-                # Connect it to the graph
-                self.workflow.add_edge("calendar_node", "jarvis_agent")
+                # Add a processor node for calendar events
+                self.workflow.add_node("calendar_processor", self.process_calendar_events)
+                # Connect through the processor
+                self.workflow.add_edge("calendar_node", "calendar_processor")
+                self.workflow.add_edge("calendar_processor", "jarvis_agent")
             else:
                 print("Warning: Calendar functionality will not be available")
                 
@@ -76,24 +79,26 @@ Instantiated Graph Agent....
             )
             
             # Conditionally include calendar in agent_router options
-            router_options = {"perplexity": "perplexity_agent", "other": "other_agent"}
-            if self.calendarSubgraph is not None:
-                router_options["calendar"] = "calendar_node"
-                print("Added 'calendar' to router options")
-                
+           
             self.workflow.add_conditional_edges(
                 "agent_decider",
                 self.node.agent_router,
-                router_options
+                {
+                "calendar" : "calendar_node",
+                "perplexity": "perplexity_agent", 
+                "other": "other_agent", # Default case for empty string
+                
+            }
+
             )
-            print(f"Final router options: {router_options}")
+        
             
             self.graph = self.workflow.compile(checkpointer=memory) #Compiles the graph using memory checkpointer
-            # try:
-            #     with open("graph_node_network.png", 'wb') as f:
-            #         f.write(self.graph.get_graph().draw_mermaid_png())
-            # except Exception as e:
-            #     print(f"Warning: Could not draw or save Mermaid diagram: {e}")
+            try:
+                with open("graph_node_network.png", 'wb') as f:
+                    f.write(self.graph.get_graph().draw_mermaid_png())
+            except Exception as e:
+                print(f"Warning: Could not draw or save Mermaid diagram: {e}")
             log.info("Graph __init__ completed")
         except Exception as e:
             print(f"Exception in Graph __init__: {e}")
@@ -120,4 +125,53 @@ Instantiated Graph Agent....
             calendar_event = state["data"]["calendar_event"]
             # Do something with the calendar event if needed
             print(f"Calendar event created: {calendar_event}")
+        return state
+
+    def process_calendar_events(self, state: GraphState):
+        """
+        Transfer calendar events from the most recent calendar subgraph execution
+        back to the main graph state.
+        """
+        # Get the thread ID or other identifier for the current conversation
+        thread_id = state.get("config", {}).get("thread_id", "default")
+        
+        # Retrieve the latest calendar subgraph state if available
+        if self.calendarSubgraph:
+            try:
+                # Get the last checkpoint from the calendar subgraph memory
+                calendar_state = self.calendarSubgraph.calendar_subgraph.get_state()
+                
+                # If calendar state has events, transfer them
+                if calendar_state and calendar_state.get("calendar_events"):
+                    # Initialize calendar_events in main state if needed
+                    if "calendar_events" not in state:
+                        state["calendar_events"] = {}
+                    
+                    # Transfer events from calendar subgraph to main graph
+                    for event_id, event_info in calendar_state["calendar_events"].items():
+                        state["calendar_events"][event_id] = event_info
+                    
+                    # Also add event data to the main data store for agents to access
+                    if "data" not in state:
+                        state["data"] = {}
+                    if "calendar" not in state["data"]:
+                        state["data"]["calendar"] = {}
+                    
+                    state["data"]["calendar"]["events"] = state["calendar_events"]
+                    
+                    # Add a system message about the transferred events
+                    if state["calendar_events"]:
+                        num_events = len(state["calendar_events"])
+                        state["messages"].append({
+                            "role": "system",
+                            "content": f"{num_events} calendar event(s) integrated into the main system."
+                        })
+            except Exception as e:
+                # Log error but continue execution
+                print(f"Error transferring calendar events: {e}")
+                state["messages"].append({
+                    "role": "system",
+                    "content": "Note: There was an issue transferring calendar events."
+                })
+        
         return state
