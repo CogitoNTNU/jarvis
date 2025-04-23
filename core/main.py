@@ -20,8 +20,14 @@ from config import PORT
 from modules.user_data_setup import check_folders
 from modules.chat import read_chat
 
+
+
 log = logging.getLogger("uvicorn")
 log.setLevel(logging.ERROR)
+logger = logging.getLogger("Initaton")
+logger.setLevel(logging.INFO)
+logger.info("Starting application loading...") # Use the logger
+
 
 '''
     FOR API DOCUMENTATION, VISIT: http://localhost:3000/docs
@@ -36,7 +42,7 @@ log.setLevel(logging.ERROR)
 #
 # Setup
 #
-print("Booting....")
+logger.info("Booting....")
 check_folders()  # Check directories are made for user data
 
 #
@@ -56,12 +62,19 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Agent instantiation
-#jarvis = NeoThinkAgent()
-#jarvis = NeoAgentLlama()
-jarvis = Graph()
-print(str(jarvis))
+logger.info("Initiating Jarvis...")
+try:
+    jarvis = Graph()
+    print(str(jarvis))
+    logger.info("Jarvis Created")
+except Exception as e:
+    logger.info(f"Error initializing Jarvis: {e}")
+    # Fallback to simpler agent
+    print("Falling back to alternate agent")
+    jarvis = NeoThinkAgent()
+    print(str(jarvis))
 
-welcome_text = '''
+welcome_text = r'''
      ____   _____  _____________   ____ ___  _________ 
     |    | /  _  \ \______  \   \ /   /|   |/   _____/ 
     |    |/  /_\  \|       _/\   Y   / |   |\_____  \  
