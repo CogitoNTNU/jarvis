@@ -151,7 +151,7 @@ volumes:
   chroma_data:  # Persistent storage for ChromaDB
   mongo_data:   # Persistent storage for MongoDB
   redis_data:   # Persistent storage for Redis
-  phoenix_data: # Persistent storage for Pheonix
+  phoenix_data: # Persistent storage for Phoenix
 
 networks:
   backend:
