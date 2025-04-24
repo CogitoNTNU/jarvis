@@ -76,3 +76,8 @@ def painter(prompt: str, neg_prompt: str, max_retries: int = 3):
             time.sleep(2)  # Wait before retrying
         except Exception as e:
             return f"Error: Unexpected error occurred - {str(e)}"
+
+
+
+def get_tool() -> StructuredTool:
+    return painter
