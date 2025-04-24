@@ -63,6 +63,13 @@ app.add_middleware(
 # Mount static folder for UI
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# ANSI escape codes for colors
+RESET = "\033[0m"
+CYAN = "\033[96m"
+GREEN = "\033[92m"
+RED = "\033[91m"
+YELLOW = "\033[93m"
+
 # Agent instantiation
 logger.info("Initiating Jarvis...")
 try:
@@ -72,9 +79,9 @@ try:
 except Exception as e:
     logger.info(f"Error initializing Jarvis: {e}")
     # Fallback to simpler agent
-    print("Falling back to alternate agent")
+    logger.info(YELLOW + "Falling back to alternate agent")
     jarvis = NeoThinkAgent()
-    logger.info(str(jarvis))
+    logger.info(YELLOW + str(jarvis))
 
 welcome_text = r'''
      ____   _____  _____________   ____ ___  _________ 
