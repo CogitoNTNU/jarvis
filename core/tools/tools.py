@@ -13,6 +13,7 @@ import tools.add_time as add_time
 import tools.rag_search as rag_search
 import tools.vision as vision
 import tools.painter as painter
+import tools.krypto_time as krypto_tool
 
 
 def get_tools() -> list[StructuredTool]:
@@ -30,6 +31,8 @@ def get_tools() -> list[StructuredTool]:
     tools.append(rag_search.get_tool())
     tools.append(vision.get_tool())
     tools.append(painter.get_tool())
+    tools.append(krypto_tool.get_tool())
+
     return tools
 
 def get_perplexity_based_tools() -> list[StructuredTool]:
@@ -46,6 +49,7 @@ def calendar_based_tools() -> list[StructuredTool]:
     tools.append(read_calendar_event.get_tool())
     tools.append(current_time_iso_format.get_tool())
     tools.append(create_time_to_iso_format.get_tool())
+    tools.append(add_time.get_tool())
 
     return tools
 
@@ -58,5 +62,7 @@ def get_other_tools() -> list[StructuredTool]:
     tools.append(rag_search.get_tool())
     tools.append(vision.get_tool())
     tools.append(painter.get_tool())
+    tools.append(krypto_tool.get_tool())
+
 
     return tools

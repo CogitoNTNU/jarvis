@@ -1,25 +1,12 @@
 import os
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
-from google.oauth2.service_account import Credentials
-from googleapiclient.discovery import build
 from langchain_core.tools.structured import StructuredTool
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
+from config import get_calendar_service, GOOGLE_CALENDAR_ID
 
 load_dotenv()
-
-SCOPES = [
-    "https://www.googleapis.com/auth/calendar",
-    "https://www.googleapis.com/auth/calendar.events",
-]
-def get_calendar_service():
-    
-    creds = Credentials.from_service_account_file(
-        os.getenv("GOOGLE_AUTH_KEY"), scopes=SCOPES
-    )
-    service = build("calendar", "v3", credentials=creds)
-    return service
 
 class read_calendar_events_parameters(BaseModel):   
     time_min: str = Field(
@@ -51,7 +38,7 @@ def read_calendar_events(time_min: str, time_max: str, maxResults: int = 10) -> 
     time_max = dt_utc_max.isoformat()
 
     events_result = service.events().list(
-        calendarId=os.getenv("GOOGLE_CALENDAR_ID"),
+        calendarId=GOOGLE_CALENDAR_ID,
         timeMin=time_min,
         timeMax=time_max,
         maxResults=maxResults,

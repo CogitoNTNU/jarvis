@@ -22,8 +22,14 @@ from ai_agents.neo_agent_llama import NeoAgentLlama
 # Example of how to get variables from .env via docker-compose and .env
 #from config import PORT
 
+
+
 log = logging.getLogger("uvicorn")
 log.setLevel(logging.DEBUG)
+logger = logging.getLogger("Initaton")
+logger.setLevel(logging.INFO)
+logger.info("Starting application loading...") # Use the logger
+
 
 '''
     FOR API DOCUMENTATION, VISIT: http://localhost:3000/docs
@@ -38,7 +44,7 @@ log.setLevel(logging.DEBUG)
 #
 # Setup
 #
-print("Booting....")
+logger.info("Booting....")
 check_folders()  # Check directories are made for user data
 
 #
@@ -58,10 +64,19 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Agent instantiation
-jarvis = NeoThinkAgent()
-#jarvis = NeoAgentLlama()
+logger.info("Initiating Jarvis...")
+try:
+    jarvis = Graph()
+    print(str(jarvis))
+    logger.info("Jarvis Created")
+except Exception as e:
+    logger.info(f"Error initializing Jarvis: {e}")
+    # Fallback to simpler agent
+    print("Falling back to alternate agent")
+    jarvis = NeoThinkAgent()
+    print(str(jarvis))
 
-welcome_text = '''
+welcome_text = r'''
      ____   _____  _____________   ____ ___  _________ 
     |    | /  _  \ \______  \   \ /   /|   |/   _____/ 
     |    |/  /_\  \|       _/\   Y   / |   |\_____  \  
@@ -163,6 +178,13 @@ async def recording_completed(data: dict):
     asyncio.create_task(jarvis.run(text, session_id))  # Run Jarvis response asynchronously. passing session_id
 
     return {"status": "success"}
+
+@app.get("/ws/health/{session_id}")
+async def websocket_health(session_id: str):
+    """Check if a WebSocket connection is active for a given session ID"""
+    if session_id in active_websockets:
+        return {"status": "connected", "session_id": session_id}
+    return {"status": "disconnected", "session_id": session_id}
 
 #
 # WebSocket Endpoints

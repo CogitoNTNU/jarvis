@@ -10,4 +10,11 @@ class GraphState(TypedDict):
     data: dict
     tool_decision: Literal["use_tool", "generate"]
     agent_decision: Literal["perplexity", "calendar", "other"]
+    calendar_events: dict  # Store events passed from calendar subgraph
+
+
+class CalendarGraphState(TypedDict):
+    messages: Annotated[list, add_messages]
     calendar_decision: Literal["use_calendar_tool", "return_to_jarvis"]
+    calendar_data: dict
+    calendar_events: dict  # Storage for created/read events to prevent duplicates
