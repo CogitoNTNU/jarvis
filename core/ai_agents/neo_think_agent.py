@@ -48,40 +48,31 @@ class NeoThinkAgent(WebSocketAgent):
         ) # Using ChatGPT hardcoded (TODO: Make this dynamic)
         # Defining the checkpoint memory saver.
         memory = MemorySaver()
-        # Tools list
+
+        # Tools
         tools = [add, youtube_transcript, vision, painter]
-
-        if os.getenv("TAVILY_API_KEY"):
-            # Defining the tavily web-search tool
-            tavily = TavilySearchResults(max_results=2)
-            tools.append(tavily)
-        else:
-            print("TAVILY_API_KEY does not exist.")
-
         tool_node = ToolNode(tools)
         llm_with_tools = model.bind_tools(tools)
 
+        # State for the graph
         class State(TypedDict):
             messages: Annotated[list, add_messages]
-
-        graph_builder = StateGraph(State)
 
         #Executive node that thinks about the problem or query at hand
         def executive_node(state: State):
             if not state["messages"]:
                 state["messages"] = [("system", system_prompt)]
-            return {"messages": [llm_with_tools.invoke(state["messages"])]}
-        
-        graph_builder.add_node("executive_node", executive_node) 
+            llm_answer = llm_with_tools.invoke(state["messages"])
+            return {"messages": [llm_answer]}
+
+        graph_builder = StateGraph(State)
+
+        graph_builder.add_node("executive_node", executive_node) # Entry Node 
         graph_builder.add_node("tools", tool_node) # The prebuilt tool node added as "tools"
 
-        graph_builder.add_conditional_edges(
-            "executive_node",
-            tools_condition,
-        )
+        graph_builder.add_conditional_edges("executive_node", tools_condition) # tools_condition checks if the last call was a tool call and routes to the executive_node
+        graph_builder.add_edge("tools", "executive_node") # Transitions from tools to executive_node. An edge that transitions to the start_node will always go to end after.
 
-        # add conditionals, entry point and compile the graph. Exit is defined in the tools node if required.
-        graph_builder.add_edge("tools", "executive_node")
         graph_builder.set_entry_point("executive_node")
         self.graph = graph_builder.compile(checkpointer=memory)
 
@@ -91,7 +82,7 @@ class NeoThinkAgent(WebSocketAgent):
 
     # Streams graph updates using websockets.
     def stream_graph_updates(self, user_input: str):
-        config = {"configurable": {"thread_id": "1"}} # TODO: Remove. This is just a placeholder
+        config = {"configurable": {"thread_id": "1"}} # TODO: Thread ID should be dynamic and not hardcoded. Thread_id should be a unique id for each conversation.
         for event in self.graph.stream({"messages": [("user", user_input)]}, config):
             for value in event.values():
                 print("Assistant:", value["messages"][-1].content)
