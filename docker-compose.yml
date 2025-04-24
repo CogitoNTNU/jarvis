@@ -119,6 +119,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL}
     depends_on:
       - redis
+
   phoenix:
     image: arizephoenix/phoenix:version-8.3.0 # Must be greater than 4.0 version to work
     depends_on:
@@ -130,6 +131,7 @@ services:
     environment:
       - PHOENIX_SQL_DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
       - PHOENIX_WORKING_DIR=/phoenix
+      - LOG_LEVEL=${LOG_LEVEL}
     networks:
       - backend
 
