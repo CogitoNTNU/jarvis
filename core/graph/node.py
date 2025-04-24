@@ -211,7 +211,7 @@ class Node:
             add them to the additional_kwargs in the AI_message
             """,
         )
-        chain = prompt | self.gpt_o4_mini.bind_tools(get_perplexity_based_tools())
+        chain = prompt | self.gpt_4o_mini.bind_tools(get_perplexity_based_tools())
         response = chain.invoke({
             "messages": state["messages"], "data": state.get("data", {})})
         return {"messages": [response]}

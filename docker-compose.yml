@@ -11,9 +11,7 @@ services:
     networks:
       - backend
     ports:
-      - "7860:7860"
-    expose:
-      - "7860"  # Ensure correct binding
+      - "7860:7860" # Expose port 7860 for the web UI
     volumes:
       - ./stable-diffusion-webui-forge/models/Stable-diffusion:/stable-diffusion-webui-forge/models/Stable-diffusion
     deploy:
