@@ -11,9 +11,7 @@ services:
     networks:
       - backend
     ports:
-      - "7860:7860"
-    expose:
-      - "7860"  # Ensure correct binding
+      - "7860:7860" # Expose port 7860 for the web UI
     volumes:
       - ./stable-diffusion-webui-forge/models/Stable-diffusion:/stable-diffusion-webui-forge/models/Stable-diffusion
     deploy:
@@ -61,10 +59,6 @@ services:
     environment:
       FLASK_ENV: ${FLASK_ENV}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY}
-      LANGCHAIN_TRACING_V2: ${LANGCHAIN_TRACING_V2}
-      LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
-      LANGCHAIN_PROJECT: ${LANGCHAIN_PROJECT}
       PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY}
       GOOGLE_AUTH_KEY: ${GOOGLE_AUTH_KEY}
       GOOGLE_CALENDAR_ID: ${GOOGLE_CALENDAR_ID}
@@ -120,15 +114,44 @@ services:
       - "5000:5000"
     environment:
       - REDIS_URL=redis://redis:6379
-      - NARKEE_API_KEY=${NARKEE_API_KEY}
       - LOG_LEVEL=${LOG_LEVEL}
     depends_on:
       - redis
 
+  phoenix:
+    image: arizephoenix/phoenix:version-8.3.0 # Must be greater than 4.0 version to work
+    depends_on:
+      - db
+    ports:
+      - 6006:6006  # PHOENIX_PORT
+      - 4317:4317  # PHOENIX_GRPC_PORT
+      - 9090:9090  # [Optional] PROMETHEUS PORT IF ENABLED
+    environment:
+      - PHOENIX_SQL_DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+      - PHOENIX_WORKING_DIR=/phoenix
+      - LOG_LEVEL=${LOG_LEVEL}
+    networks:
+      - backend
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - 5432
+    volumes:
+    - phoenix_data:/phoenix/data
+    networks:
+      - backend
+      
 volumes:
   chroma_data:  # Persistent storage for ChromaDB
   mongo_data:   # Persistent storage for MongoDB
   redis_data:   # Persistent storage for Redis
+  phoenix_data: # Persistent storage for Phoenix
 
 networks:
   backend:

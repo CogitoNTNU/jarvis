@@ -17,17 +17,24 @@ from summarize_chat import summarize_chat
 from rag import embed_and_store
 from modules.user_data_setup import check_folders
 from modules.chat import read_chat
+from ai_agents.neo_agent_llama import NeoAgentLlama
 
 # Example of how to get variables from .env via docker-compose and .env
 #from config import PORT
 
+
+
 log = logging.getLogger("uvicorn")
-log.setLevel(logging.ERROR)
+log.setLevel(logging.DEBUG)
+logger = logging.getLogger("Initaton")
+logger.setLevel(logging.INFO)
+logger.info("Starting application loading...") # Use the logger
+
 
 '''
     FOR API DOCUMENTATION, VISIT: http://localhost:3000/docs
     
-    Websockets are not automatically documented.
+    Websocket endpoints are not automatically documented.
 
     Running using uvicorn outside of docker: 
     1. Enter a venv
@@ -37,7 +44,7 @@ log.setLevel(logging.ERROR)
 #
 # Setup
 #
-print("Booting....")
+logger.info("Booting....")
 check_folders()  # Check directories are made for user data
 
 #
@@ -56,11 +63,27 @@ app.add_middleware(
 # Mount static folder for UI
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Agent instantiation
-jarvis = NeoThinkAgent()
-#jarvis = NeoAgentLlama()
+# ANSI escape codes for colors
+RESET = "\033[0m"
+CYAN = "\033[96m"
+GREEN = "\033[92m"
+RED = "\033[91m"
+YELLOW = "\033[93m"
 
-welcome_text = '''
+# Agent instantiation
+logger.info("Initiating Jarvis...")
+try:
+    jarvis = Graph()
+    logger.info(str(jarvis))
+    logger.info("Jarvis Created")
+except Exception as e:
+    logger.info(f"Error initializing Jarvis: {e}")
+    # Fallback to simpler agent
+    logger.info(YELLOW + "Falling back to alternate agent")
+    jarvis = NeoThinkAgent()
+    logger.info(YELLOW + str(jarvis))
+
+welcome_text = r'''
      ____   _____  _____________   ____ ___  _________ 
     |    | /  _  \ \______  \   \ /   /|   |/   _____/ 
     |    |/  /_\  \|       _/\   Y   / |   |\_____  \  
@@ -122,7 +145,7 @@ async def hello_world():
 
 @app.get("/ping_server")
 async def ping_server():
-    return "Hello from Jarvis API!"
+    return "Hello from API!"
 
 # Pydantic models for request/response bodies
 class ChatSummaryRequest(BaseModel):
@@ -162,6 +185,13 @@ async def recording_completed(data: dict):
     asyncio.create_task(jarvis.run(text, session_id))  # Run Jarvis response asynchronously. passing session_id
 
     return {"status": "success"}
+
+@app.get("/ws/health/{session_id}")
+async def websocket_health(session_id: str):
+    """Check if a WebSocket connection is active for a given session ID"""
+    if session_id in active_websockets:
+        return {"status": "connected", "session_id": session_id}
+    return {"status": "disconnected", "session_id": session_id}
 
 #
 # WebSocket Endpoints
@@ -217,31 +247,30 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=3000)
 
+    if collection is None:  # Prevent MongoDB crash
+        print("MongoDB is not available. Skipping DB insert.")
+    # else:
+    #     chat_entry = {
+    #         "session_id": session_id,
+    #         "conversation_id": message.get("conversation_id", ""),
+    #         "human_message": message.get("prompt", ""),
+    #         "ai_message": "",
+    #     }
+    #     inserted_id = collection.insert_one(chat_entry).inserted_id
+    #     print(f"Chat entry inserted with ID: {inserted_id}")
 
-                    # if collection is None:  # Prevent MongoDB crash
-                    #     print("MongoDB is not available. Skipping DB insert.")
-                    # else:
-                    #     chat_entry = {
-                    #         "session_id": session_id,
-                    #         "conversation_id": message.get("conversation_id", ""),
-                    #         "human_message": message.get("prompt", ""),
-                    #         "ai_message": "",
-                    #     }
-                    #     inserted_id = collection.insert_one(chat_entry).inserted_id
-                    #     print(f"Chat entry inserted with ID: {inserted_id}")
+    #await ws_manager.send_message(session_id, response) # Send response to frontend
+    #print(f"Jarvis response sent to session {session_id}")
+    # local chat history storage/cache
+    # TODO: Make this purely mongoDB
+    # if session_id in active_chats:
+    #     active_chats[session_id]["chat_history"].append(chat_entry)
 
-                    #await ws_manager.send_message(session_id, response) # Send response to frontend
-                    #print(f"Jarvis response sent to session {session_id}")
-                    # local chat history storage/cache
-                    # TODO: Make this purely mongoDB
-                    # if session_id in active_chats:
-                    #     active_chats[session_id]["chat_history"].append(chat_entry)
-
-                    # try:
-                    #     collection.update_one(
-                    #         {"_id": inserted_id},
-                    #         {"$set": {"ai_message": response}}
-                    #     )
-                    #     print(f"Updated MongoDB entry {inserted_id} with AI response")
-                    # except Exception as e:
-                    #     print(f"Jarvis encountered an error updating MongoDB entry: {e}")
+    # try:
+    #     collection.update_one(
+    #         {"_id": inserted_id},
+    #         {"$set": {"ai_message": response}}
+    #     )
+    #     print(f"Updated MongoDB entry {inserted_id} with AI response")
+    # except Exception as e:
+    #     print(f"Jarvis encountered an error updating MongoDB entry: {e}")
