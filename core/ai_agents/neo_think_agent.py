@@ -42,11 +42,11 @@ class NeoThinkAgent(WebSocketAgent):
         """
         # Defining the model TODO: Make this configurable with Llama, Grok, Gemini, Claude
         model = ChatOpenAI(
-            model = Model.gpt_4o_mini[0],
+            model = Model.gpt_4_1_mini[0],
             temperature=0,
             max_tokens=16384, # Max tokens for mini. For gpt4o it's 128k
         ) # Using ChatGPT hardcoded (TODO: Make this dynamic)
-        # Defining the checkpoint memory saver.
+
         memory = MemorySaver()
 
         # Tools
@@ -74,7 +74,7 @@ class NeoThinkAgent(WebSocketAgent):
         graph_builder.add_edge("tools", "executive_node") # Transitions from tools to executive_node. An edge that transitions to the start_node will always go to end after.
 
         graph_builder.set_entry_point("executive_node")
-        self.graph = graph_builder.compile(checkpointer=memory)
+        self.graph = graph_builder.compile() # checkpointer=memory
 
         # Draws the graph visually
         # with open("neoagent.png", 'wb') as f:

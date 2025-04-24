@@ -34,7 +34,7 @@ logger.info("Starting application loading...") # Use the logger
 '''
     FOR API DOCUMENTATION, VISIT: http://localhost:3000/docs
     
-    Websockets are not automatically documented.
+    Websocket endpoints are not automatically documented.
 
     Running using uvicorn outside of docker: 
     1. Enter a venv
@@ -63,18 +63,25 @@ app.add_middleware(
 # Mount static folder for UI
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# ANSI escape codes for colors
+RESET = "\033[0m"
+CYAN = "\033[96m"
+GREEN = "\033[92m"
+RED = "\033[91m"
+YELLOW = "\033[93m"
+
 # Agent instantiation
 logger.info("Initiating Jarvis...")
 try:
     jarvis = Graph()
-    print(str(jarvis))
+    logger.info(str(jarvis))
     logger.info("Jarvis Created")
 except Exception as e:
     logger.info(f"Error initializing Jarvis: {e}")
     # Fallback to simpler agent
-    print("Falling back to alternate agent")
+    logger.info(YELLOW + "Falling back to alternate agent")
     jarvis = NeoThinkAgent()
-    print(str(jarvis))
+    logger.info(YELLOW + str(jarvis))
 
 welcome_text = r'''
      ____   _____  _____________   ____ ___  _________ 
@@ -138,7 +145,7 @@ async def hello_world():
 
 @app.get("/ping_server")
 async def ping_server():
-    return "Hello from Jarvis API!"
+    return "Hello from API!"
 
 # Pydantic models for request/response bodies
 class ChatSummaryRequest(BaseModel):
