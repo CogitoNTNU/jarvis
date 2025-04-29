@@ -43,7 +43,6 @@ async function commenceRecording(conversation_id) {
     mediaRecorder.start();
     isRecording = true;
 
-
     mediaRecorder.ondataavailable = (event) => {
         audioChunks.push(event.data);      
     };
@@ -68,6 +67,15 @@ async function commenceRecording(conversation_id) {
             const data = await response.json();
             addUserMessage(marked.parse(data.message))
             console.log('Audio uploaded successfully');
+            // Send the message via the open socket
+            try{
+                const payload = {prompt: data.message, conversation_id: String(state.activeConversationId)}
+                let res = socket.send(JSON.stringify({ event: "user_prompt", data: payload }));
+                // Stream to the current active AI chat box
+            }catch(e){
+                console.log("Something went wrong", e)
+                chat_history.scrollTop = chat_history.scrollHeight;
+            }
         } catch (error) {
             console.error('Error uploading audio:', error);
         }
