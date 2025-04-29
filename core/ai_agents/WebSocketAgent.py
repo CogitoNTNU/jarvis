@@ -72,6 +72,7 @@ class WebSocketAgent:
                 result = await request.post(url, json={"text": ai_message.content})
                 print(result)
             except Exception as e:
+                print("Error in TTS call:")
                 print(e)
 
             return ai_message.content

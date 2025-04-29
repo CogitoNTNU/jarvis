@@ -7,6 +7,7 @@ import tts
 import os
 from typing import List, Tuple
 import logging
+from flask_cors import CORS
 
 # Global counter for sentence IDs
 sentence_counter: int = 0
@@ -91,6 +92,7 @@ def streamer_thread(input_queue: Queue) -> None:
 
 
 app: Flask = Flask(__name__)
+CORS(app)
 app.config['SECRET_KEY'] = 'lklsa01lkJASD9012o3khj123l'
 socketio: SocketIO = SocketIO(
     app,
@@ -168,9 +170,7 @@ def handle_connect():
 def health_check():
     return jsonify({'status': 'healthy'}), 200
 
-
 if __name__ == '__main__':
-
 
     import logging
     logging.getLogger('werkzeug').setLevel(logging.INFO)

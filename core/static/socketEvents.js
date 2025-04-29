@@ -92,6 +92,15 @@ async function handleAiMessage(message) {
       await addStreamedMessage(uuid, "");
       ai_message = document.getElementById(uuid);
   }
+  console.log(message);
+  console.log("ACTIVATING TTS");
+  await fetch('http://localhost:5000/generate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ text: message })
+  })
   message = marked.parse(message)
   await addStreamedMessage(uuid, message);
 }
