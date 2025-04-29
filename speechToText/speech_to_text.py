@@ -19,7 +19,7 @@ def speech_to_text(audio_file = None, filepath = None):
     transcription = client.audio.transcriptions.create(
     model="whisper-1", 
     file=audio_file, 
-    language="no", 
+    language="en", 
     )
     transcription.text.replace(prompt, "")
     return transcription.text
