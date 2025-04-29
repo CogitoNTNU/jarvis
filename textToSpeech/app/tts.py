@@ -109,7 +109,7 @@ class TTS(ABC):
             logger.info(f"Detected language: {self.language}")
 
             # TODO fix this
-            if self.language == "nb":
+            if self.language == "no":
                 self.voice = "Aksel"
             else:
                 self.voice = "Harry"
