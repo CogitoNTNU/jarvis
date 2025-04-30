@@ -26,8 +26,11 @@ RUN apt update && apt install -y \
 RUN git clone --depth=1 --branch main https://github.com/lllyasviel/stable-diffusion-webui-forge.git
 
 # Modify the requirements file to remove specific versions
-RUN sed -i '/Pillow==9.5.0/d' stable-diffusion-webui-forge/requirements_versions.txt && \
-    sed -i '/blendmodes==2022/d' stable-diffusion-webui-forge/requirements_versions.txt
+RUN sed -i '/Pillow==9.5.0/d' stable-diffusion-webui-forge/requirements_versions.txt
+# && \
+    # sed -i '/blendmodes==2022/d' stable-diffusion-webui-forge/requirements_versions.txt && \
+    # echo "blendmodes" >> stable-diffusion-webui-forge/requirements_versions.txt
+
 
 # Optionally, you can add the desired versions back if needed
 # echo "Pillow" >> requirements.txt
@@ -37,6 +40,8 @@ RUN sed -i '/Pillow==9.5.0/d' stable-diffusion-webui-forge/requirements_versions
 RUN pip install --no-cache-dir -r stable-diffusion-webui-forge/requirements_versions.txt
 
 # Copy the model :-)
+
+WORKDIR /app/stable-diffusion-webui-forge
 COPY ./stable-diffusion-models ./models/Stable-diffusion
 
 EXPOSE 7860
