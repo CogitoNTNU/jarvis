@@ -26,6 +26,7 @@ class DeepResearchNeoAgent(WebSocketAgent):
     model_name: str = Model.gpt_4_1[0]
     temperature: float = 0.0
     max_tokens: int = 32000
+    
 
     # ---------------------------------------------------------------------
     def __init__(self):
