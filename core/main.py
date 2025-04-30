@@ -18,6 +18,7 @@ from rag import embed_and_store
 from modules.user_data_setup import check_folders
 from modules.chat import read_chat
 from ai_agents.neo_agent_llama import NeoAgentLlama
+from ai_agents.deepAgent import DeepResearchNeoAgent
 
 # Example of how to get variables from .env via docker-compose and .env
 #from config import PORT
@@ -73,7 +74,7 @@ YELLOW = "\033[93m"
 # Agent instantiation
 logger.info("Initiating Jarvis...")
 try:
-    jarvis = Graph()
+    jarvis = DeepResearchNeoAgent()
     logger.info(str(jarvis))
     logger.info("Jarvis Created")
 except Exception as e:
