@@ -45,10 +45,11 @@ export async function buildAutonomyStatusSnapshot(): Promise<AutonomyStatusSnaps
     "content_scheduler",
     "content_publisher",
     "hunt_protocol",
+    "social_growth",
     "sla_follow_up",
   ]).catch(() => []);
   const runSummary24h = await getWorkerRunSummary(
-    ["content_scheduler", "content_publisher", "hunt_protocol", "sla_follow_up"],
+    ["content_scheduler", "content_publisher", "hunt_protocol", "social_growth", "sla_follow_up"],
     24,
   ).catch(() => []);
   const summaryByWorker = new Map(runSummary24h.map((row) => [row.worker, row]));
@@ -101,8 +102,10 @@ export async function buildAutonomyStatusSnapshot(): Promise<AutonomyStatusSnaps
   const schedulerRun = snapshotMap.get("content_scheduler");
   const publisherRun = snapshotMap.get("content_publisher");
   const huntRun = snapshotMap.get("hunt_protocol");
+  const socialRun = snapshotMap.get("social_growth");
   const slaRun = snapshotMap.get("sla_follow_up");
   const huntHealth = computeWorkerHealth(summaryByWorker.get("hunt_protocol"), 48);
+  const socialHealth = computeWorkerHealth(summaryByWorker.get("social_growth"), 45);
   const slaHealth = computeWorkerHealth(summaryByWorker.get("sla_follow_up"), 62);
 
   const pillars = [
@@ -139,6 +142,15 @@ export async function buildAutonomyStatusSnapshot(): Promise<AutonomyStatusSnaps
       }. Lead scoring + stop conditions are live; threshold/cap tuning remains.`,
     },
     {
+      key: "social_growth",
+      label: "Social Growth Loop (engage, greet, follow, comment)",
+      progressPercent: socialHealth,
+      status: "in_progress" as const,
+      note: `Daily staggered social actions with history-aware greetings are active; last run=${
+        socialRun?.status || "unknown"
+      }. Radius/learning signal tuning remains.`,
+    },
+    {
       key: "sla_follow_up",
       label: "SLA Follow-Up Loop",
       progressPercent: slaHealth,
@@ -162,7 +174,8 @@ export async function buildAutonomyStatusSnapshot(): Promise<AutonomyStatusSnaps
       "Content publisher worker is live to move approved items into published status tracking.",
       "Memory continuity stack is active (conversation memory + system memory context + fallback).",
       "Core booking lifecycle paths exist for intake -> approval -> deposit -> booked -> completion.",
-      "Autonomous workers are in place for content scheduling, hunt protocol, and SLA follow-up loops.",
+      "Autonomous workers are in place for content scheduling, hunt protocol, social growth, and SLA follow-up loops.",
+      "Social growth worker can greet new engagers, follow, like, and comment with staggered pacing.",
       "Worker run idempotency + fallback audit layer is wired for autonomous cron safety.",
     ],
     inProgressNow: [
@@ -172,6 +185,7 @@ export async function buildAutonomyStatusSnapshot(): Promise<AutonomyStatusSnaps
     ],
     nextActions: [
       "Tune hunt scoring thresholds and channel caps against conversion quality metrics.",
+      "Tune social radius heuristics and action allocation model from reply/deposit outcomes.",
       "Connect publisher execution to external channel posting APIs and persist provider post IDs.",
       "Apply worker/content tracking migrations in all deployment environments and verify with ops metrics.",
     ],

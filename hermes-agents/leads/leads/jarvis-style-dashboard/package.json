@@ -14,6 +14,7 @@
     "content-scheduler:cron": "npx tsx scripts/content-scheduler-cron.ts",
     "content-publisher:cron": "npx tsx scripts/content-publisher-cron.ts",
     "hunt-protocol:cron": "npx tsx scripts/hunt-protocol-cron.ts",
+    "social-growth:cron": "npx tsx scripts/social-growth-cron.ts",
     "sla-follow-up:cron": "npx tsx scripts/sla-follow-up-cron.ts",
     "session-summary:cron": "npx tsx scripts/session-summary-cron.ts",
     "phase7:test-intake": "curl -s -X POST http://localhost:3001/api/intake/webhook -H 'Content-Type: application/json' -H \"x-intake-webhook-secret: $INTAKE_WEBHOOK_SECRET\" -d '{\"firstName\":\"Test\",\"lastName\":\"Wire\",\"email\":\"test@example.com\",\"instagram_handle\":\"marcus.ink.la\",\"tattooStyle\":\"Realism\",\"description\":\"Phase 7 wiring test\",\"timeSlot\":\"afternoon\"}'"

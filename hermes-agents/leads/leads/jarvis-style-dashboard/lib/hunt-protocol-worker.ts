@@ -42,8 +42,22 @@ function parseInstagramHandle(concept: string | null): string | null {
   return m ? `@${m[1]}` : null;
 }
 
-function buildHuntMessage(name: string): string {
-  return `Hey ${name}, this is Elizabeth with Spearman Studio. I reviewed your concept and we can map your next tattoo session quickly. If you want, I can send your best slot options and next steps now.`;
+function extractHistorySnippet(notes: string | null): string | null {
+  if (!notes) return null;
+  const lines = notes
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(-12);
+  const meaningful = lines.find((line) => !line.startsWith("[hunt_protocol]") && line.length > 20);
+  return meaningful || null;
+}
+
+function buildHuntMessage(name: string, historySnippet: string | null): string {
+  const opener = historySnippet
+    ? `Hey ${name}, good to reconnect. I saw your earlier note and wanted to follow up thoughtfully.`
+    : `Hey ${name}, appreciate you reaching out to Spearman Studio.`;
+  return `${opener} If you want to share where your tattoo idea is now, I can help map clean next steps without pressure.`;
 }
 
 function extractLastHuntSentAt(notes: string | null): Date | null {
@@ -185,14 +199,17 @@ export async function runHuntProtocolWorker(): Promise<HuntProtocolRunResult> {
   for (const lead of leads) {
     if (contacted >= DAILY_HUNT_TARGET) break;
     if (!lead.id) continue;
-    if (isQuietHoursNow()) {
-      skipped.push({ leadId: lead.id, reason: "Quiet hours stop condition (21:00-08:00)" });
-      continue;
-    }
 
     const channel = resolveBestChannel(lead);
     if (!channel) {
       skipped.push({ leadId: lead.id, reason: "No reachable channel" });
+      continue;
+    }
+    if (channel === "sms" && isQuietHoursNow()) {
+      skipped.push({
+        leadId: lead.id,
+        reason: "SMS quiet hours stop condition (21:00-08:00); social/email still allowed",
+      });
       continue;
     }
     if (channelBreakdown[channel] >= CHANNEL_CAPS[channel]) {
@@ -217,7 +234,7 @@ export async function runHuntProtocolWorker(): Promise<HuntProtocolRunResult> {
     }
 
     const name = (lead.name || "there").trim();
-    const msg = buildHuntMessage(name);
+    const msg = buildHuntMessage(name, extractHistorySnippet(lead.notes));
     const ig = parseInstagramHandle(lead.concept);
 
     let ok = false;

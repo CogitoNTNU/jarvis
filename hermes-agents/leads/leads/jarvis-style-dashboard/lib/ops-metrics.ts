@@ -25,7 +25,13 @@ export interface OpsMetricsPayload {
 }
 
 export async function buildOpsMetricsPayload(): Promise<OpsMetricsPayload> {
-  const workerNames = ["content_scheduler", "content_publisher", "hunt_protocol", "sla_follow_up"];
+  const workerNames = [
+    "content_scheduler",
+    "content_publisher",
+    "hunt_protocol",
+    "social_growth",
+    "sla_follow_up",
+  ];
   const [contentPreview, snapshots, summary24h] = await Promise.all([
     runContentScheduler({ dryRun: true }),
     getLatestWorkerRunSnapshots(workerNames),
