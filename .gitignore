@@ -4,6 +4,11 @@ faiss_index.bin
 id_to_metadata.json
 user_to_vector_ids.json
 
+node_modules/
+data/scrapes/
+data/auth/
+storage/
+
 venv2
 
 # Byte-compiled / optimized / DLL files
@@ -159,3 +164,27 @@ redis_data
 # AI image outputs
 /core/static/ai_images
 stable-diffusion-models/realisticVisionV60B1_v51HyperVAE.safetensors
+
+# Local runtime artifacts and temporary files
+.DS_Store
+crash_logs.txt
+error_log.txt
+core/jarvis_chat_memory.db
+core/jarvis_chat_memory.db-shm
+core/jarvis_chat_memory.db-wal
+core/static/resources/.!*.png
+
+# Local generated voice samples
+elizabeth_voice.mp3
+hermes-agents/leads/leads/elizabeth_followup.mp3
+hermes-agents/leads/leads/elizabeth_response.mp3
+hermes-agents/leads/leads/elizabeth_sleep.mp3
+hermes-agents/leads/leads/elizabeth_voice.mp3
+
+# TypeScript incremental build output
+**/tsconfig.tsbuildinfo
+
+# Generated dashboard/media artifacts
+hermes-agents/leads/leads/jarvis-style-dashboard/public/generated/
+hermes-agents/leads/leads/static/audio/speech_*.mp3
+hermes-agents/leads/leads/static/audio/*.mp3
