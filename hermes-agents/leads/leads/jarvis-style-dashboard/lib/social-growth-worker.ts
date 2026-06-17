@@ -2,6 +2,7 @@ import "server-only";
 import { beginWorkerRun, completeWorkerRun, failWorkerRun } from "@/lib/worker-run-log";
 import { getSupabaseServer } from "@/lib/supabase-server";
 import { runSocialRunner } from "@/lib/social-engagement-runner";
+import { buildSocialAdaptivePolicy } from "@/lib/learning-loop";
 
 interface LeadHistoryRow {
   id: string;
@@ -160,13 +161,13 @@ async function getActionsPerformedToday(): Promise<number> {
   }, 0);
 }
 
-function computeAllowedActionsByTime(now = new Date()): number {
+function computeAllowedActionsByTime(dailyTarget: number, now = new Date()): number {
   const dayStart = new Date(now);
   dayStart.setHours(0, 0, 0, 0);
   const elapsedMinutes = Math.max(0, Math.floor((now.getTime() - dayStart.getTime()) / 60000));
-  const slotMinutes = Math.floor((24 * 60) / SOCIAL_DAILY_ACTION_TARGET);
+  const slotMinutes = Math.floor((24 * 60) / Math.max(dailyTarget, 1));
   return Math.min(
-    SOCIAL_DAILY_ACTION_TARGET,
+    dailyTarget,
     Math.max(1, Math.floor(elapsedMinutes / Math.max(slotMinutes, 1)) + 1),
   );
 }
@@ -289,13 +290,17 @@ export async function runSocialGrowthWorker(): Promise<SocialGrowthRunResult> {
   try {
     const historyMap = await loadLeadHistoryMap();
     const targetPack = await buildTargets(historyMap);
+    const adaptivePolicy = await buildSocialAdaptivePolicy();
+    const socialDailyTarget = adaptivePolicy.dailyActionTarget || SOCIAL_DAILY_ACTION_TARGET;
+    const socialMaxPerRun = adaptivePolicy.maxActionsPerRun || MAX_ACTIONS_PER_RUN;
+    const socialGreetingCap = adaptivePolicy.greetingCapPerRun || MAX_GREETINGS_PER_RUN;
     const actionOrder = await computeActionPreferenceOrder();
-    const actionsByNow = computeAllowedActionsByTime();
+    const actionsByNow = computeAllowedActionsByTime(socialDailyTarget);
     const alreadyPerformed = await getActionsPerformedToday();
-    const remainingForDay = Math.max(0, SOCIAL_DAILY_ACTION_TARGET - alreadyPerformed);
+    const remainingForDay = Math.max(0, socialDailyTarget - alreadyPerformed);
     const quotaOpenNow = Math.max(0, actionsByNow - alreadyPerformed);
-    const actionBudget = Math.max(0, Math.min(remainingForDay, quotaOpenNow, MAX_ACTIONS_PER_RUN));
-    const greetingBudget = Math.min(MAX_GREETINGS_PER_RUN, targetPack.targets.length);
+    const actionBudget = Math.max(0, Math.min(remainingForDay, quotaOpenNow, socialMaxPerRun));
+    const greetingBudget = Math.min(socialGreetingCap, targetPack.targets.length);
 
     const skipped: SocialGrowthRunResult["skipped"] = [];
     let actionsPerformed = 0;
@@ -323,7 +328,12 @@ export async function runSocialGrowthWorker(): Promise<SocialGrowthRunResult> {
           reason: `greeting_skipped:${(dmResult.notes || []).join(" | ") || "runner rejected"}`,
         });
       }
-      await sleep(randomBetween(3500, 11000));
+      await sleep(
+        randomBetween(
+          Math.max(3000, adaptivePolicy.staggerWindowMs.min - 2500),
+          Math.max(7000, adaptivePolicy.staggerWindowMs.max - 5000),
+        ),
+      );
     }
 
     for (const target of targetPack.targets) {
@@ -348,7 +358,9 @@ export async function runSocialGrowthWorker(): Promise<SocialGrowthRunResult> {
               reason: `follow_skipped:${(followResult.notes || []).join(" | ") || "runner rejected"}`,
             });
           }
-          await sleep(randomBetween(6000, 22000));
+          await sleep(
+            randomBetween(adaptivePolicy.staggerWindowMs.min, adaptivePolicy.staggerWindowMs.max),
+          );
           continue;
         }
 
@@ -370,7 +382,9 @@ export async function runSocialGrowthWorker(): Promise<SocialGrowthRunResult> {
               reason: `like_skipped:${(likeResult.notes || []).join(" | ") || "runner rejected"}`,
             });
           }
-          await sleep(randomBetween(6000, 26000));
+          await sleep(
+            randomBetween(adaptivePolicy.staggerWindowMs.min, adaptivePolicy.staggerWindowMs.max),
+          );
           continue;
         }
 
@@ -391,7 +405,12 @@ export async function runSocialGrowthWorker(): Promise<SocialGrowthRunResult> {
             reason: `comment_skipped:${(commentResult.notes || []).join(" | ") || "runner rejected"}`,
           });
         }
-        await sleep(randomBetween(8000, 28000));
+        await sleep(
+          randomBetween(
+            adaptivePolicy.staggerWindowMs.min + 2000,
+            adaptivePolicy.staggerWindowMs.max + 3000,
+          ),
+        );
       }
     }
 
@@ -414,6 +433,14 @@ export async function runSocialGrowthWorker(): Promise<SocialGrowthRunResult> {
       runKey: lock.runKey,
       metadata: {
         ...result,
+        policy: {
+          dailyActionTarget: socialDailyTarget,
+          maxActionsPerRun: socialMaxPerRun,
+          greetingCapPerRun: socialGreetingCap,
+          staggerWindowMs: adaptivePolicy.staggerWindowMs,
+          rationale: adaptivePolicy.rationale,
+        },
+        skippedCount: skipped.length,
         duration_ms: Date.now() - runStartedAt,
       },
     });

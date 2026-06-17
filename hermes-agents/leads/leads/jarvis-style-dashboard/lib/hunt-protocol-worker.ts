@@ -4,6 +4,7 @@ import { sendStudioEmail } from "@/lib/email-transport";
 import { sendStudioSms } from "@/lib/sms-transport";
 import { sendOutboundMessage } from "@/lib/outbound-transport";
 import { beginWorkerRun, completeWorkerRun, failWorkerRun } from "@/lib/worker-run-log";
+import { buildHuntAdaptivePolicy } from "@/lib/learning-loop";
 
 interface LeadRow {
   id: string;
@@ -163,6 +164,10 @@ export async function runHuntProtocolWorker(): Promise<HuntProtocolRunResult> {
 
   try {
   const supabase = getSupabaseServer();
+  const adaptivePolicy = await buildHuntAdaptivePolicy();
+  const huntDailyTarget = adaptivePolicy.dailyTarget || DAILY_HUNT_TARGET;
+  const huntMinScore = adaptivePolicy.minScore || HUNT_MIN_SCORE;
+  const huntChannelCaps = adaptivePolicy.channelCaps || CHANNEL_CAPS;
   if (!supabase) {
     const result = {
       scanned: 0,
@@ -197,7 +202,7 @@ export async function runHuntProtocolWorker(): Promise<HuntProtocolRunResult> {
   let contacted = 0;
 
   for (const lead of leads) {
-    if (contacted >= DAILY_HUNT_TARGET) break;
+    if (contacted >= huntDailyTarget) break;
     if (!lead.id) continue;
 
     const channel = resolveBestChannel(lead);
@@ -212,17 +217,17 @@ export async function runHuntProtocolWorker(): Promise<HuntProtocolRunResult> {
       });
       continue;
     }
-    if (channelBreakdown[channel] >= CHANNEL_CAPS[channel]) {
+    if (channelBreakdown[channel] >= huntChannelCaps[channel]) {
       skipped.push({ leadId: lead.id, reason: `Channel cap reached for ${channel}` });
       continue;
     }
 
     const scoredLead = scoreLead(lead);
     scored += 1;
-    if (scoredLead.score < HUNT_MIN_SCORE) {
+    if (scoredLead.score < huntMinScore) {
       skipped.push({
         leadId: lead.id,
-        reason: `Lead score below threshold (${scoredLead.score}/${HUNT_MIN_SCORE})`,
+        reason: `Lead score below threshold (${scoredLead.score}/${huntMinScore})`,
       });
       continue;
     }
@@ -283,6 +288,12 @@ export async function runHuntProtocolWorker(): Promise<HuntProtocolRunResult> {
     runKey: lock.runKey,
     metadata: {
       ...result,
+      policy: {
+        minScore: huntMinScore,
+        dailyTarget: huntDailyTarget,
+        channelCaps: huntChannelCaps,
+        rationale: adaptivePolicy.rationale,
+      },
       skippedCount: result.skipped.length,
       duration_ms: Date.now() - runStartedAt,
     },
